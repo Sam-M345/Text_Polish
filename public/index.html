@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Message Improver</title>
+  </head>
+  <body>
+    <div class="app-container">
+      <h1>Message Improver</h1>
+
+      <label for="message-type">Message Type</label>
+      <select id="message-type">
+        <option value="sms" selected>SMS</option>
+        <option value="email">Email</option>
+      </select>
+
+      <label for="tone">Tone</label>
+      <select id="tone">
+        <option value="friendly" selected>Friendly</option>
+        <option value="serious">Serious</option>
+        <option value="professional">Professional</option>
+        <option value="flirty">Flirty</option>
+      </select>
+
+      <label for="message-input">Your Message</label>
+      <textarea
+        id="message-input"
+        placeholder="Type your message here"
+      ></textarea>
+
+      <button id="improve-btn">Improve Message</button>
+
+      <div id="output-container">
+        <h2>Improved Message</h2>
+        <p id="improved-message"></p>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
