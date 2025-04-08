@@ -90,7 +90,7 @@ h3 {
 /* Text Input Area */
 .text-section {
   margin-bottom: 1.5rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 label {
@@ -110,7 +110,7 @@ textarea {
   color: #ffffff;
   font-size: 1rem;
   resize: vertical;
-  margin-bottom: 1.2rem;
+  margin-bottom: 0.5rem;
 }
 
 textarea:focus {
@@ -130,8 +130,8 @@ textarea:focus {
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-top: 1rem;
-  margin-bottom: 2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 #improve-btn:hover {
@@ -142,7 +142,8 @@ textarea:focus {
   padding: 1.5rem;
   border-radius: 8px;
   background-color: #2a2a2a;
-  margin-top: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 2rem;
 }
 
 #improved-message {
@@ -158,7 +159,7 @@ textarea:focus {
   }
 
   h1 {
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
   }
 
   .option-section {
@@ -171,11 +172,17 @@ textarea:focus {
 
   /* Adjust key spacing to ensure button remains in view */
   .text-section {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1.2rem;
   }
 
   textarea {
     min-height: 80px;
+  }
+
+  #improve-btn {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
   }
 }
 

@@ -22,8 +22,16 @@
         </div>
       </div>
 
+      <div class="text-section">
+        <h2>Your Text</h2>
+        <textarea
+          id="message-input"
+          placeholder="Type your short message here..."
+        ></textarea>
+      </div>
+
       <div class="option-section">
-        <h2>Text Length</h2>
+        <h2>Output Length</h2>
         <div class="option-buttons">
           <button class="option-btn selected" data-length="short">Short</button>
           <button class="option-btn" data-length="medium">Medium</button>
@@ -98,15 +106,9 @@
         </div>
       </div>
 
-      <div class="text-section">
-        <h2>Your Text</h2>
-        <textarea
-          id="message-input"
-          placeholder="Type your short message here..."
-        ></textarea>
-        <button id="improve-btn">Polish Your Text</button>
-      </div>
+      <button id="improve-btn">Polish Your Text</button>
 
+      <h2>Output</h2>
       <div id="output-container">
         <p id="improved-message"></p>
       </div>
