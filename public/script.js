@@ -205,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const hourglassEmojis = ["⏳", "⌛"];
     let hourglassIndex = 0;
 
-    // Dot animation pattern - now includes four dots at maximum
+    // Dot animation pattern - now includes 4 dots in the sequence
     const dotPatterns = [" ", ".", "..", "...", "....", "...", "..", "."];
     let dotIndex = 0;
 
@@ -332,12 +332,21 @@ document.addEventListener("DOMContentLoaded", () => {
           .getElementById("output-container")
           .scrollIntoView({ behavior: "smooth" });
       }
+
+      // Show "Improved OK" for 3 seconds
+      stopHourglassAnimation(improveBtn, "Improved OK");
+      setTimeout(() => {
+        improveBtn.textContent = "Improve";
+      }, 3000);
     } catch (error) {
       improvedMessageEl.textContent = `Something went wrong: ${error.message}. Please try again.`;
       console.error("Error:", error);
-    } finally {
+
       // Reset button state
       stopHourglassAnimation(improveBtn, "Improve");
+      improveBtn.disabled = false;
+    } finally {
+      // Enable button
       improveBtn.disabled = false;
     }
   });
