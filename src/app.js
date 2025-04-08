@@ -3,6 +3,8 @@ const cors = require("cors");
 const path = require("path");
 // We'll use axios if we need to call out to an external API like OpenAI
 const axios = require("axios");
+// Load environment variables from .env file
+require("dotenv").config();
 
 const app = express();
 app.use(cors());
@@ -21,49 +23,45 @@ app.post("/api/improve", async (req, res) => {
   }
 
   try {
-    // In a production environment, you would call out to an LLM API like OpenAI here
-    // const prompt = generatePrompt(text, messageType, tone);
-    // const apiResponse = await axios.post(
-    //   'https://api.openai.com/v1/completions',
-    //   {
-    //     model: "text-davinci-003",
-    //     prompt: prompt,
-    //     max_tokens: 150
-    //   },
-    //   {
-    //     headers: {
-    //       'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-    //       'Content-Type': 'application/json'
-    //     }
-    //   }
-    // );
-    // const improved = apiResponse.data.choices[0].text.trim();
+    // Generate the prompt for OpenAI
+    const prompt = generatePrompt(text, messageType, tone);
 
-    // For now, we'll generate a mock response based on the tone
-    let improved;
-    switch (tone) {
-      case "friendly":
-        improved = `Hey there! ${text} 😊 Looking forward to hearing back from you!`;
-        break;
-      case "serious":
-        improved = `I need to inform you that ${text.toLowerCase()}. Please acknowledge receipt of this message.`;
-        break;
-      case "professional":
-        improved = `I would like to bring to your attention that ${text.toLowerCase()}. Please let me know if you require any further information.`;
-        break;
-      case "flirty":
-        improved = `Hey you 😉 ${text} Can't wait to hear back from you! xoxo`;
-        break;
-      default:
-        improved = text;
-    }
+    // Call the OpenAI API
+    const apiResponse = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert writer specializing in improving ${messageType} messages to sound more ${tone}.`,
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        max_tokens: 300,
+        temperature: 0.7,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-    // Add a small delay to simulate API processing time
-    setTimeout(() => {
-      res.json({ improved });
-    }, 500);
+    // Extract the improved message from the OpenAI response
+    const improved = apiResponse.data.choices[0].message.content.trim();
+
+    // Send the improved message back to the client
+    res.json({ improved });
   } catch (error) {
-    console.error("Error improving message:", error);
+    console.error(
+      "Error improving message:",
+      error.response?.data || error.message
+    );
     res.status(500).json({ error: "Error improving message." });
   }
 });
@@ -71,12 +69,11 @@ app.post("/api/improve", async (req, res) => {
 // Helper function to generate prompts for the LLM
 function generatePrompt(originalText, messageType, tone) {
   return `
-    You are an expert writer specializing in improving ${messageType} messages.
-    Please improve the following message to make it sound more ${tone}.
+    Please improve the following ${messageType} message to make it sound more ${tone}.
     
     Original message: "${originalText}"
     
-    Improved ${tone} message:
+    Provide ONLY the improved message text without any additional explanation or formatting.
   `;
 }
 
