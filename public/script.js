@@ -152,6 +152,42 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Share output text
+  const shareOutputBtn = document.getElementById("share-output");
+  if (shareOutputBtn) {
+    shareOutputBtn.addEventListener("click", () => {
+      if (improvedMessageEl.innerText || improvedMessageEl.textContent) {
+        const textToShare =
+          improvedMessageEl.innerText || improvedMessageEl.textContent;
+
+        if (navigator.share) {
+          navigator
+            .share({
+              title: "Text Polish Output",
+              text: textToShare,
+            })
+            .then(() => {
+              showIconFeedback(shareOutputBtn);
+            })
+            .catch((error) => {
+              console.error("Error sharing:", error);
+              // Fallback to copy if sharing fails
+              navigator.clipboard.writeText(textToShare).then(() => {
+                alert("Text copied to clipboard for sharing!");
+                showIconFeedback(shareOutputBtn);
+              });
+            });
+        } else {
+          // Fallback for browsers that don't support the Web Share API
+          navigator.clipboard.writeText(textToShare).then(() => {
+            alert("Text copied to clipboard for sharing!");
+            showIconFeedback(shareOutputBtn);
+          });
+        }
+      }
+    });
+  }
+
   // Provide visual feedback when icon button is clicked
   function showIconFeedback(button) {
     const originalBg = button.style.backgroundColor;

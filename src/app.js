@@ -26,7 +26,7 @@ const noEmojiTones = [
   "cautionary",
   "grieved",
   "brutal",
-  "surprised",
+  // "surprised" - Removed to enable emojis for Surprised tone
 ];
 
 // API endpoint for improving messages
@@ -210,7 +210,7 @@ function generateFallbackResponse(originalText, tone, textLength) {
       improved = `My dear, ${originalText}. You mean the world to me.`;
       break;
     case "surprised":
-      improved = `What?! ${originalText}?! I can't believe it!`;
+      improved = `What?! ${originalText}?! I can't believe it! This is so unexpected! 😮 😲 😱`;
       break;
     case "informative":
       improved = `I'd like to inform you that ${originalText}. Here are the details.`;

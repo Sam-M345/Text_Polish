@@ -15,7 +15,7 @@ const noEmojiTones = [
   "cautionary",
   "grieved",
   "brutal",
-  "surprised",
+  // "surprised" - Removed to enable emojis for Surprised tone
 ];
 
 // Vercel serverless function handler
