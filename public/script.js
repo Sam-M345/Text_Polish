@@ -205,8 +205,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const hourglassEmojis = ["⏳", "⌛"];
     let hourglassIndex = 0;
 
-    // Dot animation pattern
-    const dotPatterns = [".", "..", "...", "..", "."];
+    // Dot animation pattern - now includes empty space at beginning
+    const dotPatterns = [" ", ".", "..", "...", "..", "."];
     let dotIndex = 0;
 
     // Store the original text without emoji
