@@ -183,6 +183,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const data = await response.json();
 
+      // Check if there's an error message in the response
+      if (data.error) {
+        throw new Error(`API Error: ${data.error}`);
+      }
+
       // Format the improved text with proper paragraphs
       if (data.improved) {
         // Clear existing content
@@ -218,7 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
           .scrollIntoView({ behavior: "smooth" });
       }
     } catch (error) {
-      improvedMessageEl.textContent = "Something went wrong. Please try again.";
+      improvedMessageEl.textContent = `Something went wrong: ${error.message}. Please try again.`;
       console.error("Error:", error);
     } finally {
       // Reset button state
