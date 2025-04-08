@@ -54,7 +54,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
   toneButtons.forEach((button) => {
     button.addEventListener("click", () => {
+      const selectedTone = button.dataset.tone;
+      const toneText = button.innerHTML; // Get the button content with emoji
+
+      // Update all tone buttons selection state
       handleButtonSelection(toneButtons, button);
+
+      // Find the top tone button
+      const topToneBtn = document.querySelector(".tone-options .option-btn");
+
+      if (selectedTone === "auto") {
+        // Reset the top button to "Auto" when Auto is selected
+        if (topToneBtn) {
+          topToneBtn.innerHTML = "Auto";
+          topToneBtn.dataset.tone = "auto";
+        }
+      } else {
+        // Update the visible tone display if this isn't the top Auto button
+        if (topToneBtn) {
+          topToneBtn.innerHTML = toneText;
+          topToneBtn.dataset.tone = selectedTone;
+
+          // Ensure the top button visually shows as selected
+          topToneBtn.classList.add("selected");
+        }
+      }
     });
   });
 
@@ -263,5 +287,23 @@ document.addEventListener("DOMContentLoaded", () => {
       messageInputEl.style.minHeight = "150px";
       messageInputEl.placeholder = "Type your detailed message here...";
     }
+  }
+
+  // Add toggle functionality for tone categories
+  const toggleTonesBtn = document.getElementById("toggle-tones");
+  const toneCategories = document.getElementById("tone-categories");
+
+  if (toggleTonesBtn && toneCategories) {
+    toggleTonesBtn.addEventListener("click", function () {
+      if (toneCategories.classList.contains("collapsed-tones")) {
+        toneCategories.classList.remove("collapsed-tones");
+        toneCategories.classList.add("expanded-tones");
+        toggleTonesBtn.textContent = "▲";
+      } else {
+        toneCategories.classList.remove("expanded-tones");
+        toneCategories.classList.add("collapsed-tones");
+        toggleTonesBtn.textContent = "▼";
+      }
+    });
   }
 });

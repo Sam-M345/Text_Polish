@@ -1,3 +1,31 @@
+/* Base styles */
+:root {
+  --primary-color: #25a56a;
+  --background-color: #1a1a1a;
+  --card-bg: #2a2a2a;
+  --text-color: #ffffff;
+  --secondary-text: #aaaaaa;
+  --border-color: #444444;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  max-width: 100vw; /* Ensure body doesn't exceed viewport width */
+  box-sizing: border-box;
+}
+
+* {
+  box-sizing: border-box;
+  max-width: 100%; /* Ensure no element exceeds its container */
+}
+
 /* Basic reset / layout */
 body,
 html {
@@ -72,6 +100,7 @@ h3 {
   width: 100%;
   flex-wrap: nowrap;
   margin-bottom: 1rem;
+  justify-content: flex-start;
 }
 
 .tone-container h2 {
@@ -84,8 +113,31 @@ h3 {
   flex-wrap: nowrap;
   justify-content: flex-start;
   display: flex;
-  flex: 1;
+  flex: 0 1 auto;
   margin-left: 20px;
+}
+
+.toggle-tones {
+  background: transparent;
+  border: none;
+  color: #00bbff;
+  cursor: pointer;
+  font-size: 1.8rem;
+  padding: 0;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.collapsed-tones {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.expanded-tones {
+  max-height: 500px; /* Adjust based on content height */
+  transition: max-height 0.3s ease-in;
 }
 
 .tone-category {
@@ -136,6 +188,19 @@ h3 {
   min-width: 100px;
   font-weight: 500;
   flex-shrink: 0;
+}
+
+/* Style for the tone display button in the top row */
+.tone-options .option-btn {
+  justify-content: center;
+  min-width: 100px;
+  font-weight: 500;
+  flex-shrink: 0;
+  background-color: #2a2a2a;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .option-btn:hover {
@@ -209,7 +274,7 @@ label {
 
 textarea {
   width: 100%;
-  min-height: 100px;
+  min-height: 130px;
   padding: 0.8rem;
   border-radius: 8px;
   border: none;
@@ -341,6 +406,24 @@ textarea:focus {
   .app-container {
     margin: 0;
     padding: 1rem;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .option-buttons {
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .tone-options {
+    margin-left: 10px;
+  }
+
+  .length-container,
+  .tone-container {
+    width: 100%;
   }
 
   h1 {
