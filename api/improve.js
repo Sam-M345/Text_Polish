@@ -72,7 +72,12 @@ module.exports = async (req, res) => {
     // Check if OpenAI API key exists
     if (!process.env.OPENAI_API_KEY) {
       console.error("ERROR: OpenAI API key is missing");
-      throw new Error("OpenAI API key not configured");
+      return res
+        .status(500)
+        .json({
+          error:
+            "OpenAI API key not configured. Please check server configuration.",
+        });
     }
 
     // Call the OpenAI API
@@ -124,8 +129,12 @@ module.exports = async (req, res) => {
     // Check if the improved message is empty or the same as original
     if (!improved || improved === text) {
       console.log("Warning: OpenAI returned empty or unchanged text");
-      // Force a different response
-      improved = generateFallbackResponse(text, tone, textLength);
+      return res
+        .status(500)
+        .json({
+          error:
+            "AI couldn't improve the text. Please try again with different content.",
+        });
     }
 
     // If we should include emojis and response doesn't already have them, add the tone emoji
@@ -141,12 +150,12 @@ module.exports = async (req, res) => {
   } catch (error) {
     console.error("Error improving message:", error);
 
-    // Generate a fallback response instead of failing
-    const fallbackResponse = generateFallbackResponse(text, tone, textLength);
-    console.log("Using fallback response:", fallbackResponse);
-
-    // Return fallback response instead of error
-    return res.status(200).json({ improved: fallbackResponse });
+    // Return honest error message instead of fallback response
+    return res.status(500).json({
+      error:
+        "OpenAI API call failed. Please try again later or check your connection.",
+      details: error.message,
+    });
   }
 };
 
@@ -182,118 +191,8 @@ function generatePrompt(originalText, messageType, textLength, tone) {
     
     Provide ONLY the improved message text without any additional explanation or formatting.
     IMPORTANT: Make significant changes to the original text to ensure it clearly reflects the ${tone} tone.
+    Fix any spelling or grammar errors in the original text.
   `;
-}
-
-// Generate a fallback response in case of API failure
-function generateFallbackResponse(originalText, tone, textLength) {
-  // Check if this tone should include emojis
-  const shouldIncludeEmojis = !noEmojiTones.includes(tone);
-
-  // Get emoji for the tone only if we should include emojis
-  const emoji = shouldIncludeEmojis ? getToneEmoji(tone) : "";
-
-  // Determine base multiplier for text length - FIXED to prevent excessive repetition
-  let lengthMultiplier = 1;
-  if (textLength === "medium") {
-    lengthMultiplier = 2; // Reduced from 3
-  } else if (textLength === "long") {
-    lengthMultiplier = 3; // Reduced from 8
-  }
-
-  // Generate a basic modification based on tone
-  let improved;
-  switch (tone) {
-    case "formal":
-      improved = `I would like to inform you that ${originalText.toLowerCase()}.`;
-      break;
-    case "friendly":
-      improved = `Hey there! ${originalText} Hope you're having a great day!`;
-      break;
-    case "brutal":
-      improved = `Listen up! ${originalText} Deal with it.`;
-      break;
-    case "persuasive":
-      improved = `You really should consider that ${originalText}. It's definitely worth it!`;
-      break;
-    case "confident":
-      improved = `I'm absolutely certain that ${originalText}. No doubt about it.`;
-      break;
-    case "cautionary":
-      improved = `Please be aware that ${originalText}. Proceed with caution.`;
-      break;
-    case "inspirational":
-      improved = `Remember, ${originalText}! You can achieve anything you set your mind to!`;
-      break;
-    case "thoughtful":
-      improved = `I've been reflecting, and I believe that ${originalText}. What do you think?`;
-      break;
-    case "joyful":
-      improved = `Yay! ${originalText}! This makes me so happy!`;
-      break;
-    case "exciting":
-      improved = `OMG! ${originalText}! This is absolutely incredible!`;
-      break;
-    case "grieved":
-      improved = `I'm deeply saddened that ${originalText}. This is truly unfortunate.`;
-      break;
-    case "loving":
-      improved = `My dear, ${originalText}. You mean the world to me.`;
-      break;
-    case "surprised":
-      improved = `What?! ${originalText}?! I can't believe it!`;
-      break;
-    case "informative":
-      improved = `I'd like to inform you that ${originalText}. Here are the details.`;
-      break;
-    case "expert":
-      improved = `Based on my analysis, ${originalText}. This conclusion is supported by significant evidence.`;
-      break;
-    default:
-      improved = originalText;
-  }
-
-  // Add emoji only if this tone should have them
-  if (emoji && shouldIncludeEmojis) {
-    improved = addEmojiToText(improved, emoji, tone);
-  }
-
-  // Generate additional content based on length setting - FIXED to prevent repetition
-  if (lengthMultiplier > 1) {
-    const extraSentences = [];
-    // Create an array of unique sentences for each tone
-    const sentencesMap = {
-      formal: [
-        "Furthermore, this matter requires your attention.",
-        "Please consider the implications carefully.",
-        "I trust you will give this the consideration it deserves.",
-      ],
-      friendly: [
-        "I was just thinking about this the other day!",
-        "It's so nice to connect about these things.",
-        "I'd love to hear your thoughts on this!",
-      ],
-      // ... other tones with unique sentences ...
-    };
-
-    // Get appropriate sentences for this tone or use defaults
-    const sentencesForTone = sentencesMap[tone] || [
-      "Let me elaborate further on this important topic.",
-      "There are several important aspects to consider here.",
-      "This deserves careful consideration.",
-    ];
-
-    // Add a maximum of lengthMultiplier sentences, but don't repeat if we run out
-    for (let i = 0; i < lengthMultiplier; i++) {
-      if (sentencesForTone[i % sentencesForTone.length]) {
-        extraSentences.push(sentencesForTone[i % sentencesForTone.length]);
-      }
-    }
-
-    improved += " " + extraSentences.join(" ");
-  }
-
-  return improved;
 }
 
 // Function to get an appropriate emoji for each tone
