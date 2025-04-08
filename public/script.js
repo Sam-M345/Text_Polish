@@ -121,6 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Clear output text
   clearOutputBtn.addEventListener("click", () => {
     improvedMessageEl.textContent = "";
+    document.body.classList.remove("response-generated");
     showIconFeedback(clearOutputBtn);
   });
 
@@ -303,6 +304,9 @@ document.addEventListener("DOMContentLoaded", () => {
         // Clear existing content
         improvedMessageEl.innerHTML = "";
 
+        // Add a class to the body to indicate content has been generated
+        document.body.classList.add("response-generated");
+
         // Split text by line breaks (handle both \n\n and single \n with proper spacing)
         const paragraphs = data.improved.split(/\n\n+/).flatMap((block) => {
           // Further split by single newlines but preserve as separate paragraphs
@@ -339,8 +343,12 @@ document.addEventListener("DOMContentLoaded", () => {
         improveBtn.textContent = "Improve";
       }, 3000);
     } catch (error) {
+      // If there's an error, remove the response-generated class
       improvedMessageEl.textContent = `Something went wrong: ${error.message}. Please try again.`;
       console.error("Error:", error);
+
+      // Remove the response-generated class on error
+      document.body.classList.remove("response-generated");
 
       // Reset button state
       stopHourglassAnimation(improveBtn, "Improve");
@@ -396,6 +404,17 @@ document.addEventListener("DOMContentLoaded", () => {
         toneCategories.classList.add("collapsed-tones");
         toggleTonesBtn.textContent = "⏬";
       }
+    });
+  }
+
+  // Add scroll to top functionality
+  const scrollToTopBtn = document.getElementById("scroll-to-top");
+  if (scrollToTopBtn) {
+    scrollToTopBtn.addEventListener("click", function () {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
     });
   }
 });

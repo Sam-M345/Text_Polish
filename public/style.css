@@ -380,29 +380,17 @@ textarea:focus {
   transition: background-color 0.3s;
   margin-top: 0;
   margin-bottom: 1.5rem;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  position: static; /* Changed from sticky to static */
+  z-index: 1; /* Reduced from 100 */
 }
 
 #improve-btn:hover {
   background-color: #1d8a54;
 }
 
-/* Create a visual separator below the sticky button */
+/* Remove the visual separator below the button since it's no longer sticky */
 #improve-btn::after {
-  content: "";
-  position: absolute;
-  bottom: -10px;
-  left: 0;
-  width: 100%;
-  height: 10px;
-  background: linear-gradient(
-    to bottom,
-    rgba(26, 26, 26, 0.8),
-    rgba(26, 26, 26, 0)
-  );
-  pointer-events: none;
+  display: none;
 }
 
 #output-container {
@@ -601,9 +589,80 @@ textarea:focus {
     width: 1.1rem;
     height: 1.1rem;
   }
+
+  /* Mobile view layout changes when response is generated */
+  .response-generated .app-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* When response is generated, reorder elements for mobile */
+  .response-generated .output-section {
+    order: -1; /* Move output section to top */
+    margin-top: 0;
+    width: 100%;
+  }
+
+  /* Make input sections less prominent but still accessible by scrolling up */
+  .response-generated .option-section,
+  .response-generated .text-section,
+  .response-generated h1 {
+    opacity: 0.7; /* Slightly dimmed */
+    margin-top: 2rem; /* Add more space after the output section */
+  }
+
+  /* Remove the "editing" class and associated styling since we're keeping everything visible */
+  /* Improve spacing for output section on mobile */
+  .response-generated #output-container {
+    margin-top: 15px;
+  }
+
+  /* Remove new-message-btn styles as the button has been removed */
+  .new-message-btn,
+  .response-generated .new-message-btn {
+    display: none;
+  }
+
+  /* Show the scroll to top button on mobile */
+  #scroll-to-top {
+    display: block;
+  }
+
+  /* Only show scroll to top button when response is generated */
+  #scroll-to-top {
+    display: none;
+  }
+
+  .response-generated #scroll-to-top {
+    display: block;
+  }
 }
 
 /* Make share icon (⤴️) larger */
 #share-output .icon {
   font-size: 2.2rem; /* Increased from 1.2rem */
+}
+
+/* Scroll to top button */
+#scroll-to-top {
+  display: none; /* Hidden by default */
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 99;
+  border: none;
+  outline: none;
+  background-color: #146d43;
+  color: white;
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 50%;
+  font-size: 18px;
+  width: 50px;
+  height: 50px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+#scroll-to-top:hover {
+  background-color: #1d8a54;
 }
