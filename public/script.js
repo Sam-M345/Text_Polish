@@ -203,19 +203,30 @@ document.addEventListener("DOMContentLoaded", () => {
     clearInterval(button.spinInterval);
 
     const hourglassEmojis = ["⏳", "⌛"];
-    let index = 0;
+    let hourglassIndex = 0;
+
+    // Dot animation pattern
+    const dotPatterns = [".", "..", "...", "..", "."];
+    let dotIndex = 0;
 
     // Store the original text without emoji
     const originalText = "Polishing";
 
     // Set initial state
-    button.textContent = `${originalText} ${hourglassEmojis[index]}`;
+    button.textContent = `${originalText} ${hourglassEmojis[hourglassIndex]}${dotPatterns[dotIndex]}`;
 
     // Start animation interval
     button.spinInterval = setInterval(() => {
-      index = (index + 1) % hourglassEmojis.length;
-      button.textContent = `${originalText} ${hourglassEmojis[index]}`;
-    }, 500); // Toggle every 500ms for a nice spinning effect
+      // Update hourglass every other frame
+      if (dotIndex % 2 === 0) {
+        hourglassIndex = (hourglassIndex + 1) % hourglassEmojis.length;
+      }
+
+      // Update dot pattern every frame
+      dotIndex = (dotIndex + 1) % dotPatterns.length;
+
+      button.textContent = `${originalText} ${hourglassEmojis[hourglassIndex]}${dotPatterns[dotIndex]}`;
+    }, 300); // Slightly faster animation (300ms) to make the dots more fluid
   }
 
   // Stop the animation and reset the button
