@@ -149,7 +149,7 @@ h3 {
   border: none;
   color: #00bbff;
   cursor: pointer;
-  font-size: 1.4rem;
+  font-size: 1.8rem;
   padding: 0;
   margin-left: 0; /* Reset margin */
   margin-right: 0; /* Reset margin */
@@ -157,7 +157,7 @@ h3 {
   align-items: center;
   position: absolute; /* Position absolutely */
   top: 0; /* Align with top */
-  left: 240px; /* Moved further right (was 190px) */
+  left: 210px; /* Moved closer to Auto (was 240px) */
   width: 40px; /* Set fixed width */
   justify-content: center; /* Center the arrow */
 }
