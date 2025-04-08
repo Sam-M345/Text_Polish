@@ -6,6 +6,8 @@ html {
   font-family: Arial, sans-serif;
   background-color: #1e1e1e;
   color: #ffffff;
+  --card-bg: #2a2a2a;
+  --text-color: #ffffff;
 }
 
 .app-container {
@@ -87,6 +89,48 @@ h3 {
   margin-right: 0.6rem;
 }
 
+/* Icon Buttons */
+.icon-buttons {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 2px solid #2a2a2a;
+  background-color: #2a2a2a;
+  color: #ffffff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.icon-btn:hover {
+  background-color: #3a3a3a;
+}
+
+.icon {
+  font-size: 1.2rem;
+}
+
+.clipboard-icon {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: #ffffff;
+}
+
+.output-icons {
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
 /* Text Input Area */
 .text-section {
   margin-bottom: 1.5rem;
@@ -139,18 +183,51 @@ textarea:focus {
 }
 
 #output-container {
-  padding: 1.5rem;
+  background-color: var(--card-bg);
+  padding: 20px;
   border-radius: 8px;
-  background-color: #2a2a2a;
-  margin-top: 0.5rem;
-  margin-bottom: 2rem;
+  margin-top: 25px;
+  overflow: visible;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-height: none;
+  height: auto;
 }
 
 #improved-message {
   white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
   line-height: 1.6;
-  font-size: 1.1rem;
+  color: var(--text-color);
+  font-size: 16px;
+  text-align: left;
+  padding: 0;
+  margin: 0;
+  max-height: none;
+  overflow: visible;
 }
+
+#improved-message p {
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+  text-align: left;
+  line-height: 1.6;
+  padding: 0;
+  text-indent: 0;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+#improved-message p:last-child {
+  margin-bottom: 0;
+}
+
+/* Style for paragraphs in the improved message */
+/* #improved-message p:last-child {
+  margin-bottom: 0;
+} */
 
 /* Ensures the Polish button is visible but allows the output to go below view */
 @media screen and (max-height: 858px) {
@@ -183,6 +260,16 @@ textarea:focus {
   #improve-btn {
     margin-top: 1rem;
     margin-bottom: 1rem;
+  }
+
+  .icon-btn {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+
+  .clipboard-icon {
+    width: 1.2rem;
+    height: 1.2rem;
   }
 }
 
@@ -218,5 +305,19 @@ textarea:focus {
   .emoji {
     font-size: 1.1rem;
     margin-right: 0.4rem;
+  }
+
+  .icon-btn {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .icon {
+    font-size: 1rem;
+  }
+
+  .clipboard-icon {
+    width: 1.1rem;
+    height: 1.1rem;
   }
 }

@@ -66,7 +66,7 @@ app.post("/api/improve", async (req, res) => {
 
     // Call the OpenAI API
     const requestData = {
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -81,7 +81,6 @@ app.post("/api/improve", async (req, res) => {
           content: prompt,
         },
       ],
-      max_tokens: 400,
       temperature: 0.7,
     };
 
@@ -98,7 +97,7 @@ app.post("/api/improve", async (req, res) => {
           Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
           "Content-Type": "application/json",
         },
-        timeout: 10000, // 10 second timeout
+        timeout: 60000, // 60 second timeout (increased from 10 seconds)
       }
     );
 
@@ -115,16 +114,6 @@ app.post("/api/improve", async (req, res) => {
     if (!improved || improved === text) {
       console.log("Warning: OpenAI returned empty or unchanged text");
       // Force a different response
-      improved = generateFallbackResponse(text, tone, textLength);
-    }
-
-    // Ensure text length requirements are met
-    const wordCount = improved.split(/\s+/).length;
-    if (textLength === "medium" && wordCount < 25) {
-      console.log("Warning: Medium text too short, expanding");
-      improved = generateFallbackResponse(text, tone, textLength);
-    } else if (textLength === "long" && wordCount < 65) {
-      console.log("Warning: Long text too short, expanding");
       improved = generateFallbackResponse(text, tone, textLength);
     }
 
@@ -173,12 +162,12 @@ function generateFallbackResponse(originalText, tone, textLength) {
   // Get emoji for the tone only if we should include emojis
   const emoji = shouldIncludeEmojis ? getToneEmoji(tone) : "";
 
-  // Determine multiplier for text length based on selected length
+  // Determine base multiplier for text length
   let lengthMultiplier = 1;
   if (textLength === "medium") {
-    lengthMultiplier = 2;
+    lengthMultiplier = 3; // Increased from 2
   } else if (textLength === "long") {
-    lengthMultiplier = 4;
+    lengthMultiplier = 8; // Increased from 4 to generate much longer content
   }
 
   // Generate a basic modification based on tone
@@ -238,10 +227,10 @@ function generateFallbackResponse(originalText, tone, textLength) {
     improved = addEmojiToText(improved, emoji, tone);
   }
 
-  // Adjust text length based on selected length option
+  // Generate additional content based on length setting
   if (lengthMultiplier > 1) {
     const extraSentences = [];
-    for (let i = 0; i < lengthMultiplier - 1; i++) {
+    for (let i = 0; i < lengthMultiplier; i++) {
       if (tone === "formal") {
         extraSentences.push(
           `Furthermore, this matter requires your attention. Please consider the implications carefully.`
@@ -316,22 +305,16 @@ function generateFallbackResponse(originalText, tone, textLength) {
 
 // Helper function to generate prompts for the LLM
 function generatePrompt(originalText, messageType, textLength, tone) {
-  // Define desired output length based on textLength parameter and enforce proper length scaling
+  // Define desired output length based on textLength parameter without strict limits
   let lengthGuidance;
-  let minWords, maxWords;
 
   if (textLength === "short") {
-    lengthGuidance = "Keep the response concise and brief (1-2 sentences).";
-    minWords = 5;
-    maxWords = 20;
+    lengthGuidance = "Keep the response relatively brief.";
   } else if (textLength === "medium") {
-    lengthGuidance = "Provide a moderate length response (3-5 sentences).";
-    minWords = 25;
-    maxWords = 60;
+    lengthGuidance = "Provide a moderate length response.";
   } else if (textLength === "long") {
-    lengthGuidance = "Create a detailed and thorough response (6+ sentences).";
-    minWords = 65;
-    maxWords = 150;
+    lengthGuidance =
+      "Create an extensive, comprehensive, and detailed response. Include multiple paragraphs with thorough explanation and elaboration. Do not be concerned about length - longer is better for this option.";
   } else {
     lengthGuidance = "Provide an appropriate length response.";
   }
@@ -342,11 +325,6 @@ function generatePrompt(originalText, messageType, textLength, tone) {
   return `
     Rewrite the following ${messageType} message to make it sound more ${tone}.
     ${lengthGuidance}
-    ${
-      textLength !== "short"
-        ? `Use at least ${minWords} words and at most ${maxWords} words.`
-        : ""
-    }
     ${
       shouldIncludeEmojis
         ? `Include appropriate emojis that match the ${tone} tone.`
