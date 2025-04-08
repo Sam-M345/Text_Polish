@@ -334,11 +334,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (toneCategories.classList.contains("collapsed-tones")) {
         toneCategories.classList.remove("collapsed-tones");
         toneCategories.classList.add("expanded-tones");
-        toggleTonesBtn.textContent = "▲";
+        toggleTonesBtn.textContent = "⏫";
       } else {
         toneCategories.classList.remove("expanded-tones");
         toneCategories.classList.add("collapsed-tones");
-        toggleTonesBtn.textContent = "▼";
+        toggleTonesBtn.textContent = "⏬";
       }
     });
   }

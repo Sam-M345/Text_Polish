@@ -77,6 +77,7 @@ h3 {
   align-items: center;
   width: 100%;
   flex-wrap: nowrap;
+  justify-content: flex-start;
 }
 
 .text-type-container {
@@ -84,6 +85,7 @@ h3 {
   align-items: center;
   width: 100%;
   flex-wrap: nowrap;
+  justify-content: flex-start;
 }
 
 .text-type-container h2 {
@@ -103,7 +105,7 @@ h3 {
 
 .length-container h2 {
   margin: 0;
-  min-width: 150px;
+  min-width: 90px; /* Reduced from 150px */
   white-space: nowrap;
 }
 
@@ -113,7 +115,7 @@ h3 {
 
 .bright-blue-title {
   color: #00bbff; /* Bright blue color */
-  font-size: 1.3rem;
+  font-size: 1.1rem;
 }
 
 .tone-container {
@@ -123,11 +125,12 @@ h3 {
   flex-wrap: nowrap;
   margin-bottom: 1rem;
   justify-content: flex-start;
+  height: 38px; /* Set specific height to match Length container */
 }
 
 .tone-container h2 {
   margin: 0;
-  min-width: 150px;
+  min-width: 120px; /* Reduced from 150px to bring Auto closer */
   white-space: nowrap;
 }
 
@@ -136,7 +139,7 @@ h3 {
   justify-content: flex-start;
   display: flex;
   flex: 0 1 auto;
-  margin-left: 20px;
+  margin-left: 10px;
 }
 
 .toggle-tones {
@@ -144,9 +147,10 @@ h3 {
   border: none;
   color: #00bbff;
   cursor: pointer;
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   padding: 0;
-  margin-left: 24px;
+  margin-left: 5px;
+  margin-right: 5px;
   display: flex;
   align-items: center;
 }
@@ -176,10 +180,11 @@ h3 {
   flex-wrap: nowrap;
   justify-content: flex-start;
   display: flex;
-  overflow-x: auto;
   flex: 1;
-  margin-left: 20px;
-  gap: 0.8rem;
+  margin-left: 10px;
+  gap: 0.5rem;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 /* Standard option button with emoji */
@@ -199,23 +204,25 @@ h3 {
 /* Length buttons (no emoji) */
 [data-length] {
   justify-content: center;
-  min-width: 100px;
+  min-width: 80px; /* Reduced from 100px */
   font-weight: 500;
   flex-shrink: 0; /* Prevent buttons from shrinking */
+  padding: 0.6rem 0.9rem; /* Reduced horizontal padding */
 }
 
 /* Make "Auto" tone button match width of length buttons */
 [data-tone="auto"] {
   justify-content: center;
-  min-width: 100px;
+  min-width: 80px; /* Match length buttons */
   font-weight: 500;
   flex-shrink: 0;
+  padding: 0.6rem 0.9rem; /* Match length buttons padding */
 }
 
 /* Make Text Type buttons match width of length buttons */
 [data-type] {
   justify-content: center;
-  min-width: 130px; /* Increased to accommodate emoji */
+  min-width: 60px; /* Reduced from 130px since emojis are removed */
   font-weight: 500;
   flex-shrink: 0;
   padding: 0.6rem 1.2rem;
@@ -231,6 +238,7 @@ h3 {
 .text-type-options .option-btn {
   justify-content: center;
   text-align: center;
+  width: auto; /* Allow width to fit content */
 }
 
 /* Style for the tone display button in the top row */
@@ -343,12 +351,12 @@ textarea:focus {
 #improve-btn {
   display: block;
   width: 100%;
-  padding: 1rem;
-  background-color: #25a56a;
+  padding: 0.6rem;
+  background-color: #146d43;
   color: white;
   border: none;
   border-radius: 50px;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s;
@@ -467,13 +475,36 @@ textarea:focus {
     width: 100%;
   }
 
+  /* Special override for text-type-options to prevent wrapping */
+  .text-type-options {
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    margin-left: 10px;
+  }
+
+  /* Smaller buttons for text type on mobile */
+  .text-type-options .option-btn {
+    padding: 0.5rem 0.8rem;
+    min-width: auto;
+  }
+
   .tone-options {
     margin-left: 10px;
   }
 
   .length-container,
-  .tone-container {
+  .tone-container,
+  .text-type-container {
     width: 100%;
+  }
+
+  .text-type-container h2 {
+    min-width: 80px; /* Reduced from 150px for mobile */
+  }
+
+  [data-type] {
+    min-width: auto; /* Override min-width for mobile */
+    padding: 0.5rem 0.8rem; /* Smaller padding on mobile */
   }
 
   h1 {
@@ -494,8 +525,14 @@ textarea:focus {
     font-size: 0.85rem;
   }
 
+  .length-container h2 {
+    min-width: 55px; /* Further reduced */
+  }
+
   [data-length] {
-    min-width: 80px;
+    min-width: 55px; /* Further reduced */
+    padding: 0.4rem 0.5rem; /* Further reduced padding */
+    font-size: 0.8rem;
   }
 
   .emoji {
