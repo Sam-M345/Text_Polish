@@ -11,7 +11,7 @@
       <h1>Text Polish</h1>
 
       <div class="option-section">
-        <h2>Text Type</h2>
+        <h2 class="bright-blue-title">Text Type</h2>
         <div class="option-buttons">
           <button class="option-btn" data-type="email">
             <span class="emoji">📧</span> Email
@@ -23,7 +23,7 @@
       </div>
 
       <div class="text-section">
-        <h2>Your Text</h2>
+        <h2 class="bright-blue-title">Your Text</h2>
         <textarea
           id="message-input"
           placeholder="Type your short message here..."
@@ -52,17 +52,24 @@
       </div>
 
       <div class="option-section">
-        <h2 class="colored-title">Output Length</h2>
-        <div class="option-buttons length-options">
-          <button class="option-btn selected" data-length="auto">Auto</button>
-          <button class="option-btn" data-length="short">Short</button>
-          <button class="option-btn" data-length="medium">Medium</button>
-          <button class="option-btn" data-length="long">Long</button>
+        <div class="length-container">
+          <h2 class="bright-blue-title">Output Length</h2>
+          <div class="option-buttons length-options">
+            <button class="option-btn selected" data-length="auto">Auto</button>
+            <button class="option-btn" data-length="short">Short</button>
+            <button class="option-btn" data-length="medium">Medium</button>
+            <button class="option-btn" data-length="long">Long</button>
+          </div>
         </div>
       </div>
 
       <div class="option-section">
-        <h2>Writing Tone</h2>
+        <div class="tone-container">
+          <h2 class="bright-blue-title">Writing Tone</h2>
+          <div class="tone-options">
+            <button class="option-btn selected" data-tone="auto">Auto</button>
+          </div>
+        </div>
 
         <div class="tone-category">
           <h3>1. Professional & Authoritative</h3>
@@ -100,7 +107,7 @@
             <button class="option-btn" data-tone="exciting">
               <span class="emoji">🤩</span> Exciting
             </button>
-            <button class="option-btn selected" data-tone="loving">
+            <button class="option-btn" data-tone="loving">
               <span class="emoji">😍</span> Loving
             </button>
           </div>
@@ -130,7 +137,7 @@
 
       <button id="improve-btn">Polish Your Text</button>
 
-      <h2>Output</h2>
+      <h2 class="bright-blue-title">Output</h2>
       <div id="output-container">
         <div id="improved-message"></div>
       </div>
