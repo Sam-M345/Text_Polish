@@ -8,6 +8,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const messageInputEl = document.getElementById("message-input");
   const improveBtn = document.getElementById("improve-btn");
   const improvedMessageEl = document.getElementById("improved-message");
+  const outputContainer = document.getElementById("output-container");
+  const outputIcons = document.querySelector(".output-icons");
+
+  // Initially hide output container and icons if empty
+  if (!improvedMessageEl.textContent.trim()) {
+    outputContainer.style.display = "none";
+    outputIcons.style.display = "none";
+  }
 
   // Get icon buttons
   const clearInputBtn = document.getElementById("clear-input");
@@ -123,6 +131,10 @@ document.addEventListener("DOMContentLoaded", () => {
     improvedMessageEl.textContent = "";
     document.body.classList.remove("response-generated");
     showIconFeedback(clearOutputBtn);
+
+    // Hide output container and icons when cleared
+    outputContainer.style.display = "none";
+    outputIcons.style.display = "none";
   });
 
   // Copy output text
@@ -267,6 +279,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Change button state to indicate loading with spinning hourglass
     startHourglassAnimation(improveBtn);
     improveBtn.disabled = true;
+
+    // Show output container and icons when starting the process
+    outputContainer.style.display = "block";
+    outputIcons.style.display = "flex";
     improvedMessageEl.textContent = "Processing...";
 
     try {
@@ -342,13 +358,20 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
         improveBtn.textContent = "Improve";
       }, 3000);
+
+      // Show output container and icons when there's content
+      outputContainer.style.display = "block";
+      outputIcons.style.display = "flex";
     } catch (error) {
-      // If there's an error, remove the response-generated class
       improvedMessageEl.textContent = `Something went wrong: ${error.message}. Please try again.`;
       console.error("Error:", error);
 
       // Remove the response-generated class on error
       document.body.classList.remove("response-generated");
+
+      // Still show output container and icons for error messages
+      outputContainer.style.display = "block";
+      outputIcons.style.display = "flex";
 
       // Reset button state
       stopHourglassAnimation(improveBtn, "Improve");
