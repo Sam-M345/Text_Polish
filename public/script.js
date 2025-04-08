@@ -290,7 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Error:", error);
     } finally {
       // Reset button state
-      improveBtn.textContent = "Polish Your Text";
+      improveBtn.textContent = "Improve";
       improveBtn.disabled = false;
     }
   });

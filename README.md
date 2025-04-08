@@ -58,7 +58,7 @@ A web application that enhances your text messages using AI. Text Polish transfo
 2. Enter your text in the input field
 3. Choose desired output length
 4. Select a writing tone that matches your intent
-5. Click "Polish Your Text"
+5. Click "Improve"
 6. Copy the improved text or paste it back to the input for further refinement
 
 ## Deployment
