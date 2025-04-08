@@ -211,6 +211,15 @@ document.addEventListener("DOMContentLoaded", () => {
     ).dataset.tone;
     const originalMessage = messageInputEl.value.trim();
 
+    // Collapse the tone categories when improve button is pressed
+    const toneCategories = document.getElementById("tone-categories");
+    const toggleTonesBtn = document.getElementById("toggle-tones");
+    if (toneCategories && toggleTonesBtn) {
+      toneCategories.classList.remove("expanded-tones");
+      toneCategories.classList.add("collapsed-tones");
+      toggleTonesBtn.textContent = "⏬";
+    }
+
     if (!originalMessage) {
       alert("Please enter a message before polishing.");
       return;

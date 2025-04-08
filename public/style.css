@@ -191,14 +191,16 @@ h3 {
 .option-btn {
   display: flex;
   align-items: center;
-  padding: 0.6rem 1.2rem;
+  padding: 0.6rem 0.9rem;
   border-radius: 50px;
   border: 2px solid #2a2a2a;
   background-color: #2a2a2a;
   color: #ffffff;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  height: 38px; /* Fixed height for all buttons */
+  box-sizing: border-box;
 }
 
 /* Length buttons (no emoji) */
@@ -210,13 +212,23 @@ h3 {
   padding: 0.6rem 0.9rem; /* Reduced horizontal padding */
 }
 
-/* Make "Auto" tone button match width of length buttons */
-[data-tone="auto"] {
+/* Make all tone buttons match style of length buttons */
+[data-tone] {
   justify-content: center;
-  min-width: 80px; /* Match length buttons */
+  min-width: 80px;
   font-weight: 500;
   flex-shrink: 0;
-  padding: 0.6rem 0.9rem; /* Match length buttons padding */
+  padding: 0.6rem 0.9rem;
+}
+
+/* Auto tone button already inherits from [data-tone] */
+.tone-options .option-btn {
+  justify-content: center;
+  background-color: #2a2a2a;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Make Text Type buttons match width of length buttons */
@@ -264,8 +276,10 @@ h3 {
 }
 
 .emoji {
-  font-size: 1.3rem;
-  margin-right: 0.6rem;
+  font-size: 1.1rem;
+  margin-right: 0.4rem;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 /* Icon Buttons */
