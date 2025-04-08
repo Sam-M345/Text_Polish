@@ -1,36 +1,72 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const messageTypeEl = document.getElementById("message-type");
-  const toneEl = document.getElementById("tone");
+  // Get option buttons
+  const typeButtons = document.querySelectorAll(".option-btn[data-type]");
+  const lengthButtons = document.querySelectorAll(".option-btn[data-length]");
+  const toneButtons = document.querySelectorAll(".option-btn[data-tone]");
+
+  // Get other elements
   const messageInputEl = document.getElementById("message-input");
   const improveBtn = document.getElementById("improve-btn");
   const improvedMessageEl = document.getElementById("improved-message");
 
-  // Enforce SMS character limit if "SMS" is selected
-  messageTypeEl.addEventListener("change", () => {
-    if (messageTypeEl.value === "sms") {
-      messageInputEl.maxLength = 160;
-      messageInputEl.placeholder = `Type your SMS message here (max 160 characters)`;
-    } else {
-      messageInputEl.removeAttribute("maxLength");
-      messageInputEl.placeholder = `Type your email message here`;
-    }
+  // Button selection handlers
+  function handleButtonSelection(buttons, clickedButton) {
+    buttons.forEach((button) => button.classList.remove("selected"));
+    clickedButton.classList.add("selected");
+  }
+
+  // Add click event listeners to all option buttons
+  typeButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      handleButtonSelection(typeButtons, button);
+    });
   });
 
-  // Trigger maxLength check initially
-  messageTypeEl.dispatchEvent(new Event("change"));
+  lengthButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      handleButtonSelection(lengthButtons, button);
+
+      // Adjust textarea based on selected length
+      const length = button.dataset.length;
+      if (length === "short") {
+        messageInputEl.style.minHeight = "80px";
+        messageInputEl.placeholder = "Type your short message here...";
+      } else if (length === "medium") {
+        messageInputEl.style.minHeight = "120px";
+        messageInputEl.placeholder = "Type your medium-length message here...";
+      } else if (length === "long") {
+        messageInputEl.style.minHeight = "180px";
+        messageInputEl.placeholder = "Type your detailed message here...";
+      }
+    });
+  });
+
+  toneButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      handleButtonSelection(toneButtons, button);
+    });
+  });
 
   improveBtn.addEventListener("click", async () => {
-    const messageType = messageTypeEl.value;
-    const tone = toneEl.value;
+    // Get selected options
+    const selectedType = document.querySelector(
+      ".option-btn[data-type].selected"
+    ).dataset.type;
+    const selectedLength = document.querySelector(
+      ".option-btn[data-length].selected"
+    ).dataset.length;
+    const selectedTone = document.querySelector(
+      ".option-btn[data-tone].selected"
+    ).dataset.tone;
     const originalMessage = messageInputEl.value.trim();
 
     if (!originalMessage) {
-      alert("Please enter a message before improving.");
+      alert("Please enter a message before polishing.");
       return;
     }
 
     // Change button state to indicate loading
-    improveBtn.textContent = "Improving...";
+    improveBtn.textContent = "Polishing...";
     improveBtn.disabled = true;
     improvedMessageEl.textContent = "Processing...";
 
@@ -40,9 +76,10 @@ document.addEventListener("DOMContentLoaded", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messageType,
-          tone,
           text: originalMessage,
+          messageType: selectedType,
+          textLength: selectedLength,
+          tone: selectedTone,
         }),
       });
 
@@ -58,8 +95,26 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Error:", error);
     } finally {
       // Reset button state
-      improveBtn.textContent = "Improve Message";
+      improveBtn.textContent = "Polish Your Text";
       improveBtn.disabled = false;
     }
   });
+
+  // Initialize length based on default selection
+  const defaultLengthButton = document.querySelector(
+    ".option-btn[data-length].selected"
+  );
+  if (defaultLengthButton) {
+    const defaultLength = defaultLengthButton.dataset.length;
+    if (defaultLength === "short") {
+      messageInputEl.style.minHeight = "80px";
+      messageInputEl.placeholder = "Type your short message here...";
+    } else if (defaultLength === "medium") {
+      messageInputEl.style.minHeight = "120px";
+      messageInputEl.placeholder = "Type your medium-length message here...";
+    } else if (defaultLength === "long") {
+      messageInputEl.style.minHeight = "180px";
+      messageInputEl.placeholder = "Type your detailed message here...";
+    }
+  }
 });
