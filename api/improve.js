@@ -72,12 +72,10 @@ module.exports = async (req, res) => {
     // Check if OpenAI API key exists
     if (!process.env.OPENAI_API_KEY) {
       console.error("ERROR: OpenAI API key is missing");
-      return res
-        .status(500)
-        .json({
-          error:
-            "OpenAI API key not configured. Please check server configuration.",
-        });
+      return res.status(500).json({
+        error:
+          "OpenAI API key not configured. Please check server configuration.",
+      });
     }
 
     // Call the OpenAI API
@@ -129,12 +127,10 @@ module.exports = async (req, res) => {
     // Check if the improved message is empty or the same as original
     if (!improved || improved === text) {
       console.log("Warning: OpenAI returned empty or unchanged text");
-      return res
-        .status(500)
-        .json({
-          error:
-            "AI couldn't improve the text. Please try again with different content.",
-        });
+      return res.status(500).json({
+        error:
+          "AI couldn't improve the text. Please try again with different content.",
+      });
     }
 
     // If we should include emojis and response doesn't already have them, add the tone emoji
@@ -164,7 +160,10 @@ function generatePrompt(originalText, messageType, textLength, tone) {
   // Define desired output length based on textLength parameter without strict limits
   let lengthGuidance;
 
-  if (textLength === "short") {
+  if (textLength === "auto") {
+    lengthGuidance =
+      "Determine the appropriate length for your response based on the context and complexity of the original message.";
+  } else if (textLength === "short") {
     lengthGuidance = "Keep the response relatively brief.";
   } else if (textLength === "medium") {
     lengthGuidance = "Provide a moderate length response.";

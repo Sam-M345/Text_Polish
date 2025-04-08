@@ -44,6 +44,10 @@ h3 {
   margin-bottom: 1.5rem;
 }
 
+.colored-title {
+  color: #25a56a; /* Match the green used for selected items */
+}
+
 .tone-category {
   margin-bottom: 1.2rem;
 }
@@ -52,6 +56,11 @@ h3 {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;
+}
+
+.length-options {
+  flex-wrap: nowrap; /* Keep all buttons on one line */
+  justify-content: flex-start; /* Align buttons to the left */
 }
 
 /* Standard option button with emoji */

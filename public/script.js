@@ -36,7 +36,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Adjust textarea based on selected length
       const length = button.dataset.length;
-      if (length === "short") {
+      if (length === "auto") {
+        messageInputEl.style.minHeight = "120px";
+        messageInputEl.placeholder = "Type your message here...";
+      } else if (length === "short") {
         messageInputEl.style.minHeight = "80px";
         messageInputEl.placeholder = "Type your short message here...";
       } else if (length === "medium") {
