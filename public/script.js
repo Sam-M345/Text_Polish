@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageInputEl.style.minHeight = "120px";
         messageInputEl.placeholder = "Type your medium-length message here...";
       } else if (length === "long") {
-        messageInputEl.style.minHeight = "180px";
+        messageInputEl.style.minHeight = "150px";
         messageInputEl.placeholder = "Type your detailed message here...";
       }
     });
@@ -90,6 +90,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
       improvedMessageEl.textContent =
         data.improved || "No improvements were made.";
+
+      // Scroll to the output if it's off-screen
+      if (!isElementInViewport(document.getElementById("output-container"))) {
+        document
+          .getElementById("output-container")
+          .scrollIntoView({ behavior: "smooth" });
+      }
     } catch (error) {
       improvedMessageEl.textContent = "Something went wrong. Please try again.";
       console.error("Error:", error);
@@ -99,6 +106,18 @@ document.addEventListener("DOMContentLoaded", () => {
       improveBtn.disabled = false;
     }
   });
+
+  // Helper function to check if an element is in the viewport
+  function isElementInViewport(el) {
+    const rect = el.getBoundingClientRect();
+    return (
+      rect.top >= 0 &&
+      rect.left >= 0 &&
+      rect.bottom <=
+        (window.innerHeight || document.documentElement.clientHeight) &&
+      rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+  }
 
   // Initialize length based on default selection
   const defaultLengthButton = document.querySelector(
@@ -113,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
       messageInputEl.style.minHeight = "120px";
       messageInputEl.placeholder = "Type your medium-length message here...";
     } else if (defaultLength === "long") {
-      messageInputEl.style.minHeight = "180px";
+      messageInputEl.style.minHeight = "150px";
       messageInputEl.placeholder = "Type your detailed message here...";
     }
   }

@@ -13,6 +13,22 @@ app.use(express.json());
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, "../public")));
 
+// Define lists of tones that should not include emojis
+const noEmojiTones = [
+  // Professional & Authoritative
+  "formal",
+  "confident",
+  "persuasive",
+  "expert",
+  "informative",
+  // Reflective & Reactive
+  "thoughtful",
+  "cautionary",
+  "grieved",
+  "brutal",
+  "surprised",
+];
+
 // API endpoint for improving messages
 app.post("/api/improve", async (req, res) => {
   const { text, messageType, textLength, tone } = req.body;
@@ -22,12 +38,16 @@ app.post("/api/improve", async (req, res) => {
     return res.status(400).json({ error: "No text provided." });
   }
 
+  // Check if this tone should include emojis
+  const shouldIncludeEmojis = !noEmojiTones.includes(tone);
+
   // Log request for debugging
   console.log("Request received:", {
     messageType,
     textLength,
     tone,
     textLength: text.length,
+    includeEmojis: shouldIncludeEmojis,
   });
   console.log(
     "Using API Key:",
@@ -41,8 +61,8 @@ app.post("/api/improve", async (req, res) => {
     const prompt = generatePrompt(text, messageType, textLength, tone);
     console.log("Generated prompt:", prompt);
 
-    // Get emoji for the selected tone
-    const toneEmoji = getToneEmoji(tone);
+    // Get emoji for the selected tone (only if we should include emojis)
+    const toneEmoji = shouldIncludeEmojis ? getToneEmoji(tone) : "";
 
     // Call the OpenAI API
     const requestData = {
@@ -50,7 +70,11 @@ app.post("/api/improve", async (req, res) => {
       messages: [
         {
           role: "system",
-          content: `You are an expert writer specializing in improving ${messageType} messages to sound more ${tone}. Use appropriate emojis that match the ${tone} tone.`,
+          content: `You are an expert writer specializing in improving ${messageType} messages to sound more ${tone}. ${
+            shouldIncludeEmojis
+              ? `Use appropriate emojis that match the ${tone} tone.`
+              : "Do not include any emojis in your response."
+          }`,
         },
         {
           role: "user",
@@ -91,12 +115,25 @@ app.post("/api/improve", async (req, res) => {
     if (!improved || improved === text) {
       console.log("Warning: OpenAI returned empty or unchanged text");
       // Force a different response
-      improved = generateFallbackResponse(text, tone);
+      improved = generateFallbackResponse(text, tone, textLength);
     }
 
-    // If response doesn't already have emojis, add the tone emoji
-    if (!containsEmoji(improved) && toneEmoji) {
+    // Ensure text length requirements are met
+    const wordCount = improved.split(/\s+/).length;
+    if (textLength === "medium" && wordCount < 25) {
+      console.log("Warning: Medium text too short, expanding");
+      improved = generateFallbackResponse(text, tone, textLength);
+    } else if (textLength === "long" && wordCount < 65) {
+      console.log("Warning: Long text too short, expanding");
+      improved = generateFallbackResponse(text, tone, textLength);
+    }
+
+    // If we should include emojis and response doesn't already have them, add the tone emoji
+    if (shouldIncludeEmojis && !containsEmoji(improved) && toneEmoji) {
       improved = addEmojiToText(improved, toneEmoji, tone);
+    } else if (!shouldIncludeEmojis) {
+      // Remove any emojis if this tone shouldn't have them
+      improved = removeEmojis(improved);
     }
 
     // Send the improved message back to the client
@@ -120,7 +157,7 @@ app.post("/api/improve", async (req, res) => {
     }
 
     // Generate a fallback response instead of failing
-    const fallbackResponse = generateFallbackResponse(text, tone);
+    const fallbackResponse = generateFallbackResponse(text, tone, textLength);
     console.log("Using fallback response:", fallbackResponse);
 
     // Return fallback response instead of error
@@ -129,8 +166,20 @@ app.post("/api/improve", async (req, res) => {
 });
 
 // Generate a fallback response in case of API failure
-function generateFallbackResponse(originalText, tone) {
-  const emoji = getToneEmoji(tone);
+function generateFallbackResponse(originalText, tone, textLength) {
+  // Check if this tone should include emojis
+  const shouldIncludeEmojis = !noEmojiTones.includes(tone);
+
+  // Get emoji for the tone only if we should include emojis
+  const emoji = shouldIncludeEmojis ? getToneEmoji(tone) : "";
+
+  // Determine multiplier for text length based on selected length
+  let lengthMultiplier = 1;
+  if (textLength === "medium") {
+    lengthMultiplier = 2;
+  } else if (textLength === "long") {
+    lengthMultiplier = 4;
+  }
 
   // Generate a basic modification based on tone
   let improved;
@@ -184,9 +233,82 @@ function generateFallbackResponse(originalText, tone) {
       improved = originalText;
   }
 
-  // Add emoji
-  if (emoji) {
+  // Add emoji only if this tone should have them
+  if (emoji && shouldIncludeEmojis) {
     improved = addEmojiToText(improved, emoji, tone);
+  }
+
+  // Adjust text length based on selected length option
+  if (lengthMultiplier > 1) {
+    const extraSentences = [];
+    for (let i = 0; i < lengthMultiplier - 1; i++) {
+      if (tone === "formal") {
+        extraSentences.push(
+          `Furthermore, this matter requires your attention. Please consider the implications carefully.`
+        );
+      } else if (tone === "friendly") {
+        extraSentences.push(
+          `I was just thinking about this the other day! It's so nice to connect about these things.`
+        );
+      } else if (tone === "brutal") {
+        extraSentences.push(
+          `And don't even think about ignoring this. I need you to take this seriously right now.`
+        );
+      } else if (tone === "persuasive") {
+        extraSentences.push(
+          `When you think about the benefits, I'm sure you'll agree this is the right choice.`
+        );
+      } else if (tone === "confident") {
+        extraSentences.push(
+          `I've considered all the angles and this is definitely the optimal approach.`
+        );
+      } else if (tone === "cautionary") {
+        extraSentences.push(
+          `Make sure you consider all potential risks before proceeding.`
+        );
+      } else if (tone === "inspirational") {
+        extraSentences.push(
+          `Every challenge is just an opportunity in disguise. You've got this!`
+        );
+      } else if (tone === "thoughtful") {
+        extraSentences.push(
+          `I wonder how this relates to our previous conversations on this topic.`
+        );
+      } else if (tone === "joyful") {
+        extraSentences.push(
+          `This brings so much joy to my day! Let's celebrate this moment!`
+        );
+      } else if (tone === "exciting") {
+        extraSentences.push(
+          `This is going to change everything! I can hardly contain my excitement!`
+        );
+      } else if (tone === "grieved") {
+        extraSentences.push(
+          `It's difficult to express the depth of my disappointment regarding this situation.`
+        );
+      } else if (tone === "loving") {
+        extraSentences.push(
+          `You're always in my thoughts. I cherish our connection deeply.`
+        );
+      } else if (tone === "surprised") {
+        extraSentences.push(
+          `I never would have expected this in a million years! This is truly astonishing!`
+        );
+      } else if (tone === "informative") {
+        extraSentences.push(
+          `Additional research indicates this trend will continue into the foreseeable future.`
+        );
+      } else if (tone === "expert") {
+        extraSentences.push(
+          `According to recent studies, the data supports this conclusion with a high degree of confidence.`
+        );
+      } else {
+        extraSentences.push(
+          `Let me elaborate further on this important topic.`
+        );
+      }
+    }
+    improved += " " + extraSentences.join(" ");
   }
 
   return improved;
@@ -194,22 +316,42 @@ function generateFallbackResponse(originalText, tone) {
 
 // Helper function to generate prompts for the LLM
 function generatePrompt(originalText, messageType, textLength, tone) {
-  // Define desired output length based on textLength parameter
+  // Define desired output length based on textLength parameter and enforce proper length scaling
   let lengthGuidance;
+  let minWords, maxWords;
+
   if (textLength === "short") {
     lengthGuidance = "Keep the response concise and brief (1-2 sentences).";
+    minWords = 5;
+    maxWords = 20;
   } else if (textLength === "medium") {
-    lengthGuidance = "Provide a moderate length response (2-4 sentences).";
+    lengthGuidance = "Provide a moderate length response (3-5 sentences).";
+    minWords = 25;
+    maxWords = 60;
   } else if (textLength === "long") {
-    lengthGuidance = "Create a detailed response (4+ sentences).";
+    lengthGuidance = "Create a detailed and thorough response (6+ sentences).";
+    minWords = 65;
+    maxWords = 150;
   } else {
     lengthGuidance = "Provide an appropriate length response.";
   }
 
+  // Determine if this tone should include emojis
+  const shouldIncludeEmojis = !noEmojiTones.includes(tone);
+
   return `
     Rewrite the following ${messageType} message to make it sound more ${tone}.
     ${lengthGuidance}
-    Include appropriate emojis that match the ${tone} tone.
+    ${
+      textLength !== "short"
+        ? `Use at least ${minWords} words and at most ${maxWords} words.`
+        : ""
+    }
+    ${
+      shouldIncludeEmojis
+        ? `Include appropriate emojis that match the ${tone} tone.`
+        : `DO NOT include any emojis in your response.`
+    }
     
     Original message: "${originalText}"
     
@@ -268,6 +410,17 @@ function addEmojiToText(text, emoji, tone) {
 
   // For most other tones, add emoji to the end
   return `${text} ${emoji}`;
+}
+
+// Function to remove emojis from text
+function removeEmojis(text) {
+  return text
+    .replace(
+      /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,
+      ""
+    )
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 // Catch-all route to serve the main HTML page for client-side routing

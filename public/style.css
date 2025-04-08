@@ -52,6 +52,7 @@ h3 {
   gap: 0.8rem;
 }
 
+/* Standard option button with emoji */
 .option-btn {
   display: flex;
   align-items: center;
@@ -63,6 +64,13 @@ h3 {
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.3s ease;
+}
+
+/* Length buttons (no emoji) */
+[data-length] {
+  justify-content: center;
+  min-width: 100px;
+  font-weight: 500;
 }
 
 .option-btn:hover {
@@ -194,6 +202,10 @@ textarea:focus {
   .option-btn {
     padding: 0.5rem 0.9rem;
     font-size: 0.85rem;
+  }
+
+  [data-length] {
+    min-width: 80px;
   }
 
   .emoji {
