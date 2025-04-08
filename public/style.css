@@ -79,6 +79,28 @@ h3 {
   flex-wrap: nowrap;
 }
 
+.text-type-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+.text-type-container h2 {
+  margin: 0;
+  min-width: 150px;
+  white-space: nowrap;
+}
+
+.text-type-options {
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  display: flex;
+  flex: 1;
+  margin-left: 20px;
+  gap: 0.8rem;
+}
+
 .length-container h2 {
   margin: 0;
   min-width: 150px;
@@ -190,6 +212,27 @@ h3 {
   flex-shrink: 0;
 }
 
+/* Make Text Type buttons match width of length buttons */
+[data-type] {
+  justify-content: center;
+  min-width: 130px; /* Increased to accommodate emoji */
+  font-weight: 500;
+  flex-shrink: 0;
+  padding: 0.6rem 1.2rem;
+}
+
+/* Special styling for Email and Messenger text-type buttons */
+.text-type-options .emoji {
+  display: inline-block; /* Show emojis again */
+  font-size: 1.2rem; /* Slightly reduced size */
+  margin-right: 0.5rem; /* Slightly reduced margin */
+}
+
+.text-type-options .option-btn {
+  justify-content: center;
+  text-align: center;
+}
+
 /* Style for the tone display button in the top row */
 .tone-options .option-btn {
   justify-content: center;
@@ -281,7 +324,7 @@ label {
 
 textarea {
   width: 100%;
-  min-height: 130px;
+  min-height: 140px;
   padding: 0.8rem;
   border-radius: 8px;
   border: none;
