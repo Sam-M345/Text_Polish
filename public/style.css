@@ -157,7 +157,7 @@ h3 {
   align-items: center;
   position: absolute; /* Position absolutely */
   top: 0; /* Align with top */
-  left: 190px; /* Adjusted position to center below "Short" button */
+  left: 240px; /* Moved further right (was 190px) */
   width: 40px; /* Set fixed width */
   justify-content: center; /* Center the arrow */
 }
