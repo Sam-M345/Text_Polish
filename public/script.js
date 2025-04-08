@@ -159,8 +159,14 @@ document.addEventListener("DOMContentLoaded", () => {
     improvedMessageEl.textContent = "Processing...";
 
     try {
+      // Create the API URL - works for both local development and production
+      const apiUrl =
+        window.location.hostname === "localhost"
+          ? "http://localhost:3000/api/improve"
+          : "/api/improve";
+
       // Call our backend API
-      const response = await fetch("/api/improve", {
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
