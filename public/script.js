@@ -197,6 +197,33 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 300);
   }
 
+  // Create a spinning animation for the hourglass
+  function startHourglassAnimation(button) {
+    // Reset any existing animation
+    clearInterval(button.spinInterval);
+
+    const hourglassEmojis = ["⏳", "⌛"];
+    let index = 0;
+
+    // Store the original text without emoji
+    const originalText = "Polishing";
+
+    // Set initial state
+    button.textContent = `${originalText} ${hourglassEmojis[index]}`;
+
+    // Start animation interval
+    button.spinInterval = setInterval(() => {
+      index = (index + 1) % hourglassEmojis.length;
+      button.textContent = `${originalText} ${hourglassEmojis[index]}`;
+    }, 500); // Toggle every 500ms for a nice spinning effect
+  }
+
+  // Stop the animation and reset the button
+  function stopHourglassAnimation(button, newText) {
+    clearInterval(button.spinInterval);
+    button.textContent = newText;
+  }
+
   // Update the improveBtn event listener to handle text formatting
   improveBtn.addEventListener("click", async () => {
     // Get selected options
@@ -225,8 +252,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Change button state to indicate loading
-    improveBtn.textContent = "Polishing...";
+    // Change button state to indicate loading with spinning hourglass
+    startHourglassAnimation(improveBtn);
     improveBtn.disabled = true;
     improvedMessageEl.textContent = "Processing...";
 
@@ -299,7 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Error:", error);
     } finally {
       // Reset button state
-      improveBtn.textContent = "Improve";
+      stopHourglassAnimation(improveBtn, "Improve");
       improveBtn.disabled = false;
     }
   });
