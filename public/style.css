@@ -78,6 +78,7 @@ h3 {
   width: 100%;
   flex-wrap: nowrap;
   justify-content: flex-start;
+  position: relative; /* Add position for arrow reference positioning */
 }
 
 .text-type-container {
@@ -126,11 +127,12 @@ h3 {
   margin-bottom: 1rem;
   justify-content: flex-start;
   height: 38px; /* Set specific height to match Length container */
+  position: relative; /* For arrow positioning */
 }
 
 .tone-container h2 {
   margin: 0;
-  min-width: 120px; /* Reduced from 150px to bring Auto closer */
+  min-width: 90px; /* Match with length-container h2 width */
   white-space: nowrap;
 }
 
@@ -139,7 +141,7 @@ h3 {
   justify-content: flex-start;
   display: flex;
   flex: 0 1 auto;
-  margin-left: 10px;
+  margin-left: 10px; /* Match margin with length-options */
 }
 
 .toggle-tones {
@@ -149,10 +151,15 @@ h3 {
   cursor: pointer;
   font-size: 1.4rem;
   padding: 0;
-  margin-left: 5px;
-  margin-right: 5px;
+  margin-left: 0; /* Reset margin */
+  margin-right: 0; /* Reset margin */
   display: flex;
   align-items: center;
+  position: absolute; /* Position absolutely */
+  top: 0; /* Align with top */
+  left: 190px; /* Adjusted position to center below "Short" button */
+  width: 40px; /* Set fixed width */
+  justify-content: center; /* Center the arrow */
 }
 
 .collapsed-tones {
@@ -206,29 +213,33 @@ h3 {
 /* Length buttons (no emoji) */
 [data-length] {
   justify-content: center;
-  min-width: 80px; /* Reduced from 100px */
+  min-width: 80px; /* Fixed width for consistent layout */
   font-weight: 500;
   flex-shrink: 0; /* Prevent buttons from shrinking */
-  padding: 0.6rem 0.9rem; /* Reduced horizontal padding */
+  padding: 0.6rem 0.9rem; /* Standard padding */
 }
 
 /* Make all tone buttons match style of length buttons */
 [data-tone] {
   justify-content: center;
-  min-width: 80px;
+  min-width: 80px; /* Same width as length buttons */
   font-weight: 500;
   flex-shrink: 0;
-  padding: 0.6rem 0.9rem;
+  padding: 0.6rem 0.9rem; /* Same padding as length buttons */
 }
 
-/* Auto tone button already inherits from [data-tone] */
+/* Style for the tone display button in the top row - make consistent with length auto button */
 .tone-options .option-btn {
   justify-content: center;
+  min-width: 80px; /* Match width with length auto button */
+  max-width: 80px; /* Constrain to same width as length buttons */
+  font-weight: 500;
+  flex-shrink: 0;
   background-color: #2a2a2a;
-  max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  padding: 0.6rem 0.9rem; /* Same padding as length buttons */
 }
 
 /* Make Text Type buttons match width of length buttons */
@@ -251,19 +262,6 @@ h3 {
   justify-content: center;
   text-align: center;
   width: auto; /* Allow width to fit content */
-}
-
-/* Style for the tone display button in the top row */
-.tone-options .option-btn {
-  justify-content: center;
-  min-width: 100px;
-  font-weight: 500;
-  flex-shrink: 0;
-  background-color: #2a2a2a;
-  max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .option-btn:hover {
@@ -362,6 +360,12 @@ textarea:focus {
   box-shadow: 0 0 0 2px #25a56a;
 }
 
+/* Output section container */
+.output-section {
+  position: relative;
+  margin-top: 1.5rem;
+}
+
 #improve-btn {
   display: block;
   width: 100%;
@@ -374,12 +378,31 @@ textarea:focus {
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-top: 1.5rem;
+  margin-top: 0;
   margin-bottom: 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 #improve-btn:hover {
   background-color: #1d8a54;
+}
+
+/* Create a visual separator below the sticky button */
+#improve-btn::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background: linear-gradient(
+    to bottom,
+    rgba(26, 26, 26, 0.8),
+    rgba(26, 26, 26, 0)
+  );
+  pointer-events: none;
 }
 
 #output-container {
@@ -391,6 +414,8 @@ textarea:focus {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   max-height: none;
   height: auto;
+  position: relative;
+  z-index: 1;
 }
 
 #improved-message {
@@ -457,9 +482,13 @@ textarea:focus {
     min-height: 80px;
   }
 
-  #improve-btn {
+  .output-section {
     margin-top: 1rem;
+  }
+
+  #improve-btn {
     margin-bottom: 1rem;
+    padding: 0.5rem;
   }
 
   .icon-btn {
