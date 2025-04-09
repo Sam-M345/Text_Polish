@@ -15,18 +15,17 @@ app.use(express.static(path.join(__dirname, "../public")));
 
 // Define lists of tones that should not include emojis
 const noEmojiTones = [
-  // Professional & Authoritative
+  // Professional (Work)
   "formal",
   "confident",
-  "persuasive",
-  "expert",
   "informative",
-  // Reflective & Reactive
+  "neutral",
+  "urgent",
+  // Reflective & Responsive
   "thoughtful",
-  "cautionary",
-  "grieved",
-  "brutal",
-  // "surprised" - Removed to enable emojis for Surprised tone
+  "blunt",
+  // "surprised" - Enabling emojis for Surprised tone
+  // "supportive" - Enabling emojis for Supportive tone
 ];
 
 // API endpoint for improving messages
@@ -173,51 +172,54 @@ function generateFallbackResponse(originalText, tone, textLength) {
   // Generate a basic modification based on tone
   let improved;
   switch (tone) {
+    // Professional (Work)
     case "formal":
       improved = `I would like to inform you that ${originalText.toLowerCase()}.`;
-      break;
-    case "friendly":
-      improved = `Hey there! ${originalText} Hope you're having a great day!`;
-      break;
-    case "brutal":
-      improved = `Listen up! ${originalText} Deal with it.`;
-      break;
-    case "persuasive":
-      improved = `You really should consider that ${originalText}. It's definitely worth it!`;
       break;
     case "confident":
       improved = `I'm absolutely certain that ${originalText}. No doubt about it.`;
       break;
-    case "cautionary":
-      improved = `Please be aware that ${originalText}. Proceed with caution.`;
+    case "informative":
+      improved = `I'd like to inform you that ${originalText}. Here are the details.`;
       break;
-    case "inspirational":
-      improved = `Remember, ${originalText}! You can achieve anything you set your mind to!`;
+    case "neutral":
+      improved = `${originalText}. This is a factual statement without emotional influence.`;
       break;
-    case "thoughtful":
-      improved = `I've been reflecting, and I believe that ${originalText}. What do you think?`;
+    case "urgent":
+      improved = `URGENT: ${originalText}. Please attend to this matter immediately.`;
       break;
-    case "joyful":
-      improved = `Yay! ${originalText}! This makes me so happy!`;
+
+    // Positive & Engaging
+    case "friendly":
+      improved = `Hey there! ${originalText} Hope you're having a great day!`;
       break;
     case "exciting":
       improved = `OMG! ${originalText}! This is absolutely incredible!`;
       break;
-    case "grieved":
-      improved = `I'm deeply saddened that ${originalText}. This is truly unfortunate.`;
+    case "humorous":
+      improved = `Haha! ${originalText} 😂 That's hilarious, right?`;
+      break;
+    case "inspirational":
+      improved = `Remember, ${originalText}! You can achieve anything you set your mind to!`;
       break;
     case "loving":
       improved = `My dear, ${originalText}. You mean the world to me.`;
       break;
+
+    // Reflective & Responsive
+    case "blunt":
+      improved = `${originalText}. That's it. No sugar coating.`;
+      break;
+    case "supportive":
+      improved = `I understand that ${originalText}. I'm here for you and want to help.`;
+      break;
     case "surprised":
-      improved = `What?! ${originalText}?! I can't believe it! This is so unexpected! 😮 😲 😱`;
+      improved = `What?! ${originalText}?! I can't believe it! This is so unexpected!`;
       break;
-    case "informative":
-      improved = `I'd like to inform you that ${originalText}. Here are the details.`;
+    case "thoughtful":
+      improved = `I've been reflecting, and I believe that ${originalText}. What do you think?`;
       break;
-    case "expert":
-      improved = `Based on my analysis, ${originalText}. This conclusion is supported by significant evidence.`;
-      break;
+
     default:
       improved = originalText;
   }
@@ -341,21 +343,25 @@ function generatePrompt(originalText, messageType, textLength, tone) {
 // Function to get an appropriate emoji for each tone
 function getToneEmoji(tone) {
   const emojiMap = {
+    // Professional (Work)
     formal: "🧐",
-    friendly: "😊",
-    brutal: "😡",
-    persuasive: "🎯",
     confident: "🦁",
-    cautionary: "⚠️",
-    inspirational: "💡",
-    thoughtful: "🤔",
-    joyful: "😃",
-    exciting: "🤩",
-    grieved: "😔",
-    loving: "😍",
-    surprised: "😲",
     informative: "🤓",
-    expert: "🔬",
+    neutral: "🧊",
+    urgent: "⏰",
+
+    // Positive & Engaging
+    friendly: "😊",
+    exciting: "🤩",
+    humorous: "😄",
+    inspirational: "🙏🏻",
+    loving: "😍",
+
+    // Reflective & Responsive
+    blunt: "⚡",
+    supportive: "🤝",
+    surprised: "😲",
+    thoughtful: "🤔",
   };
 
   return emojiMap[tone] || "";
@@ -373,13 +379,15 @@ function containsEmoji(text) {
 function addEmojiToText(text, emoji, tone) {
   // For certain tones, add emoji at the beginning
   const beginningTones = [
+    // Professional (Work)
     "formal",
-    "brutal",
-    "cautionary",
-    "thoughtful",
-    "grieved",
     "informative",
-    "expert",
+    "neutral",
+    "urgent",
+
+    // Reflective & Responsive
+    "blunt",
+    "thoughtful",
   ];
 
   if (beginningTones.includes(tone)) {
