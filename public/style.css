@@ -175,15 +175,15 @@ h3 {
 .expanded-tones {
   max-height: 500px; /* Adjust based on content height */
   transition: max-height 0.3s ease-in;
-  margin-bottom: 50px; /* Add bottom margin to prevent overlap with improve button */
+  margin-bottom: 30px !important; /* was 50px - 40% reduction */
   position: relative;
   z-index: 2; /* Higher than improve button to ensure proper stacking */
 }
 
 /* Create safe zone for Improve button when tones are expanded */
 body.tones-expanded #improve-btn {
-  margin-top: 20px; /* Add space above the button */
-  margin-bottom: 50px; /* Add significant space below the button */
+  margin-top: 12px !important; /* was 20px - 40% reduction */
+  margin-bottom: 30px !important; /* was 50px - 40% reduction */
   position: relative;
   z-index: 1;
   box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2); /* Add subtle shadow to separate from content above */
@@ -202,7 +202,7 @@ body.tones-expanded .output-section {
 }
 
 .tone-category {
-  margin-bottom: 1.2rem;
+  margin-bottom: 0.7rem !important; /* was ~1.2rem - 40% reduction */
 }
 
 .option-buttons {
@@ -773,4 +773,29 @@ textarea:focus {
 
 #scroll-to-top:hover {
   background-color: #1d8a54;
+}
+
+/* Reduce spacing between Thoughtful button and Improve button by 40% */
+.expanded-tones {
+  margin-bottom: 30px !important; /* was 50px - 40% reduction */
+}
+
+body.tones-expanded #improve-btn {
+  margin-top: 12px !important; /* was 20px - 40% reduction */
+  margin-bottom: 30px !important; /* was 50px - 40% reduction */
+}
+
+/* Reduce spacing for last tone category (contains Thoughtful button) */
+.tone-category:last-child {
+  margin-bottom: 18px !important; /* was 30px for iOS - 40% reduction */
+}
+
+/* Also reduce the standard tone-category spacing */
+.tone-category {
+  margin-bottom: 0.7rem !important; /* was ~1.2rem - 40% reduction */
+}
+
+/* Adjust option section spacing */
+.option-section {
+  margin-bottom: 0.9rem !important; /* was 1.5rem - 40% reduction */
 }
