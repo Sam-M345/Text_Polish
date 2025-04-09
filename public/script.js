@@ -427,20 +427,46 @@ document.addEventListener("DOMContentLoaded", () => {
         // Add class to body to enable improve button safe zone
         document.body.classList.add("tones-expanded");
 
-        // Give time for the transition to complete before scrolling to ensure visibility
+        // Give time for the transition to complete before scrolling
         setTimeout(() => {
-          // On iOS, ensure the Improve button is visible when categories are expanded
+          // On iOS, scroll to position the first category at the top of the screen
           if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-            // Change from 'nearest' to 'center' to show space below the button
-            improveBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+            // Find the "1. Positive & Engaging" heading specifically
+            const firstCategoryHeading = Array.from(
+              document.querySelectorAll(".tone-category h3")
+            ).find((h) => h.textContent.includes("1. Positive & Engaging"));
 
-            // Add additional scroll to show space below the button
-            setTimeout(() => {
-              window.scrollBy({
-                top: 50, // Scroll an additional 50px to reveal space below
+            if (firstCategoryHeading) {
+              // Scroll the first category to the top of the viewport
+              firstCategoryHeading.scrollIntoView({
                 behavior: "smooth",
+                block: "start",
               });
-            }, 400);
+
+              // Apply a small offset to ensure it's exactly at the top edge
+              setTimeout(() => {
+                // Slight adjustment to position exactly at the top edge
+                window.scrollBy({
+                  top: -5, // Small negative offset to account for any padding
+                  behavior: "smooth",
+                });
+              }, 400);
+            } else {
+              // Fallback if heading not found
+              const firstCategory = document.querySelector(".tone-category");
+              if (firstCategory) {
+                firstCategory.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+              } else {
+                // Last resort fallback
+                toneCategories.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+              }
+            }
           }
         }, 350);
       } else {

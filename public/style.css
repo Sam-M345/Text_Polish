@@ -531,6 +531,64 @@ textarea:focus {
     min-height: calc(100vh + var(--ios-safe-area-bottom));
   }
 
+  /* Make professional category buttons more compact on iOS */
+  .tone-category:nth-child(2) [data-tone] {
+    min-width: 70px; /* Smaller min-width for professional category buttons */
+    padding: 0.5rem 0.6rem; /* Reduced padding */
+    font-size: 0.8rem; /* Slightly smaller font */
+  }
+
+  /* Professional category button container adjustments */
+  .tone-category:nth-child(2) .option-buttons {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping but we'll control where it happens */
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  /* Make the first three buttons (Confident, Formal, Informative) in Professional category stay together */
+  .tone-category:nth-child(2) [data-tone="confident"],
+  .tone-category:nth-child(2) [data-tone="formal"],
+  .tone-category:nth-child(2) [data-tone="informative"] {
+    margin-bottom: 0.5rem; /* Add spacing below these buttons */
+  }
+
+  /* Make sure Neutral and Urgent stick together on the same line */
+  .tone-category:nth-child(2) [data-tone="neutral"],
+  .tone-category:nth-child(2) [data-tone="urgent"] {
+    display: inline-flex; /* Ensure they display inline */
+    margin-right: 0.5rem; /* Control spacing between them */
+    flex-shrink: 1; /* Allow some shrinking to fit */
+    min-width: 60px; /* Even more reduced min-width */
+    padding: 0.5rem 0.35rem; /* Further reduced padding */
+  }
+
+  /* Reduce emoji size in Professional category */
+  .tone-category:nth-child(2) .emoji {
+    font-size: 1rem; /* Smaller emoji size */
+    margin-right: 0.3rem; /* Reduced spacing */
+  }
+
+  /* Further reduce emoji size in Neutral and Urgent buttons */
+  [data-tone="neutral"] .emoji,
+  [data-tone="urgent"] .emoji {
+    font-size: 0.95rem;
+    margin-right: 0.2rem;
+  }
+
+  /* Reduce the gap between buttons in iOS */
+  @media screen and (max-width: 390px) {
+    .option-buttons {
+      gap: 0.5rem; /* Reduced from 0.8rem */
+    }
+
+    /* For very small screens, make the second row buttons fit even better */
+    .tone-category:nth-child(2) [data-tone="neutral"],
+    .tone-category:nth-child(2) [data-tone="urgent"] {
+      min-width: 55px; /* Further reduced for very small screens */
+    }
+  }
+
   /* Add specific fix for iOS tone category overlap */
   .expanded-tones {
     margin-bottom: 70px; /* Additional space for iOS */
