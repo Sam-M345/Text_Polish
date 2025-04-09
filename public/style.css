@@ -6,7 +6,7 @@
   --text-color: #ffffff;
   --secondary-text: #aaaaaa;
   --border-color: #444444;
-  --ios-safe-area-bottom: 80px; /* Safe area padding for iOS bottom navigation */
+  --ios-safe-area-bottom: 80px; /* Safe zone padding for iOS bottom navigation */
 }
 
 body {
@@ -45,7 +45,7 @@ html {
   padding: 1.5rem 2rem;
   padding-bottom: calc(
     1.5rem + var(--ios-safe-area-bottom)
-  ); /* Add safe area padding at bottom */
+  ); /* Add safe zone padding at bottom */
 }
 
 h1 {
@@ -178,6 +178,26 @@ h3 {
   margin-bottom: 50px; /* Add bottom margin to prevent overlap with improve button */
   position: relative;
   z-index: 2; /* Higher than improve button to ensure proper stacking */
+}
+
+/* Create safe zone for Improve button when tones are expanded */
+body.tones-expanded #improve-btn {
+  margin-top: 20px; /* Add space above the button */
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2); /* Add subtle shadow to separate from content above */
+}
+
+/* Ensure proper spacing after expanded tones for the improve button safe zone */
+body.tones-expanded .output-section {
+  margin-top: 30px; /* Increased space above output section */
+}
+
+/* For iOS devices, add extra spacing to account for bottom navigation */
+@supports (-webkit-touch-callout: none) {
+  body.tones-expanded #improve-btn {
+    margin-bottom: 25px; /* Extra margin at bottom for iOS */
+  }
 }
 
 .tone-category {
@@ -506,7 +526,7 @@ textarea:focus {
 @supports (-webkit-touch-callout: none) {
   /* iOS specific styles */
   body {
-    /* Ensure the page can scroll to reveal the safe area */
+    /* Ensure the page can scroll to reveal the safe zone */
     min-height: calc(100vh + var(--ios-safe-area-bottom));
   }
 
@@ -515,7 +535,13 @@ textarea:focus {
     margin-bottom: 70px; /* Additional space for iOS */
   }
 
-  /* For devices with notches, respect the safe area */
+  /* Improve button safe zone for iOS specifically */
+  body.tones-expanded #improve-btn {
+    margin-bottom: 35px; /* More space for iOS devices */
+    position: relative; /* Ensure positioning context */
+  }
+
+  /* For devices with notches, respect the safe zone */
   @supports (padding: max(0px)) {
     .app-container {
       padding-bottom: max(

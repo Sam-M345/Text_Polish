@@ -269,6 +269,8 @@ document.addEventListener("DOMContentLoaded", () => {
       toneCategories.classList.remove("expanded-tones");
       toneCategories.classList.add("collapsed-tones");
       toggleTonesBtn.textContent = "⏬";
+      // Remove the tones-expanded class from body as well
+      document.body.classList.remove("tones-expanded");
     }
 
     if (!originalMessage) {
@@ -422,6 +424,8 @@ document.addEventListener("DOMContentLoaded", () => {
         toneCategories.classList.remove("collapsed-tones");
         toneCategories.classList.add("expanded-tones");
         toggleTonesBtn.textContent = "⏫";
+        // Add class to body to enable improve button safe zone
+        document.body.classList.add("tones-expanded");
 
         // Give time for the transition to complete before scrolling to ensure visibility
         setTimeout(() => {
@@ -434,6 +438,8 @@ document.addEventListener("DOMContentLoaded", () => {
         toneCategories.classList.remove("expanded-tones");
         toneCategories.classList.add("collapsed-tones");
         toggleTonesBtn.textContent = "⏬";
+        // Remove class from body to disable improve button safe zone
+        document.body.classList.remove("tones-expanded");
       }
     });
   }
