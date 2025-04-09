@@ -130,7 +130,7 @@ h3 {
   flex-wrap: nowrap;
   margin-bottom: 1rem;
   justify-content: flex-start;
-  height: 38px; /* Set specific height to match Length container */
+  height: 40px; /* Increased from 38px to match the buttons */
   position: relative; /* For arrow positioning */
 }
 
@@ -161,7 +161,7 @@ h3 {
   align-items: center;
   position: absolute; /* Position absolutely */
   top: 0; /* Align with top */
-  left: 210px; /* Moved closer to Auto (was 240px) */
+  left: 260px; /* Moved further right (was 210px) */
   width: 40px; /* Set fixed width */
   justify-content: center; /* Center the arrow */
 }
@@ -210,7 +210,7 @@ h3 {
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  height: 38px; /* Fixed height for all buttons */
+  height: 40px; /* Increased from 38px to give more vertical space */
   box-sizing: border-box;
 }
 
@@ -230,17 +230,19 @@ h3 {
   font-weight: 500;
   flex-shrink: 0;
   padding: 0.6rem 0.9rem; /* Same padding as length buttons */
+  height: 40px; /* Increased from 38px to give more vertical space */
+  overflow: visible; /* Allow emoji to be fully visible */
 }
 
 /* Style for the tone display button in the top row - make consistent with length auto button */
 .tone-options .option-btn {
   justify-content: center;
   min-width: 80px; /* Match width with length auto button */
-  max-width: 80px; /* Constrain to same width as length buttons */
+  max-width: 120px; /* Increased from 80px to allow more space for emoji + text */
   font-weight: 500;
   flex-shrink: 0;
   background-color: #2a2a2a;
-  overflow: hidden;
+  overflow: visible; /* Changed from hidden to visible */
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 0.6rem 0.9rem; /* Same padding as length buttons */
