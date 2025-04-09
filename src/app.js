@@ -28,6 +28,15 @@ const noEmojiTones = [
   // Positive & Engaging - All can include emojis, but they will be limited by limitEmojiDensity function
 ];
 
+// Function to remove car/automobile emojis from text
+function removeCarEmojis(text) {
+  // Regex for common vehicle emojis
+  return text
+    .replace(/[🚗🚙🚘🚖🚕🏎️🛻🚚🚛🚐🚜🛵🏍️🛺🚲🛴🚍🚔🚓🚑🚒]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 // API endpoint for improving messages
 app.post("/api/improve", async (req, res) => {
   const { text, messageType, textLength, tone } = req.body;
@@ -69,9 +78,17 @@ app.post("/api/improve", async (req, res) => {
       messages: [
         {
           role: "system",
-          content: `You are an expert writer specializing in improving ${messageType} messages to sound more ${tone}. ${
+          content: `You are an expert writer specializing in improving ${messageType} messages. ${
+            tone === "auto" || tone === "automatic"
+              ? "When instructed to use automatic tone selection, you should determine the most appropriate tone based on the content of the original message. This refers to automatic tone detection only."
+              : `Make the message sound more ${tone}.`
+          } ${
             shouldIncludeEmojis
-              ? `Use appropriate emojis that match the ${tone} tone.`
+              ? `Use appropriate emojis that match the ${
+                  tone === "auto" || tone === "automatic"
+                    ? "automatically selected"
+                    : tone
+                } tone.`
               : "Do not include any emojis in your response."
           }`,
         },
@@ -124,6 +141,9 @@ app.post("/api/improve", async (req, res) => {
       improved = removeEmojis(improved);
     }
 
+    // Apply additional safety filter to remove any car emojis that might have slipped through
+    improved = removeCarEmojis(improved);
+
     // Send the improved message back to the client
     res.json({ improved });
   } catch (error) {
@@ -148,13 +168,22 @@ app.post("/api/improve", async (req, res) => {
     const fallbackResponse = generateFallbackResponse(text, tone, textLength);
     console.log("Using fallback response:", fallbackResponse);
 
+    // Apply car emoji filter to fallback response as well
+    const filteredResponse = removeCarEmojis(fallbackResponse);
+
     // Return fallback response instead of error
-    res.json({ improved: fallbackResponse });
+    res.json({ improved: filteredResponse });
   }
 });
 
 // Generate a fallback response in case of API failure
 function generateFallbackResponse(originalText, tone, textLength) {
+  // If tone is "auto" or "automatic", pick a reasonable default tone based on content
+  if (tone === "auto" || tone === "automatic") {
+    // Choose a neutral tone as default when in automatic mode
+    tone = "neutral";
+  }
+
   // Check if this tone should include emojis
   const shouldIncludeEmojis = !noEmojiTones.includes(tone);
 
@@ -163,7 +192,19 @@ function generateFallbackResponse(originalText, tone, textLength) {
 
   // Determine base multiplier for text length
   let lengthMultiplier = 1;
-  if (textLength === "medium") {
+  // If textLength is "auto" or "automatic", use a reasonable default based on original text length
+  if (textLength === "auto" || textLength === "automatic") {
+    // Choose appropriate length based on input length for automatic mode
+    if (originalText.length < 100) {
+      textLength = "short";
+    } else if (originalText.length < 300) {
+      textLength = "medium";
+      lengthMultiplier = 3;
+    } else {
+      textLength = "long";
+      lengthMultiplier = 8;
+    }
+  } else if (textLength === "medium") {
     lengthMultiplier = 3; // Increased from 2
   } else if (textLength === "long") {
     lengthMultiplier = 8; // Increased from 4 to generate much longer content
@@ -317,6 +358,9 @@ function generatePrompt(originalText, messageType, textLength, tone) {
   } else if (textLength === "long") {
     lengthGuidance =
       "Create an extensive, comprehensive, and detailed response. Include multiple paragraphs with thorough explanation and elaboration. Do not be concerned about length - longer is better for this option.";
+  } else if (textLength === "auto" || textLength === "automatic") {
+    lengthGuidance =
+      "Automatically determine the appropriate length based on the original message content. This is for automatic length determination only.";
   } else {
     lengthGuidance = "Provide an appropriate length response.";
   }
@@ -324,24 +368,44 @@ function generatePrompt(originalText, messageType, textLength, tone) {
   // Determine if this tone should include emojis
   const shouldIncludeEmojis = !noEmojiTones.includes(tone);
 
+  // Handle tone instructions
+  let toneInstruction;
+  if (tone === "auto" || tone === "automatic") {
+    toneInstruction =
+      "Automatically select the most appropriate tone based on the content of the original message. This is for automatic tone detection only.";
+  } else {
+    toneInstruction = `Rewrite the following ${messageType} message to make it sound more ${tone}.`;
+  }
+
   return `
-    Rewrite the following ${messageType} message to make it sound more ${tone}.
+    ${toneInstruction}
     ${lengthGuidance}
     ${
       shouldIncludeEmojis
-        ? `Include appropriate emojis that match the ${tone} tone.`
+        ? `Include appropriate emojis that match the ${
+            tone === "auto" || tone === "automatic"
+              ? "automatically selected"
+              : tone
+          } tone.`
         : `DO NOT include any emojis in your response.`
     }
     
     Original message: "${originalText}"
     
     Provide ONLY the improved message text without any additional explanation or formatting.
-    IMPORTANT: Make significant changes to the original text to ensure it clearly reflects the ${tone} tone.
+    IMPORTANT: Make significant changes to the original text to ensure it clearly reflects the ${
+      tone === "auto" || tone === "automatic" ? "automatically selected" : tone
+    } tone.
   `;
 }
 
 // Function to get an appropriate emoji for each tone
 function getToneEmoji(tone) {
+  // If tone is "auto" or "automatic", don't assign a specific emoji
+  if (tone === "auto" || tone === "automatic") {
+    return ""; // Return empty string for automatic tone selection - we'll let the system choose based on content
+  }
+
   const emojiMap = {
     // Professional (Work)
     formal: "🧐",
@@ -377,6 +441,11 @@ function containsEmoji(text) {
 
 // Function to strategically add emoji to text
 function addEmojiToText(text, emoji, tone) {
+  // Don't add emojis for automatic tone selection
+  if (tone === "auto" || tone === "automatic") {
+    return text;
+  }
+
   // First check if this tone should have emojis at all
   if (noEmojiTones.includes(tone)) {
     return text; // Return text without emojis for professional tones

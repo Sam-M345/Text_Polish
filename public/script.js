@@ -302,6 +302,11 @@ document.addEventListener("DOMContentLoaded", () => {
     ).dataset.tone;
     const originalMessage = messageInputEl.value.trim();
 
+    // Map "auto" values to "automatic" for API communication to avoid car emoji issues
+    // This preserves the UI labels while using a safer term for backend processing
+    const apiLength = selectedLength === "auto" ? "automatic" : selectedLength;
+    const apiTone = selectedTone === "auto" ? "automatic" : selectedTone;
+
     // Collapse the tone categories when improve button is pressed
     const toneCategories = document.getElementById("tone-categories");
     const toggleTonesBtn = document.getElementById("toggle-tones");
@@ -341,8 +346,8 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({
           text: originalMessage,
           messageType: selectedType,
-          textLength: selectedLength,
-          tone: selectedTone,
+          textLength: apiLength, // Use the mapped value
+          tone: apiTone, // Use the mapped value
         }),
       });
 
@@ -402,7 +407,7 @@ document.addEventListener("DOMContentLoaded", () => {
       stopHourglassAnimation(improveBtn, "Improved OK");
       setTimeout(() => {
         improveBtn.textContent = "Improve";
-      }, 3000);
+      }, 2000);
 
       // Show output container and icons when there's content
       outputContainer.style.display = "block";
