@@ -248,6 +248,45 @@ document.addEventListener("DOMContentLoaded", () => {
     button.textContent = newText;
   }
 
+  // Add a function to limit emoji density in generated text
+  function limitEmojiDensity(text) {
+    // 1. Remove consecutive emojis by keeping only the first one in each group
+    let reducedText = text.replace(/(\p{Emoji})\p{Emoji}+/gu, "$1");
+
+    // 2. Count remaining emojis and text
+    const emojiCount = (reducedText.match(/\p{Emoji}/gu) || []).length;
+    const wordCount = reducedText.split(/\s+/).length;
+
+    // 3. If emoji density is still too high (more than 1 emoji per 15 words, or more than 3 per paragraph)
+    const maxEmojisPerParagraph = 2;
+    const paragraphs = reducedText.split(/\n\n+/);
+
+    let result = [];
+    for (const paragraph of paragraphs) {
+      // Count emojis in this paragraph
+      const paragraphEmojiCount = (paragraph.match(/\p{Emoji}/gu) || []).length;
+
+      if (paragraphEmojiCount > maxEmojisPerParagraph) {
+        // Remove extra emojis, keeping only the first few
+        let processedParagraph = paragraph;
+        const emojis = paragraph.match(/\p{Emoji}/gu) || [];
+        for (let i = maxEmojisPerParagraph; i < emojis.length; i++) {
+          const emoji = emojis[i];
+          // Replace the emoji and any immediately following whitespace
+          processedParagraph = processedParagraph.replace(
+            new RegExp(emoji + "\\s*", "u"),
+            ""
+          );
+        }
+        result.push(processedParagraph);
+      } else {
+        result.push(paragraph);
+      }
+    }
+
+    return result.join("\n\n");
+  }
+
   // Update the improveBtn event listener to handle text formatting
   improveBtn.addEventListener("click", async () => {
     // Get selected options
@@ -325,8 +364,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // Add a class to the body to indicate content has been generated
         document.body.classList.add("response-generated");
 
+        // Apply emoji density limitation
+        const processedText = limitEmojiDensity(data.improved);
+
         // Split text by line breaks (handle both \n\n and single \n with proper spacing)
-        const paragraphs = data.improved.split(/\n\n+/).flatMap((block) => {
+        const paragraphs = processedText.split(/\n\n+/).flatMap((block) => {
           // Further split by single newlines but preserve as separate paragraphs
           return block.split(/\n/).filter((p) => p.trim());
         });
@@ -342,7 +384,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // If there were no paragraphs, just set the text directly
         if (improvedMessageEl.children.length === 0) {
-          improvedMessageEl.textContent = data.improved;
+          improvedMessageEl.textContent = processedText;
         }
       } else {
         improvedMessageEl.textContent = "No improvements were made.";
