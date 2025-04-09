@@ -531,83 +531,74 @@ textarea:focus {
     min-height: calc(100vh + var(--ios-safe-area-bottom));
   }
 
-  /* Make professional category buttons more compact on iOS */
-  .tone-category:nth-child(2) [data-tone] {
-    min-width: 70px; /* Smaller min-width for professional category buttons */
-    padding: 0.5rem 0.6rem; /* Reduced padding */
-    font-size: 0.8rem; /* Slightly smaller font */
-  }
-
-  /* Professional category button container adjustments */
+  /* Make professional category buttons more compact on iOS by preventing wrapping */
   .tone-category:nth-child(2) .option-buttons {
     display: flex;
-    flex-wrap: wrap; /* Allow wrapping but we'll control where it happens */
+    flex-wrap: nowrap !important; /* Force buttons to stay on one line */
+    overflow-x: auto; /* Allow scrolling if needed */
     justify-content: flex-start;
     width: 100%;
+    gap: 0.35rem; /* Keep small gap between buttons */
+    padding-right: 0;
   }
 
-  /* Make the first three buttons (Confident, Formal, Informative) in Professional category stay together */
+  /* Adjust buttons to fit in a single row */
+  .tone-category:nth-child(2) [data-tone] {
+    min-width: auto !important; /* Remove min-width constraint */
+    width: auto; /* Let buttons size to content */
+    padding: 0.4rem 0.4rem; /* Reduce padding */
+    font-size: 0.78rem; /* Keep smaller font */
+    margin-right: 0.35rem;
+    margin-left: 0;
+    flex-shrink: 1; /* Allow shrinking to fit */
+  }
+
+  /* Remove bottom margin that was used for row separation */
   .tone-category:nth-child(2) [data-tone="confident"],
   .tone-category:nth-child(2) [data-tone="formal"],
   .tone-category:nth-child(2) [data-tone="informative"] {
-    margin-bottom: 0.5rem; /* Add spacing below these buttons */
+    margin-bottom: 0 !important; /* Remove row separation */
   }
 
-  /* Make sure Neutral and Urgent stick together on the same line */
-  .tone-category:nth-child(2) [data-tone="neutral"],
-  .tone-category:nth-child(2) [data-tone="urgent"] {
-    display: inline-flex; /* Ensure they display inline */
-    margin-right: 0.5rem; /* Control spacing between them */
-    flex-shrink: 1; /* Allow some shrinking to fit */
-    min-width: 60px; /* Even more reduced min-width */
-    padding: 0.5rem 0.35rem; /* Further reduced padding */
-  }
-
-  /* Reduce emoji size in Professional category */
+  /* Keep emoji visible but smaller */
   .tone-category:nth-child(2) .emoji {
-    font-size: 1rem; /* Smaller emoji size */
-    margin-right: 0.3rem; /* Reduced spacing */
+    font-size: 0.95rem; /* Slightly smaller emoji size */
+    margin-right: 0.25rem; /* Reduced spacing */
   }
 
-  /* Further reduce emoji size in Neutral and Urgent buttons */
-  [data-tone="neutral"] .emoji,
-  [data-tone="urgent"] .emoji {
-    font-size: 0.95rem;
-    margin-right: 0.2rem;
+  /* Override any max-width constraints */
+  .tone-category:nth-child(2) {
+    max-width: 100%;
+    overflow-x: visible;
   }
 
-  /* Reduce the gap between buttons in iOS */
-  @media screen and (max-width: 390px) {
-    .option-buttons {
-      gap: 0.5rem; /* Reduced from 0.8rem */
+  /* For very small screens, further optimize */
+  @media screen and (max-width: 375px) {
+    .tone-category:nth-child(2) [data-tone] {
+      padding: 0.35rem 0.3rem; /* Even smaller padding */
+      font-size: 0.75rem; /* Smaller font */
     }
 
-    /* For very small screens, make the second row buttons fit even better */
-    .tone-category:nth-child(2) [data-tone="neutral"],
-    .tone-category:nth-child(2) [data-tone="urgent"] {
-      min-width: 55px; /* Further reduced for very small screens */
+    .tone-category:nth-child(2) .emoji {
+      font-size: 0.9rem;
+      margin-right: 0.2rem;
     }
   }
 
   /* Add specific fix for iOS tone category overlap */
   .expanded-tones {
-    margin-bottom: 70px; /* Additional space for iOS */
+    margin-bottom: 30px; /* Add some space, but less than before */
   }
 
   /* Improve button safe zone for iOS specifically */
   body.tones-expanded #improve-btn {
-    margin-bottom: 100px; /* Even more space for iOS devices to ensure empty space is visible */
-    position: relative; /* Ensure positioning context */
+    margin-bottom: 40px; /* Add some space, but less than before */
+    position: relative;
   }
 
-  /* Add empty space container after improve button for iOS */
-  body.tones-expanded #improve-btn::after {
-    content: "";
-    display: block;
-    height: 80px; /* Create additional empty space */
-    width: 100%;
-    position: absolute;
-    bottom: -80px;
+  /* Fix spacing between Thoughtful button and Improve button on iOS */
+  .tone-category:last-child {
+    margin-bottom: 30px !important; /* Fix spacing on iOS */
   }
 
   /* For devices with notches, respect the safe zone */
