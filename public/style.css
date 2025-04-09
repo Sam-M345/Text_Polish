@@ -531,26 +531,28 @@ textarea:focus {
     min-height: calc(100vh + var(--ios-safe-area-bottom));
   }
 
-  /* Make professional category buttons more compact on iOS by preventing wrapping */
-  .tone-category:nth-child(2) .option-buttons {
-    display: flex;
-    flex-wrap: nowrap !important; /* Force buttons to stay on one line */
-    overflow-x: auto; /* Allow scrolling if needed */
-    justify-content: flex-start;
-    width: 100%;
-    gap: 0.35rem; /* Keep small gap between buttons */
-    padding-right: 0;
-  }
-
-  /* Adjust buttons to fit in a single row */
+  /* Adjust professional category buttons now that emojis are removed */
   .tone-category:nth-child(2) [data-tone] {
-    min-width: auto !important; /* Remove min-width constraint */
+    min-width: auto !important; /* Allow buttons to size naturally */
     width: auto; /* Let buttons size to content */
-    padding: 0.4rem 0.4rem; /* Reduce padding */
-    font-size: 0.78rem; /* Keep smaller font */
+    padding: 0.4rem 0.7rem; /* Balanced padding for text-only buttons */
+    font-size: 0.8rem; /* Keep font size slightly smaller */
     margin-right: 0.35rem;
     margin-left: 0;
-    flex-shrink: 1; /* Allow shrinking to fit */
+    flex-shrink: 1;
+    text-align: center; /* Center text now that there's no emoji */
+    justify-content: center; /* Keep centered */
+  }
+
+  /* No emoji-specific adjustments needed anymore */
+  .tone-category:nth-child(2) .option-buttons {
+    display: flex;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    justify-content: flex-start;
+    width: 100%;
+    gap: 0.35rem;
+    padding-right: 0;
   }
 
   /* Remove bottom margin that was used for row separation */
@@ -560,28 +562,11 @@ textarea:focus {
     margin-bottom: 0 !important; /* Remove row separation */
   }
 
-  /* Keep emoji visible but smaller */
-  .tone-category:nth-child(2) .emoji {
-    font-size: 0.95rem; /* Slightly smaller emoji size */
-    margin-right: 0.25rem; /* Reduced spacing */
-  }
-
-  /* Override any max-width constraints */
-  .tone-category:nth-child(2) {
-    max-width: 100%;
-    overflow-x: visible;
-  }
-
   /* For very small screens, further optimize */
   @media screen and (max-width: 375px) {
     .tone-category:nth-child(2) [data-tone] {
-      padding: 0.35rem 0.3rem; /* Even smaller padding */
+      padding: 0.35rem 0.5rem; /* Adjusted padding for text-only buttons */
       font-size: 0.75rem; /* Smaller font */
-    }
-
-    .tone-category:nth-child(2) .emoji {
-      font-size: 0.9rem;
-      margin-right: 0.2rem;
     }
   }
 
