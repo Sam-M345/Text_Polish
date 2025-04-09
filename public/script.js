@@ -422,6 +422,14 @@ document.addEventListener("DOMContentLoaded", () => {
         toneCategories.classList.remove("collapsed-tones");
         toneCategories.classList.add("expanded-tones");
         toggleTonesBtn.textContent = "⏫";
+
+        // Give time for the transition to complete before scrolling to ensure visibility
+        setTimeout(() => {
+          // On iOS, ensure the Improve button is visible when categories are expanded
+          if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+            improveBtn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          }
+        }, 350);
       } else {
         toneCategories.classList.remove("expanded-tones");
         toneCategories.classList.add("collapsed-tones");

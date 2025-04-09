@@ -175,6 +175,9 @@ h3 {
 .expanded-tones {
   max-height: 500px; /* Adjust based on content height */
   transition: max-height 0.3s ease-in;
+  margin-bottom: 50px; /* Add bottom margin to prevent overlap with improve button */
+  position: relative;
+  z-index: 2; /* Higher than improve button to ensure proper stacking */
 }
 
 .tone-category {
@@ -388,8 +391,8 @@ textarea:focus {
   transition: background-color 0.3s;
   margin-top: 0;
   margin-bottom: 1.5rem;
-  position: static; /* Changed from sticky to static */
-  z-index: 1; /* Reduced from 100 */
+  position: relative; /* Changed from static to relative */
+  z-index: 1; /* Keep lower than expanded tones */
 }
 
 #improve-btn:hover {
@@ -505,6 +508,11 @@ textarea:focus {
   body {
     /* Ensure the page can scroll to reveal the safe area */
     min-height: calc(100vh + var(--ios-safe-area-bottom));
+  }
+
+  /* Add specific fix for iOS tone category overlap */
+  .expanded-tones {
+    margin-bottom: 70px; /* Additional space for iOS */
   }
 
   /* For devices with notches, respect the safe area */
