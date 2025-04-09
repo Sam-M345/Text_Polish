@@ -431,7 +431,16 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => {
           // On iOS, ensure the Improve button is visible when categories are expanded
           if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-            improveBtn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            // Change from 'nearest' to 'center' to show space below the button
+            improveBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+
+            // Add additional scroll to show space below the button
+            setTimeout(() => {
+              window.scrollBy({
+                top: 50, // Scroll an additional 50px to reveal space below
+                behavior: "smooth",
+              });
+            }, 400);
           }
         }, 350);
       } else {

@@ -183,6 +183,7 @@ h3 {
 /* Create safe zone for Improve button when tones are expanded */
 body.tones-expanded #improve-btn {
   margin-top: 20px; /* Add space above the button */
+  margin-bottom: 50px; /* Add significant space below the button */
   position: relative;
   z-index: 1;
   box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2); /* Add subtle shadow to separate from content above */
@@ -196,7 +197,7 @@ body.tones-expanded .output-section {
 /* For iOS devices, add extra spacing to account for bottom navigation */
 @supports (-webkit-touch-callout: none) {
   body.tones-expanded #improve-btn {
-    margin-bottom: 25px; /* Extra margin at bottom for iOS */
+    margin-bottom: 80px; /* Significantly increased margin for iOS to ensure empty space visibility */
   }
 }
 
@@ -537,8 +538,18 @@ textarea:focus {
 
   /* Improve button safe zone for iOS specifically */
   body.tones-expanded #improve-btn {
-    margin-bottom: 35px; /* More space for iOS devices */
+    margin-bottom: 100px; /* Even more space for iOS devices to ensure empty space is visible */
     position: relative; /* Ensure positioning context */
+  }
+
+  /* Add empty space container after improve button for iOS */
+  body.tones-expanded #improve-btn::after {
+    content: "";
+    display: block;
+    height: 80px; /* Create additional empty space */
+    width: 100%;
+    position: absolute;
+    bottom: -80px;
   }
 
   /* For devices with notches, respect the safe zone */
