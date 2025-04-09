@@ -6,6 +6,7 @@
   --text-color: #ffffff;
   --secondary-text: #aaaaaa;
   --border-color: #444444;
+  --ios-safe-area-bottom: 80px; /* Safe area padding for iOS bottom navigation */
 }
 
 body {
@@ -42,6 +43,9 @@ html {
   max-width: 900px;
   margin: 0 auto;
   padding: 1.5rem 2rem;
+  padding-bottom: calc(
+    1.5rem + var(--ios-safe-area-bottom)
+  ); /* Add safe area padding at bottom */
 }
 
 h1 {
@@ -493,6 +497,25 @@ textarea:focus {
   }
 }
 
+/* iOS Safari specific styles */
+@supports (-webkit-touch-callout: none) {
+  /* iOS specific styles */
+  body {
+    /* Ensure the page can scroll to reveal the safe area */
+    min-height: calc(100vh + var(--ios-safe-area-bottom));
+  }
+
+  /* For devices with notches, respect the safe area */
+  @supports (padding: max(0px)) {
+    .app-container {
+      padding-bottom: max(
+        calc(1.5rem + var(--ios-safe-area-bottom)),
+        env(safe-area-inset-bottom, 80px)
+      );
+    }
+  }
+}
+
 /* Responsive Design */
 @media screen and (max-width: 768px) {
   .app-container {
@@ -500,6 +523,7 @@ textarea:focus {
     padding: 1rem;
     width: 100%;
     overflow-x: hidden;
+    padding-bottom: calc(2rem + var(--ios-safe-area-bottom));
   }
 
   .option-buttons {
