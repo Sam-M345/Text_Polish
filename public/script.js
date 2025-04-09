@@ -257,7 +257,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const emojiCount = (reducedText.match(/\p{Emoji}/gu) || []).length;
     const wordCount = reducedText.split(/\s+/).length;
 
-    // 3. If emoji density is still too high (more than 1 emoji per 15 words, or more than 3 per paragraph)
+    // 3. Enforce emoji density limits (more strict enforcement)
+    // Maximum 2 emojis per paragraph for all tone categories that allow emojis
     const maxEmojisPerParagraph = 2;
     const paragraphs = reducedText.split(/\n\n+/);
 

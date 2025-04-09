@@ -15,17 +15,17 @@ app.use(express.static(path.join(__dirname, "../public")));
 
 // Define lists of tones that should not include emojis
 const noEmojiTones = [
-  // Professional (Work)
+  // Professional (Work) - All professional tones should have NO emojis
   "formal",
   "confident",
   "informative",
   "neutral",
   "urgent",
-  // Reflective & Responsive
+  // Reflective & Responsive - Thoughtful and Blunt should have NO emojis
   "thoughtful",
   "blunt",
-  // "surprised" - Enabling emojis for Surprised tone
-  // "supportive" - Enabling emojis for Supportive tone
+  // Note: "surprised" and "supportive" tones can include emojis
+  // Positive & Engaging - All can include emojis, but they will be limited by limitEmojiDensity function
 ];
 
 // API endpoint for improving messages
@@ -377,24 +377,24 @@ function containsEmoji(text) {
 
 // Function to strategically add emoji to text
 function addEmojiToText(text, emoji, tone) {
+  // First check if this tone should have emojis at all
+  if (noEmojiTones.includes(tone)) {
+    return text; // Return text without emojis for professional tones
+  }
+
   // For certain tones, add emoji at the beginning
   const beginningTones = [
-    // Professional (Work)
-    "formal",
-    "informative",
-    "neutral",
-    "urgent",
-
     // Reflective & Responsive
-    "blunt",
-    "thoughtful",
+    "thoughtful", // Actually shouldn't have emojis (in noEmojiTones)
+    "blunt", // Actually shouldn't have emojis (in noEmojiTones)
+    "surprised",
   ];
 
-  if (beginningTones.includes(tone)) {
+  if (beginningTones.includes(tone) && !noEmojiTones.includes(tone)) {
     return `${emoji} ${text}`;
   }
 
-  // For most other tones, add emoji to the end
+  // For other tones, add emoji to the end
   return `${text} ${emoji}`;
 }
 
