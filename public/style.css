@@ -374,22 +374,68 @@ label {
   font-size: 1.2rem;
 }
 
+/* Define a unified text style template for both input and output */
+.unified-text-style,
+textarea,
+#improved-message {
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--card-bg);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  text-align: left;
+}
+
+/* Apply the unified style to the textarea */
 textarea {
   width: 100%;
   min-height: 150px;
-  padding: 0.8rem;
-  border-radius: 8px;
   border: none;
-  background-color: #2a2a2a;
-  color: #ffffff;
-  font-size: 1.2rem;
   resize: vertical;
   margin-bottom: 0.5rem;
+  font-family: inherit;
+  transition: box-shadow 0.3s ease;
 }
 
-textarea:focus {
+/* Apply the unified style to the output container */
+#output-container {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  overflow: visible;
+  max-height: none;
+  height: auto;
+  position: relative;
+  z-index: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* Apply the unified style to the improved message */
+#improved-message {
+  max-height: none;
+  overflow: visible;
+}
+
+/* Remove button focus styling for a cleaner look */
+textarea:focus,
+#improved-message:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #25a56a;
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+/* Paragraph styling for both input and output */
+#improved-message p,
+textarea p {
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+}
+
+#improved-message p:last-child {
+  margin-bottom: 0;
 }
 
 /* Output section container */
@@ -425,55 +471,66 @@ textarea:focus {
   display: none;
 }
 
-#output-container {
-  background-color: var(--card-bg);
-  padding: 20px;
-  border-radius: 8px;
-  margin-top: 25px;
-  overflow: visible;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-height: none;
-  height: auto;
-  position: relative;
-  z-index: 1;
-  transition: opacity 0.3s ease; /* Add smooth transition */
+/* Remove the "editing" class and associated styling since we're keeping everything visible */
+/* Improve spacing for output section on mobile */
+.response-generated #output-container {
+  margin-top: 15px;
 }
 
-#improved-message {
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  line-height: 1.6;
-  color: var(--text-color);
-  font-size: 19px; /* Font size for generated text */
-  text-align: left;
-  padding: 0;
-  margin: 0;
-  max-height: none;
-  overflow: visible;
+/* Remove new-message-btn styles as the button has been removed */
+.new-message-btn,
+.response-generated .new-message-btn {
+  display: none;
 }
 
-#improved-message p {
-  margin-top: 0;
-  margin-bottom: 1.2rem;
-  text-align: left;
-  line-height: 1.6;
-  padding: 0;
-  text-indent: 0;
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  overflow-wrap: break-word;
+/* Show the scroll to top button on mobile */
+#scroll-to-top {
+  display: none; /* Hidden by default */
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 99;
+  border: none;
+  outline: none;
+  background-color: #146d43;
+  color: white;
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 50%;
+  font-size: 18px;
+  width: 50px;
+  height: 50px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-#improved-message p:last-child {
-  margin-bottom: 0;
+#scroll-to-top:hover {
+  background-color: #1d8a54;
 }
 
-/* Style for paragraphs in the improved message */
-/* #improved-message p:last-child {
-  margin-bottom: 0;
-} */
+/* Reduce spacing between Thoughtful button and Improve button by 40% */
+.expanded-tones {
+  margin-bottom: 30px !important; /* was 50px - 40% reduction */
+}
+
+body.tones-expanded #improve-btn {
+  margin-top: 12px !important; /* was 20px - 40% reduction */
+  margin-bottom: 30px !important; /* was 50px - 40% reduction */
+}
+
+/* Reduce spacing for last tone category (contains Thoughtful button) */
+.tone-category:last-child {
+  margin-bottom: 18px !important; /* was 30px for iOS - 40% reduction */
+}
+
+/* Also reduce the standard tone-category spacing */
+.tone-category {
+  margin-bottom: 0.7rem !important; /* was ~1.2rem - 40% reduction */
+}
+
+/* Adjust option section spacing */
+.option-section {
+  margin-bottom: 0.9rem !important; /* was 1.5rem - 40% reduction */
+}
 
 /* Ensures the Polish button is visible but allows the output to go below view */
 @media screen and (max-height: 858px) {
@@ -749,53 +806,4 @@ textarea:focus {
 /* Make share icon (⤴️) larger */
 #share-output .icon {
   font-size: 2.2rem; /* Increased from 1.2rem */
-}
-
-/* Scroll to top button */
-#scroll-to-top {
-  display: none; /* Hidden by default */
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 99;
-  border: none;
-  outline: none;
-  background-color: #146d43;
-  color: white;
-  cursor: pointer;
-  padding: 12px;
-  border-radius: 50%;
-  font-size: 18px;
-  width: 50px;
-  height: 50px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-#scroll-to-top:hover {
-  background-color: #1d8a54;
-}
-
-/* Reduce spacing between Thoughtful button and Improve button by 40% */
-.expanded-tones {
-  margin-bottom: 30px !important; /* was 50px - 40% reduction */
-}
-
-body.tones-expanded #improve-btn {
-  margin-top: 12px !important; /* was 20px - 40% reduction */
-  margin-bottom: 30px !important; /* was 50px - 40% reduction */
-}
-
-/* Reduce spacing for last tone category (contains Thoughtful button) */
-.tone-category:last-child {
-  margin-bottom: 18px !important; /* was 30px for iOS - 40% reduction */
-}
-
-/* Also reduce the standard tone-category spacing */
-.tone-category {
-  margin-bottom: 0.7rem !important; /* was ~1.2rem - 40% reduction */
-}
-
-/* Adjust option section spacing */
-.option-section {
-  margin-bottom: 0.9rem !important; /* was 1.5rem - 40% reduction */
 }
