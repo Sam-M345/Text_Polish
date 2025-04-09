@@ -21,7 +21,7 @@ Create a web app where a user can:
 ## 2. **Recommended Tech Stack**
 
 1. **Frontend**  
-   - **HTML5** + **CSS3** (stored in a dedicated `style.css` file).
+   - **HTML5** + ***CSS3** (stored in a dedicated `style.css` file).
    - **JavaScript** (a single or minimal JS files).  
    - Optionally use **React** or **Vue** if the developer prefers a modern framework. This guide will stay framework-agnostic.
 
