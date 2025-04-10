@@ -13,11 +13,14 @@
 .logo-container {
   text-align: center;
   margin-bottom: 1.5rem;
+  width: 100%; /* Ensure container takes full width */
 }
 
 .site-logo {
-  max-width: 400px;
-  height: auto;
+  width: 100%; /* Use full width of container */
+  max-width: 100%; /* Override previous max-width */
+  height: 70px; /* Set specific height for desktop only */
+  object-fit: contain; /* Maintain aspect ratio without stretching */
   margin: 0 auto;
 }
 
@@ -700,7 +703,7 @@ body.tones-expanded #improve-btn {
   }
 
   .site-logo {
-    max-width: 300px;
+    height: auto; /* Allow height to adjust proportionally on mobile */
   }
 
   .option-buttons {
