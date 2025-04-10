@@ -241,15 +241,15 @@ h3 {
 .expanded-tones {
   max-height: 500px; /* Adjust based on content height */
   transition: max-height 0.3s ease-in;
-  margin-bottom: 30px; /* Removed !important */
+  margin-bottom: 50px; /* Removed !important */
   position: relative;
   z-index: 2; /* Higher than improve button to ensure proper stacking */
 }
 
 /* Create safe zone for Improve button when tones are expanded */
 body.tones-expanded #improve-btn {
-  margin-top: 12px; /* Removed !important */
-  margin-bottom: 30px; /* Removed !important */
+  margin-top: 12px;
+  margin-bottom: 30px;
   position: relative;
   z-index: 1;
   box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
@@ -567,14 +567,6 @@ textarea p {
   margin-bottom: 50px; /* Removed !important */
 }
 
-body.tones-expanded #improve-btn {
-  margin-top: 12px; /* Removed !important */
-  margin-bottom: 30px; /* Removed !important */
-  position: relative;
-  z-index: 1;
-  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
-}
-
 /* Reduce spacing for last tone category (contains Thoughtful button) */
 .tone-category:last-child {
   margin-bottom: 18px; /* Removed !important */
@@ -687,12 +679,6 @@ body.tones-expanded #improve-btn {
   /* Add specific fix for iOS tone category overlap */
   .expanded-tones {
     margin-bottom: 30px; /* Add some space, but less than before */
-  }
-
-  /* Improve button safe zone for iOS specifically */
-  body.tones-expanded #improve-btn {
-    margin-bottom: 40px; /* Add some space, but less than before */
-    position: relative;
   }
 
   /* Fix spacing between Thoughtful button and Improve button on iOS */
