@@ -564,7 +564,7 @@ textarea p {
 
 /* Reduce spacing between Thoughtful button and Improve button by 40% */
 .expanded-tones {
-  margin-bottom: 40px; /* Removed !important */
+  margin-bottom: 50px; /* Removed !important */
 }
 
 body.tones-expanded #improve-btn {
