@@ -86,6 +86,13 @@ h3 {
   color: #cccccc;
 }
 
+/* Style for tone category headings (numbered bullet points) */
+.tone-category h3 {
+  font-weight: 700; /* Make bold */
+  color: #92c8db; /* Bright blue color to match other blue elements */
+  text-shadow: 0px 0px 1px rgba(0, 187, 255, 0.3); /* Add subtle glow effect */
+}
+
 /* Option Sections - Standardized spacing */
 .option-section {
   margin-top: 0;
@@ -968,6 +975,55 @@ body.tones-expanded #improve-btn {
   .output-icons .icon-group-container {
     justify-content: flex-end;
     margin-top: 0.5rem;
+  }
+
+  /* Create two-column layout for Positive section buttons in mobile view */
+  .tone-category:first-of-type .option-buttons,
+  .tone-category:nth-of-type(2) .option-buttons,
+  .tone-category:nth-of-type(3) .option-buttons {
+    display: grid;
+    grid-template-columns: 48% 48%; /* Two columns with small gap in between */
+    width: 100%;
+    gap: 0.6rem 4%; /* vertical gap, 4% horizontal gap */
+    padding: 0;
+    justify-content: start; /* Align to start of container */
+  }
+
+  /* First column buttons */
+  .tone-category:first-of-type .option-btn:nth-child(odd),
+  .tone-category:nth-of-type(2) .option-btn:nth-child(odd),
+  .tone-category:nth-of-type(3) .option-btn:nth-child(odd) {
+    justify-self: flex-end; /* Align to end of first column */
+    width: auto;
+    min-width: 0;
+    margin-right: 0;
+  }
+
+  /* Second column buttons */
+  .tone-category:first-of-type .option-btn:nth-child(even),
+  .tone-category:nth-of-type(2) .option-btn:nth-child(even),
+  .tone-category:nth-of-type(3) .option-btn:nth-child(even) {
+    justify-self: flex-start; /* Align to start of second column */
+    margin-left: 0;
+    width: auto;
+    min-width: 0;
+  }
+
+  /* Make all buttons in these categories consistent size */
+  .tone-category:first-of-type .option-btn,
+  .tone-category:nth-of-type(2) .option-btn,
+  .tone-category:nth-of-type(3) .option-btn {
+    padding: 0.5rem 0.8rem;
+    white-space: nowrap;
+  }
+
+  /* Remove any iOS-specific flex adjustments for professional section */
+  @supports (-webkit-touch-callout: none) {
+    .tone-category:nth-child(2) .option-buttons {
+      display: grid; /* Override flex display for iOS */
+      flex-wrap: unset; /* Remove flex-wrap property */
+      overflow-x: visible; /* Remove horizontal scroll */
+    }
   }
 }
 

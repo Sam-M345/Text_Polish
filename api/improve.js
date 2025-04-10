@@ -221,7 +221,7 @@ function getToneEmoji(tone) {
     joyful: "😃",
     exciting: "🤩",
     grieved: "😔",
-    loving: "😍",
+    loving: "♥️",
     surprised: "😲",
     informative: "🤓",
     expert: "🔬",

@@ -419,7 +419,7 @@ function getToneEmoji(tone) {
     exciting: "🤩",
     humorous: "😄",
     inspirational: "🙏🏻",
-    loving: "😍",
+    loving: "♥️",
 
     // Reflective & Responsive
     blunt: "⚡",
