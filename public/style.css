@@ -180,8 +180,9 @@ h3 {
 
 .tone-options {
   flex: 0 1 auto;
-  max-width: 60%;
-  overflow: hidden;
+  max-width: 65%;
+  overflow: visible;
+  margin-right: 50px;
 }
 
 /* Option buttons styling */
@@ -278,7 +279,7 @@ h3 {
   align-items: center;
   position: absolute;
   top: 0;
-  right: 470px;
+  right: 420px;
   width: 40px;
   justify-content: center;
 }
@@ -589,7 +590,8 @@ body.tones-expanded .output-section {
 
   .tone-options {
     margin-left: 8px;
-    max-width: 70%;
+    max-width: 75%;
+    margin-right: 30px;
   }
 
   .text-type-container h2 {
@@ -683,14 +685,14 @@ body.tones-expanded .output-section {
     padding: 15px;
   }
 
-  [data-tone="auto"],
-  [data-length="auto"] {
-    min-width: 60px;
-    padding: 0.4rem 0.6rem;
+  [data-length="auto"],
+  [data-tone="auto"] {
+    min-width: 35px;
+    padding: 0.4rem 0.5rem;
   }
 
   .toggle-tones {
-    right: 15px;
+    right: 0px;
   }
 
   [data-tone="auto"] {
@@ -787,5 +789,48 @@ body.tones-expanded .output-section {
       flex-wrap: unset;
       overflow-x: visible;
     }
+  }
+}
+
+/* Make all tone buttons match style of length buttons */
+[data-tone] {
+  justify-content: center;
+  min-width: 80px; /* Same width as length buttons */
+  font-weight: 500;
+  flex-shrink: 0;
+  padding: 0.6rem 0.9rem; /* Same padding as length buttons */
+  height: 40px; /* Increased from 38px to give more vertical space */
+  overflow: visible; /* Allow emoji to be fully visible */
+}
+
+/* Make Auto button specifically narrower */
+[data-tone="auto"] {
+  min-width: 60px;
+  padding: 0.4rem 0.6rem;
+}
+
+/* Make Auto button specifically narrower in both length and tone options */
+[data-length="auto"],
+[data-tone="auto"] {
+  min-width: 60px;
+  padding: 0.4rem 0.6rem;
+  border-radius: 50px;
+  background-color: #2a2a2a;
+  border: 2px solid var(--card-bg);
+}
+
+/* Style for the selected Auto button */
+[data-length="auto"].selected,
+[data-tone="auto"].selected {
+  border-color: var(--primary-color);
+  background-color: rgba(37, 165, 106, 0.2);
+}
+
+/* Mobile adjustments for Auto buttons */
+@media screen and (max-width: 768px) {
+  [data-length="auto"],
+  [data-tone="auto"] {
+    min-width: 35px; /* Further reduced from 45px to make Auto button even narrower */
+    padding: 0.4rem 0.5rem; /* Reduce padding slightly */
   }
 }
