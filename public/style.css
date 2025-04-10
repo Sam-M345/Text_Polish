@@ -1,4 +1,4 @@
-/* Base styles */
+/* Base styles and variables */
 :root {
   --primary-color: #25a56a;
   --background-color: #1a1a1a;
@@ -6,25 +6,17 @@
   --text-color: #ffffff;
   --secondary-text: #aaaaaa;
   --border-color: #444444;
-  --ios-safe-area-bottom: 80px; /* Safe zone padding for iOS bottom navigation */
+  --ios-safe-area-bottom: 80px;
 }
 
-/* Logo styling */
-.logo-container {
-  text-align: center;
-  margin-bottom: 0.7rem;
-  width: 100%; /* Ensure container takes full width */
+/* Global reset */
+* {
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
-.site-logo {
-  width: 100%; /* Use full width of container */
-  max-width: 100%; /* Override previous max-width */
-  height: 70px; /* Set specific height for desktop only */
-  object-fit: contain; /* Maintain aspect ratio without stretching */
-  margin: 0 auto;
-}
-
-body {
+body,
+html {
   margin: 0;
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
@@ -32,40 +24,22 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
   line-height: 1.6;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-  max-width: 100vw; /* Ensure body doesn't exceed viewport width */
-  box-sizing: border-box;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
-* {
-  box-sizing: border-box;
-  max-width: 100%; /* Ensure no element exceeds its container */
-}
-
-/* Basic reset / layout */
-body,
-html {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background-color: #1e1e1e;
-  color: #ffffff;
-  --card-bg: #2a2a2a;
-  --text-color: #ffffff;
-}
-
+/* Layout */
 .app-container {
   max-width: 900px;
   margin: 0 auto;
   padding: 1.5rem 2rem;
-  padding-bottom: calc(
-    1.5rem + var(--ios-safe-area-bottom)
-  ); /* Add safe zone padding at bottom */
+  padding-bottom: calc(1.5rem + var(--ios-safe-area-bottom));
 }
 
+/* Typography */
 h1 {
   text-align: center;
-  color: #ffffff;
+  color: var(--text-color);
   margin-top: 0;
   font-size: 2.2rem;
   margin-bottom: 1.5rem;
@@ -86,20 +60,42 @@ h3 {
   color: #cccccc;
 }
 
-/* Style for tone category headings (numbered bullet points) */
-.tone-category h3 {
-  font-weight: 700; /* Make bold */
-  color: #92c8db; /* Bright blue color to match other blue elements */
-  text-shadow: 0px 0px 1px rgba(0, 187, 255, 0.3); /* Add subtle glow effect */
+.bright-blue-title {
+  color: #00bbff;
+  font-size: 1.1rem;
 }
 
-/* Option Sections - Standardized spacing */
+.tone-category h3 {
+  font-weight: 700;
+  color: #92c8db;
+  text-shadow: 0px 0px 1px rgba(0, 187, 255, 0.3);
+}
+
+/* Logo */
+.logo-container {
+  text-align: center;
+  margin-bottom: 0.7rem;
+  width: 100%;
+}
+
+.site-logo {
+  width: 100%;
+  max-width: 100%;
+  height: 70px;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+/* Option Sections */
 .option-section {
   margin-top: 0;
   margin-bottom: 1.5rem;
 }
 
-.length-container {
+/* Container layouts */
+.length-container,
+.text-type-container,
+.tone-container {
   display: flex;
   align-items: center;
   width: 100%;
@@ -109,242 +105,99 @@ h3 {
 }
 
 .text-type-container {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  max-width: 380px; /* Limit the width in desktop view */
-}
-
-.text-type-container h2 {
-  margin: 0;
-  min-width: 110px; /* Reduced from 150px to take less space */
-  white-space: nowrap;
-}
-
-.text-type-options {
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  display: flex;
-  flex: 1;
-  margin-left: 10px; /* Reduced from 20px to save horizontal space */
-  gap: 0.8rem;
-  position: relative; /* Added for positioning */
-}
-
-/* New styles for invisible container */
-.button-group-container {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem; /* Matches the reduced gap in mobile view */
-  padding: 0;
-  margin: 0;
-  background: transparent; /* Ensure container is invisible */
-  border: none;
-}
-
-.length-container h2 {
-  margin: 0;
-  min-width: 90px; /* Reduced from 150px */
-  white-space: nowrap;
-}
-
-.colored-title {
-  color: #25a56a; /* Match the green used for selected items */
-}
-
-.bright-blue-title {
-  color: #00bbff; /* Bright blue color */
-  font-size: 1.1rem;
+  max-width: 380px;
 }
 
 .tone-container {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  height: 40px; /* Keep the height but without !important */
-  position: relative;
+  height: 40px;
+}
+
+/* Container headings */
+.text-type-container h2,
+.length-container h2,
+.tone-container h2 {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.text-type-container h2 {
+  min-width: 110px;
+}
+
+.length-container h2 {
+  min-width: 90px;
 }
 
 .tone-container h2 {
-  margin: 0;
-  min-width: 90px; /* Match with length-container h2 width */
-  white-space: nowrap;
+  min-width: 90px;
 }
 
-.tone-options {
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  display: flex;
-  flex: 0 1 auto;
-  margin-left: 10px; /* Match margin with length-options */
-  gap: 0.5rem; /* Add gap between the Auto and selected tone buttons */
-  max-width: 60%; /* Limit width to prevent overflow */
-  overflow: hidden; /* Hide overflow */
-}
-
-/* Style for the tone display button in the top row - make consistent with length auto button */
-.tone-options .option-btn {
-  justify-content: center;
-  min-width: 80px; /* Match width with length auto button */
-  max-width: 120px; /* Increased from 80px to allow more space for emoji + text */
-  font-weight: 500;
-  flex-shrink: 0;
-  background-color: #2a2a2a;
-  overflow: visible; /* Changed from hidden to visible */
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding: 0.6rem 0.9rem; /* Same padding as length buttons */
-}
-
-/* Style for non-selected secondary tone button */
-.tone-options .option-btn:not(.selected):not([data-tone="auto"]) {
-  background-color: #2a2a2a;
-  border-color: #444444;
-  opacity: 0.8;
-}
-
-/* Hover effect for non-selected secondary tone button */
-.tone-options .option-btn:not(.selected):not([data-tone="auto"]):hover {
-  background-color: #3a3a3a;
-  opacity: 1;
-}
-
-/* Style for the toggle-tones button to ensure it stays on the right */
-.toggle-tones {
-  background: transparent;
-  border: none;
-  color: #00bbff;
-  cursor: pointer;
-  font-size: 2.2rem;
-  padding: 0;
-  margin-left: 10px; /* Add margin to separate from tone buttons */
-  margin-right: 0; /* Reset margin */
+/* Button groups */
+.button-group-container {
   display: flex;
   align-items: center;
-  position: absolute; /* Position absolutely */
-  top: 0; /* Align with top */
-  right: 470px; /* Position from right instead of left - NEW DESKTOP POSITION */
-  width: 40px; /* Set fixed width */
-  justify-content: center; /* Center the arrow */
+  gap: 0.4rem;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
 }
 
-.collapsed-tones {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease-out;
+.icon-group-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.5rem 0;
+  width: 100%;
 }
 
-.expanded-tones {
-  max-height: 500px; /* Adjust based on content height */
-  transition: max-height 0.3s ease-in;
-  margin-bottom: 50px; /* Removed !important */
-  position: relative;
-  z-index: 2; /* Higher than improve button to ensure proper stacking */
-}
-
-/* Create safe zone for Improve button when tones are expanded */
-body.tones-expanded #improve-btn {
-  margin-top: 12px;
-  margin-bottom: 30px;
-  position: relative;
-  z-index: 1;
-  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* Ensure proper spacing after expanded tones for the improve button safe zone */
-body.tones-expanded .output-section {
-  margin-top: 30px; /* Increased space above output section */
-}
-
-/* For iOS devices, add extra spacing to account for bottom navigation */
-@supports (-webkit-touch-callout: none) {
-  body.tones-expanded #improve-btn {
-    margin-bottom: 80px; /* Significantly increased margin for iOS to ensure empty space visibility */
-  }
-}
-
-.tone-category {
-  margin-bottom: 0.7rem; /* Removed !important */
-}
-
+/* Option buttons layout */
 .option-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;
 }
 
-.length-options {
+.text-type-options,
+.length-options,
+.tone-options {
   flex-wrap: nowrap;
   justify-content: flex-start;
   display: flex;
-  flex: 1;
   margin-left: 10px;
   gap: 0.5rem;
+}
+
+.text-type-options {
+  flex: 1;
+}
+
+.length-options {
+  flex: 1;
   overflow-x: auto;
   white-space: nowrap;
 }
 
-/* Standard option button with emoji */
+.tone-options {
+  flex: 0 1 auto;
+  max-width: 60%;
+  overflow: hidden;
+}
+
+/* Option buttons styling */
 .option-btn {
   display: flex;
   align-items: center;
   padding: 0.6rem 0.9rem;
   border-radius: 50px;
-  border: 2px solid #2a2a2a;
-  background-color: #2a2a2a;
-  color: #ffffff;
+  border: 2px solid var(--card-bg);
+  background-color: var(--card-bg);
+  color: var(--text-color);
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  height: 40px; /* Increased from 38px to give more vertical space */
+  height: 40px;
   box-sizing: border-box;
-}
-
-/* Length buttons (no emoji) */
-[data-length] {
-  justify-content: center;
-  min-width: 80px; /* Fixed width for consistent layout */
-  font-weight: 500;
-  flex-shrink: 0; /* Prevent buttons from shrinking */
-  padding: 0.6rem 0.9rem; /* Standard padding */
-  font-size: 1.02rem; /* 20% increase from 0.85rem */
-}
-
-/* Make all tone buttons match style of length buttons */
-[data-tone] {
-  justify-content: center;
-  min-width: 80px; /* Same width as length buttons */
-  font-weight: 500;
-  flex-shrink: 0;
-  padding: 0.6rem 0.9rem; /* Same padding as length buttons */
-  height: 40px; /* Increased from 38px to give more vertical space */
-  overflow: visible; /* Allow emoji to be fully visible */
-}
-
-/* Make Text Type buttons match width of length buttons */
-[data-type] {
-  justify-content: center;
-  min-width: 50px; /* Reduced from 60px to take less horizontal space */
-  font-weight: 500;
-  flex-shrink: 0;
-  padding: 0.6rem 0.9rem; /* Reduced from 1.2rem to save horizontal space */
-}
-
-/* Special styling for Email and Messenger text-type buttons */
-.text-type-options .emoji {
-  display: inline-block; /* Show emojis again */
-  font-size: 1.2rem; /* Slightly reduced size */
-  margin-right: 0.5rem; /* Slightly reduced margin */
-}
-
-.text-type-options .option-btn {
-  justify-content: center;
-  text-align: center;
-  width: auto; /* Allow width to fit content */
 }
 
 .option-btn:hover {
@@ -352,10 +205,52 @@ body.tones-expanded .output-section {
 }
 
 .option-btn.selected {
-  border-color: #25a56a;
+  border-color: var(--primary-color);
   background-color: rgba(37, 165, 106, 0.2);
 }
 
+/* Button type variations */
+[data-length],
+[data-tone] {
+  justify-content: center;
+  min-width: 80px;
+  font-weight: 500;
+  flex-shrink: 0;
+  padding: 0.6rem 0.9rem;
+}
+
+[data-type] {
+  justify-content: center;
+  min-width: 50px;
+  font-weight: 500;
+  flex-shrink: 0;
+  padding: 0.6rem 0.9rem;
+}
+
+.tone-options .option-btn {
+  justify-content: center;
+  min-width: 80px;
+  max-width: 120px;
+  font-weight: 500;
+  flex-shrink: 0;
+  background-color: var(--card-bg);
+  overflow: visible;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tone-options .option-btn:not(.selected):not([data-tone="auto"]) {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  opacity: 0.8;
+}
+
+.tone-options .option-btn:not(.selected):not([data-tone="auto"]):hover {
+  background-color: #3a3a3a;
+  opacity: 1;
+}
+
+/* Emoji styling */
 .emoji {
   font-size: 1.1rem;
   margin-right: 0.4rem;
@@ -363,12 +258,63 @@ body.tones-expanded .output-section {
   vertical-align: middle;
 }
 
-/* Icon Buttons */
+.text-type-options .emoji {
+  display: inline-block;
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+}
+
+/* Toggle tones button */
+.toggle-tones {
+  background: transparent;
+  border: none;
+  color: #00bbff;
+  cursor: pointer;
+  font-size: 2.2rem;
+  padding: 0;
+  margin-left: 10px;
+  margin-right: 0;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  right: 470px;
+  width: 40px;
+  justify-content: center;
+}
+
+/* Tone categories */
+.collapsed-tones {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.expanded-tones {
+  max-height: 500px;
+  transition: max-height 0.3s ease-in;
+  margin-bottom: 50px;
+  position: relative;
+  z-index: 2;
+}
+
+.tone-category {
+  margin-bottom: 0.7rem;
+}
+
+/* Icon buttons */
 .icon-buttons {
   display: flex;
   gap: 0.8rem;
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+.output-icons {
+  margin-top: 0.5rem;
+  margin-bottom: 3rem;
+  justify-content: flex-end;
+  transition: opacity 0.3s ease;
 }
 
 .icon-btn {
@@ -378,9 +324,9 @@ body.tones-expanded .output-section {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  border: 2px solid #2a2a2a;
-  background-color: #2a2a2a;
-  color: #ffffff;
+  border: 2px solid var(--card-bg);
+  background-color: var(--card-bg);
+  color: var(--text-color);
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -401,33 +347,23 @@ body.tones-expanded .output-section {
   line-height: 1;
 }
 
+#share-output .icon {
+  font-size: 2.2rem;
+}
+
 .clipboard-icon {
   width: 1.4rem;
   height: 1.4rem;
-  color: #ffffff;
+  color: var(--text-color);
 }
 
-.output-icons {
-  margin-top: 0.5rem;
-  margin-bottom: 3rem;
-  justify-content: flex-end;
-  transition: opacity 0.3s ease; /* Add smooth transition */
-}
-
-/* Text Input Area */
+/* Text input and output */
 .text-section {
   margin-bottom: 1.5rem;
   margin-top: 1rem;
 }
 
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-
-/* Define a unified text style template for both input and output */
+/* Unified text style for input and output */
 .unified-text-style,
 textarea,
 #improved-message {
@@ -444,18 +380,16 @@ textarea,
   text-align: left;
 }
 
-/* Apply the unified style to the textarea */
 textarea {
   width: 100%;
-  min-height: 250px; /* Default height for text input area in desktop view */
+  min-height: 250px;
   border: none;
   resize: vertical;
-  margin-bottom: 0rem;
+  margin-bottom: 0;
   font-family: inherit;
   transition: box-shadow 0.3s ease;
 }
 
-/* Apply the unified style to the output container */
 #output-container {
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
@@ -467,20 +401,17 @@ textarea {
   transition: opacity 0.3s ease;
 }
 
-/* Apply the unified style to the improved message */
 #improved-message {
   max-height: none;
   overflow: visible;
 }
 
-/* Remove button focus styling for a cleaner look */
 textarea:focus,
 #improved-message:focus {
   outline: none;
   box-shadow: 0 0 0 2px var(--primary-color);
 }
 
-/* Paragraph styling for both input and output */
 #improved-message p,
 textarea p {
   margin-top: 0;
@@ -491,12 +422,7 @@ textarea p {
   margin-bottom: 0;
 }
 
-/* Output section container */
-.output-section {
-  position: relative;
-  margin-top: 1.5rem;
-}
-
+/* Improve button */
 #improve-btn {
   display: block;
   width: 100%;
@@ -510,7 +436,7 @@ textarea p {
   cursor: pointer;
   transition: background-color 0.3s;
   margin-top: 0;
-  margin-bottom: 1.5rem; /* Removed !important */
+  margin-bottom: 1.5rem;
   position: relative;
   z-index: 1;
 }
@@ -519,28 +445,22 @@ textarea p {
   background-color: #1d8a54;
 }
 
-/* Remove the visual separator below the button since it's no longer sticky */
-#improve-btn::after {
-  display: none;
+/* Tones expanded state */
+body.tones-expanded #improve-btn {
+  margin-top: 12px;
+  margin-bottom: 30px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* Remove the "editing" class and associated styling since we're keeping everything visible */
-/* Improve spacing for output section on mobile */
-/*
-.response-generated #output-container {
-  margin-top: 15px;
-}
-*/
-
-/* Remove new-message-btn styles as the button has been removed */
-.new-message-btn,
-.response-generated .new-message-btn {
-  display: none;
+body.tones-expanded .output-section {
+  margin-top: 30px;
 }
 
-/* Show the scroll to top button on mobile */
+/* Scroll to top button */
 #scroll-to-top {
-  display: none; /* Hidden by default */
+  display: none;
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -562,27 +482,43 @@ textarea p {
   background-color: #1d8a54;
 }
 
-/* Reduce spacing between Thoughtful button and Improve button by 40% */
-.expanded-tones {
-  margin-bottom: 50px; /* Removed !important */
+/* Response generated state */
+.response-generated .icon-buttons,
+.response-generated .icon-buttons .icon-btn,
+.response-generated .output-icons,
+.response-generated .output-icons .icon-btn {
+  opacity: 1;
 }
 
-/* Reduce spacing for last tone category (contains Thoughtful button) */
-.tone-category:last-child {
-  margin-bottom: 18px; /* Removed !important */
+/* iOS Safari specific styles */
+@supports (-webkit-touch-callout: none) {
+  body {
+    min-height: calc(100vh + var(--ios-safe-area-bottom));
+  }
+
+  .expanded-tones {
+    margin-bottom: 30px;
+  }
+
+  .tone-category:last-child {
+    margin-bottom: 30px;
+  }
+
+  body.tones-expanded #improve-btn {
+    margin-bottom: 80px;
+  }
+
+  @supports (padding: max(0px)) {
+    .app-container {
+      padding-bottom: max(
+        calc(1.5rem + var(--ios-safe-area-bottom)),
+        env(safe-area-inset-bottom, 80px)
+      );
+    }
+  }
 }
 
-/* Also reduce the standard tone-category spacing */
-.tone-category {
-  margin-bottom: 0.7rem; /* Removed !important */
-}
-
-/* Adjust option section spacing */
-.option-section {
-  margin-bottom: 1.5rem; /* Standard spacing - removed custom reduction and !important */
-}
-
-/* Ensures the Polish button is visible but allows the output to go below view */
+/* Small height screens */
 @media screen and (max-height: 858px) {
   .app-container {
     padding-top: 0.8rem;
@@ -596,21 +532,12 @@ textarea p {
     margin-bottom: 1.2rem;
   }
 
-  .tone-category {
-    margin-bottom: 1rem;
-  }
-
-  /* Adjust key spacing to ensure button remains in view */
   .text-section {
     margin-bottom: 0.8rem;
   }
 
   textarea {
-    min-height: 180px; /* initial height in mobile view   */
-  }
-
-  .output-section {
-    margin-top: 1rem;
+    min-height: 180px;
   }
 
   #improve-btn {
@@ -629,86 +556,17 @@ textarea p {
   }
 }
 
-/* iOS Safari specific styles */
-@supports (-webkit-touch-callout: none) {
-  /* iOS specific styles */
-  body {
-    /* Ensure the page can scroll to reveal the safe zone */
-    min-height: calc(100vh + var(--ios-safe-area-bottom));
-  }
-
-  /* Adjust professional category buttons now that emojis are removed */
-  .tone-category:nth-child(2) [data-tone] {
-    min-width: auto; /* Removed !important */
-    width: auto; /* Let buttons size to content */
-    padding: 0.4rem 0.7rem; /* Balanced padding for text-only buttons */
-    font-size: 0.8rem; /* Keep font size slightly smaller */
-    margin-right: 0.35rem;
-    margin-left: 0;
-    flex-shrink: 1;
-    text-align: center; /* Center text now that there's no emoji */
-    justify-content: center; /* Keep centered */
-  }
-
-  /* No emoji-specific adjustments needed anymore */
-  .tone-category:nth-child(2) .option-buttons {
-    display: flex;
-    flex-wrap: nowrap; /* Removed !important */
-    overflow-x: auto;
-    justify-content: flex-start;
-    width: 100%;
-    gap: 0.35rem;
-    padding-right: 0;
-  }
-
-  /* Remove bottom margin that was used for row separation */
-  .tone-category:nth-child(2) [data-tone="confident"],
-  .tone-category:nth-child(2) [data-tone="formal"],
-  .tone-category:nth-child(2) [data-tone="informative"] {
-    margin-bottom: 0; /* Removed !important */
-  }
-
-  /* For very small screens, further optimize */
-  @media screen and (max-width: 375px) {
-    .tone-category:nth-child(2) [data-tone] {
-      padding: 0.35rem 0.5rem; /* Adjusted padding for text-only buttons */
-      font-size: 0.75rem; /* Smaller font */
-    }
-  }
-
-  /* Add specific fix for iOS tone category overlap */
-  .expanded-tones {
-    margin-bottom: 30px; /* Add some space, but less than before */
-  }
-
-  /* Fix spacing between Thoughtful button and Improve button on iOS */
-  .tone-category:last-child {
-    margin-bottom: 30px; /* Removed !important */
-  }
-
-  /* For devices with notches, respect the safe zone */
-  @supports (padding: max(0px)) {
-    .app-container {
-      padding-bottom: max(
-        calc(1.5rem + var(--ios-safe-area-bottom)),
-        env(safe-area-inset-bottom, 80px)
-      );
-    }
-  }
-}
-
 /* Responsive Design */
 @media screen and (max-width: 768px) {
   .app-container {
     margin: 0;
     padding: 1rem;
     width: 100%;
-    overflow-x: hidden;
     padding-bottom: calc(2rem + var(--ios-safe-area-bottom));
   }
 
   .site-logo {
-    height: auto; /* Allow height to adjust proportionally on mobile */
+    height: auto;
   }
 
   .option-buttons {
@@ -718,37 +576,29 @@ textarea p {
     width: 100%;
   }
 
-  /* Special override for text-type-options to prevent wrapping */
   .text-type-options {
     flex-wrap: nowrap;
     gap: 0.4rem;
     margin-left: 10px;
   }
 
-  /* Smaller buttons for text type on mobile */
   .text-type-options .option-btn {
     padding: 0.5rem 0.8rem;
     min-width: auto;
   }
 
   .tone-options {
-    margin-left: 8px; /* Reduced from 10px */
-    max-width: 70%; /* Increased to allow more space for inspirational tone */
-  }
-
-  .length-container,
-  .tone-container,
-  .text-type-container {
-    width: 100%;
+    margin-left: 8px;
+    max-width: 70%;
   }
 
   .text-type-container h2 {
-    min-width: 80px; /* Reduced from 150px for mobile */
+    min-width: 80px;
   }
 
   [data-type] {
-    min-width: auto; /* Override min-width for mobile */
-    padding: 0.5rem 0.8rem; /* Smaller padding on mobile */
+    min-width: auto;
+    padding: 0.5rem 0.8rem;
   }
 
   h1 {
@@ -770,98 +620,52 @@ textarea p {
   }
 
   .length-container h2 {
-    min-width: 55px; /* Further reduced */
+    min-width: 55px;
   }
 
   [data-length] {
-    min-width: 55px; /* Further reduced */
-    padding: 0.4rem 0.5rem; /* Further reduced padding */
-    font-size: 0.96rem; /* 20% increase from 0.8rem */
-  }
-
-  .emoji {
-    font-size: 1.1rem;
-    margin-right: 0.4rem;
+    min-width: 55px;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.96rem;
   }
 
   .icon-btn {
-    width: 2.6rem; /* 30% larger than 2rem */
-    height: 2.6rem; /* 30% larger than 2rem */
+    width: 2.6rem;
+    height: 2.6rem;
   }
 
   .icon-buttons {
-    gap: 1.2rem; /* Increased by 50% from 0.8rem - removed !important */
+    gap: 1.2rem;
   }
 
   .icon {
-    font-size: 1.3rem; /* 30% larger than 1rem */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
+    font-size: 1.3rem;
   }
 
   .clipboard-icon {
-    width: 1.43rem; /* 30% larger than 1.1rem */
-    height: 1.43rem; /* 30% larger than 1.1rem */
+    width: 1.43rem;
+    height: 1.43rem;
   }
 
-  /* Make share icon (⤴️) even larger in mobile view */
   #share-output .icon {
-    font-size: 2.86rem; /* 30% larger than 2.2rem */
+    font-size: 2.86rem;
   }
 
-  /* Mobile view layout changes when response is generated */
   .response-generated .app-container {
     display: flex;
     flex-direction: column;
   }
 
-  /* When response is generated, reorder elements for mobile */
   .response-generated .output-section {
-    order: -1; /* Move output section to top */
+    order: -1;
     margin-top: 0;
     width: 100%;
   }
 
-  /* Ensure ALL icon buttons maintain full opacity, both input and output */
-  .response-generated .icon-buttons,
-  .response-generated .icon-buttons .icon-btn,
-  .response-generated .output-icons,
-  .response-generated .output-icons .icon-btn {
-    opacity: 1; /* Removed !important */
-  }
-
-  /* Standard spacing after text generation - keep consistent with normal state */
-  .response-generated .option-section,
-  .response-generated .text-section {
-    /* Remove all margin modifications to maintain consistent spacing with pre-generation state */
-  }
-
-  /* Improve vertical spacing in text area after response */
   .response-generated textarea {
-    min-height: 100px; /* Reduced height to save vertical space */
-    /* Removed margin-bottom override */
+    min-height: 100px;
   }
 
-  /* Response-generated output container should maintain same margin as normal */
-  .response-generated #output-container {
-    /* Removed margin-top override */
-  }
-
-  /* Remove new-message-btn styles as the button has been removed */
-  .new-message-btn,
-  .response-generated .new-message-btn {
-    display: none;
-  }
-
-  /* Show the scroll to top button on mobile */
-  #scroll-to-top {
-    display: block;
-  }
-
-  /* Only show scroll to top button when response is generated */
   #scroll-to-top {
     display: none;
   }
@@ -870,132 +674,91 @@ textarea p {
     display: block;
   }
 
-  /* Reduce paragraph spacing in mobile view */
   #improved-message p {
-    margin-bottom: 0.7rem; /* Reduced from 1.2rem for mobile */
-    line-height: 1.4; /* Tighter line height for mobile */
+    margin-bottom: 0.7rem;
+    line-height: 1.4;
   }
 
-  /* Additional spacing adjustments for mobile */
   #improved-message {
-    padding: 15px; /* Reduced padding */
+    padding: 15px;
   }
 
-  /* Mobile view layout changes when response is generated */
-  .response-generated .app-container {
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Removed all conflicting override sections here */
-
-  /* Make Auto buttons narrower in mobile view */
   [data-tone="auto"],
   [data-length="auto"] {
-    min-width: 60px; /* Removed !important */
-    padding: 0.4rem 0.6rem; /* Reduced horizontal padding */
+    min-width: 60px;
+    padding: 0.4rem 0.6rem;
   }
 
-  /* Reset arrow position for mobile */
   .toggle-tones {
-    right: 15px; /* Keep mobile position unchanged */
+    right: 15px;
   }
 
-  /* Ensure Auto buttons maintain proper text alignment */
   [data-tone="auto"] {
     text-align: center;
     justify-content: center;
   }
 
-  /* Improve spacing between title and options */
   .bright-blue-title {
-    margin-right: 8px; /* Add some spacing between title and options */
+    margin-right: 8px;
   }
 
-  /* Add specific adjustment for inspirational button */
   [data-tone="inspirational"] {
-    max-width: 130px; /* Allow more space for longer text */
-    min-width: 70px; /* Ensure minimum width */
+    max-width: 130px;
+    min-width: 70px;
   }
 
-  /* Control vertical space between button-group-container and text input area */
   .text-type-container .button-group-container {
-    margin-bottom: 0rem; /* This controls the space between text type buttons and text input */
+    margin-bottom: 0;
   }
 
-  /* General button group container styles */
-  .button-group-container {
-    display: flex;
-    gap: 0.4rem;
-    padding: 0;
-    margin: 0;
-  }
-
-  /* The text-section itself needs less top margin since the space is now controlled by button-group-container */
   .text-section {
-    margin-top: 0; /* Reduced from 0.1rem since spacing is now controlled by button-group-container */
+    margin-top: 0;
   }
 
-  /* Adjust the option section that contains the text type */
   .option-section:first-of-type {
-    margin-bottom: 0.3rem; /* Reduced margin for the text type section */
+    margin-bottom: 0.3rem;
   }
 
-  /* Specific styling for icon button containers */
-  .icon-group-container {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 1rem;
-    margin: 0.5rem 0;
-    width: 100%;
-  }
-
-  /* Adjust input icon container spacing */
   .text-section .icon-group-container {
-    margin-top: 0rem;
+    margin-top: 0;
     margin-bottom: 0.2rem;
   }
 
-  /* Adjust output icon container spacing */
   .output-icons .icon-group-container {
     justify-content: flex-end;
     margin-top: 0.5rem;
   }
 
-  /* Create two-column layout for Positive section buttons in mobile view */
+  /* Mobile grid layout for tone categories */
   .tone-category:first-of-type .option-buttons,
   .tone-category:nth-of-type(2) .option-buttons,
   .tone-category:nth-of-type(3) .option-buttons {
     display: grid;
-    grid-template-columns: 48% 48%; /* Two columns with small gap in between */
+    grid-template-columns: 48% 48%;
     width: 100%;
-    gap: 0.6rem 4%; /* vertical gap, 4% horizontal gap */
+    gap: 0.6rem 4%;
     padding: 0;
-    justify-content: start; /* Align to start of container */
+    justify-content: start;
   }
 
-  /* First column buttons */
   .tone-category:first-of-type .option-btn:nth-child(odd),
   .tone-category:nth-of-type(2) .option-btn:nth-child(odd),
   .tone-category:nth-of-type(3) .option-btn:nth-child(odd) {
-    justify-self: flex-end; /* Align to end of first column */
+    justify-self: flex-end;
     width: auto;
     min-width: 0;
     margin-right: 0;
   }
 
-  /* Second column buttons */
   .tone-category:first-of-type .option-btn:nth-child(even),
   .tone-category:nth-of-type(2) .option-btn:nth-child(even),
   .tone-category:nth-of-type(3) .option-btn:nth-child(even) {
-    justify-self: flex-start; /* Align to start of second column */
+    justify-self: flex-start;
     margin-left: 0;
     width: auto;
     min-width: 0;
   }
 
-  /* Make all buttons in these categories consistent size */
   .tone-category:first-of-type .option-btn,
   .tone-category:nth-of-type(2) .option-btn,
   .tone-category:nth-of-type(3) .option-btn {
@@ -1003,48 +766,26 @@ textarea p {
     white-space: nowrap;
   }
 
-  /* Remove any iOS-specific flex adjustments for professional section */
-  @supports (-webkit-touch-callout: none) {
-    .tone-category:nth-child(2) .option-buttons {
-      display: grid; /* Override flex display for iOS */
-      flex-wrap: unset; /* Remove flex-wrap property */
-      overflow-x: visible; /* Remove horizontal scroll */
-    }
-  }
-
-  /* Add specific spacing between the Thoughtful button and Improve button */
   .tone-category:last-child {
-    margin-bottom: 20px; /* Add clear spacing */
+    margin-bottom: 20px;
   }
 
-  /* Make the improve button position relative to the content flow with proper spacing */
   #improve-btn {
     position: relative;
-    margin-top: 15px; /* Add explicit top margin for separation */
+    margin-top: 15px;
     margin-bottom: 1.5rem;
     z-index: 1;
   }
 
-  /* Additional space when tones are expanded */
   body.tones-expanded .tone-category:last-child {
-    margin-bottom: 25px; /* More space when tones are expanded */
+    margin-bottom: 25px;
   }
-}
 
-/* Make share icon (⤴️) larger */
-#share-output .icon {
-  font-size: 2.2rem; /* Increased from 1.2rem */
-}
-
-/* Ensure ALL icon buttons maintain full opacity, both input and output */
-.response-generated .icon-buttons,
-.response-generated .icon-buttons .icon-btn,
-.response-generated .output-icons,
-.response-generated .output-icons .icon-btn {
-  opacity: 1; /* No !important needed */
-}
-
-/* Icon-buttons increased gap for mobile */
-.icon-buttons {
-  gap: 1.2rem; /* Increased by 50% from 0.8rem - removed !important */
+  @supports (-webkit-touch-callout: none) {
+    .tone-category:nth-child(2) .option-buttons {
+      display: grid;
+      flex-wrap: unset;
+      overflow-x: visible;
+    }
+  }
 }
