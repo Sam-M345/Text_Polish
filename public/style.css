@@ -83,8 +83,9 @@ h3 {
   color: #cccccc;
 }
 
-/* Option Sections */
+/* Option Sections - Standardized spacing */
 .option-section {
+  margin-top: 0;
   margin-bottom: 1.5rem;
 }
 
@@ -94,7 +95,7 @@ h3 {
   width: 100%;
   flex-wrap: nowrap;
   justify-content: flex-start;
-  position: relative; /* Add position for arrow reference positioning */
+  position: relative;
 }
 
 .text-type-container {
@@ -140,10 +141,9 @@ h3 {
   align-items: center;
   width: 100%;
   flex-wrap: nowrap;
-  margin-bottom: 1rem;
   justify-content: flex-start;
-  height: 40px; /* Increased from 38px to match the buttons */
-  position: relative; /* For arrow positioning */
+  height: 40px; /* Keep the height but without !important */
+  position: relative;
 }
 
 .tone-container h2 {
@@ -196,7 +196,7 @@ h3 {
   border: none;
   color: #00bbff;
   cursor: pointer;
-  font-size: 1.8rem;
+  font-size: 2.2rem;
   padding: 0;
   margin-left: 10px; /* Add margin to separate from tone buttons */
   margin-right: 0; /* Reset margin */
@@ -204,7 +204,7 @@ h3 {
   align-items: center;
   position: absolute; /* Position absolutely */
   top: 0; /* Align with top */
-  right: 10px; /* Position from right instead of left */
+  right: 470px; /* Position from right instead of left - NEW DESKTOP POSITION */
   width: 40px; /* Set fixed width */
   justify-content: center; /* Center the arrow */
 }
@@ -218,18 +218,18 @@ h3 {
 .expanded-tones {
   max-height: 500px; /* Adjust based on content height */
   transition: max-height 0.3s ease-in;
-  margin-bottom: 30px !important; /* was 50px - 40% reduction */
+  margin-bottom: 30px; /* Removed !important */
   position: relative;
   z-index: 2; /* Higher than improve button to ensure proper stacking */
 }
 
 /* Create safe zone for Improve button when tones are expanded */
 body.tones-expanded #improve-btn {
-  margin-top: 12px !important; /* was 20px - 40% reduction */
-  margin-bottom: 30px !important; /* was 50px - 40% reduction */
+  margin-top: 12px; /* Removed !important */
+  margin-bottom: 30px; /* Removed !important */
   position: relative;
   z-index: 1;
-  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2); /* Add subtle shadow to separate from content above */
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* Ensure proper spacing after expanded tones for the improve button safe zone */
@@ -245,7 +245,7 @@ body.tones-expanded .output-section {
 }
 
 .tone-category {
-  margin-bottom: 0.7rem !important; /* was ~1.2rem - 40% reduction */
+  margin-bottom: 0.7rem; /* Removed !important */
 }
 
 .option-buttons {
@@ -487,9 +487,9 @@ textarea p {
   cursor: pointer;
   transition: background-color 0.3s;
   margin-top: 0;
-  margin-bottom: 1.5rem;
-  position: relative; /* Changed from static to relative */
-  z-index: 1; /* Keep lower than expanded tones */
+  margin-bottom: 1.5rem; /* Removed !important */
+  position: relative;
+  z-index: 1;
 }
 
 #improve-btn:hover {
@@ -503,9 +503,11 @@ textarea p {
 
 /* Remove the "editing" class and associated styling since we're keeping everything visible */
 /* Improve spacing for output section on mobile */
+/*
 .response-generated #output-container {
   margin-top: 15px;
 }
+*/
 
 /* Remove new-message-btn styles as the button has been removed */
 .new-message-btn,
@@ -539,27 +541,30 @@ textarea p {
 
 /* Reduce spacing between Thoughtful button and Improve button by 40% */
 .expanded-tones {
-  margin-bottom: 30px !important; /* was 50px - 40% reduction */
+  margin-bottom: 30px; /* Removed !important */
 }
 
 body.tones-expanded #improve-btn {
-  margin-top: 12px !important; /* was 20px - 40% reduction */
-  margin-bottom: 30px !important; /* was 50px - 40% reduction */
+  margin-top: 12px; /* Removed !important */
+  margin-bottom: 30px; /* Removed !important */
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* Reduce spacing for last tone category (contains Thoughtful button) */
 .tone-category:last-child {
-  margin-bottom: 18px !important; /* was 30px for iOS - 40% reduction */
+  margin-bottom: 18px; /* Removed !important */
 }
 
 /* Also reduce the standard tone-category spacing */
 .tone-category {
-  margin-bottom: 0.7rem !important; /* was ~1.2rem - 40% reduction */
+  margin-bottom: 0.7rem; /* Removed !important */
 }
 
 /* Adjust option section spacing */
 .option-section {
-  margin-bottom: 0.9rem !important; /* was 1.5rem - 40% reduction */
+  margin-bottom: 1.5rem; /* Standard spacing - removed custom reduction and !important */
 }
 
 /* Ensures the Polish button is visible but allows the output to go below view */
@@ -620,7 +625,7 @@ body.tones-expanded #improve-btn {
 
   /* Adjust professional category buttons now that emojis are removed */
   .tone-category:nth-child(2) [data-tone] {
-    min-width: auto !important; /* Allow buttons to size naturally */
+    min-width: auto; /* Removed !important */
     width: auto; /* Let buttons size to content */
     padding: 0.4rem 0.7rem; /* Balanced padding for text-only buttons */
     font-size: 0.8rem; /* Keep font size slightly smaller */
@@ -634,7 +639,7 @@ body.tones-expanded #improve-btn {
   /* No emoji-specific adjustments needed anymore */
   .tone-category:nth-child(2) .option-buttons {
     display: flex;
-    flex-wrap: nowrap !important;
+    flex-wrap: nowrap; /* Removed !important */
     overflow-x: auto;
     justify-content: flex-start;
     width: 100%;
@@ -646,7 +651,7 @@ body.tones-expanded #improve-btn {
   .tone-category:nth-child(2) [data-tone="confident"],
   .tone-category:nth-child(2) [data-tone="formal"],
   .tone-category:nth-child(2) [data-tone="informative"] {
-    margin-bottom: 0 !important; /* Remove row separation */
+    margin-bottom: 0; /* Removed !important */
   }
 
   /* For very small screens, further optimize */
@@ -670,7 +675,7 @@ body.tones-expanded #improve-btn {
 
   /* Fix spacing between Thoughtful button and Improve button on iOS */
   .tone-category:last-child {
-    margin-bottom: 30px !important; /* Fix spacing on iOS */
+    margin-bottom: 30px; /* Removed !important */
   }
 
   /* For devices with notches, respect the safe zone */
@@ -719,7 +724,8 @@ body.tones-expanded #improve-btn {
   }
 
   .tone-options {
-    margin-left: 10px;
+    margin-left: 8px; /* Reduced from 10px */
+    max-width: 70%; /* Increased to allow more space for inspirational tone */
   }
 
   .length-container,
@@ -776,7 +782,7 @@ body.tones-expanded #improve-btn {
   }
 
   .icon-buttons {
-    gap: 1.2rem !important; /* Increased by 50% from 0.8rem and using !important to override */
+    gap: 1.2rem; /* Increased by 50% from 0.8rem - removed !important */
   }
 
   .icon {
@@ -816,31 +822,24 @@ body.tones-expanded #improve-btn {
   .response-generated .icon-buttons .icon-btn,
   .response-generated .output-icons,
   .response-generated .output-icons .icon-btn {
-    opacity: 1 !important;
+    opacity: 1; /* Removed !important */
   }
 
-  /* Reduce excessive vertical spacing after text generation */
+  /* Standard spacing after text generation - keep consistent with normal state */
   .response-generated .option-section,
   .response-generated .text-section {
-    margin-top: 1rem; /* Reduced from 2rem */
-    margin-bottom: 1rem; /* Add consistent bottom margin */
+    /* Remove all margin modifications to maintain consistent spacing with pre-generation state */
   }
 
   /* Improve vertical spacing in text area after response */
   .response-generated textarea {
     min-height: 100px; /* Reduced height to save vertical space */
-    margin-bottom: 0.3rem; /* Reduced margin */
+    /* Removed margin-bottom override */
   }
 
-  /* Compact the length and tone sections after response */
-  .response-generated .length-container,
-  .response-generated .tone-container {
-    margin-bottom: 0.5rem;
-  }
-
-  /* Improve spacing for output section on mobile */
+  /* Response-generated output container should maintain same margin as normal */
   .response-generated #output-container {
-    margin-top: 15px;
+    /* Removed margin-top override */
   }
 
   /* Remove new-message-btn styles as the button has been removed */
@@ -861,6 +860,54 @@ body.tones-expanded #improve-btn {
 
   .response-generated #scroll-to-top {
     display: block;
+  }
+
+  /* Reduce paragraph spacing in mobile view */
+  #improved-message p {
+    margin-bottom: 0.7rem; /* Reduced from 1.2rem for mobile */
+    line-height: 1.4; /* Tighter line height for mobile */
+  }
+
+  /* Additional spacing adjustments for mobile */
+  #improved-message {
+    padding: 15px; /* Reduced padding */
+  }
+
+  /* Mobile view layout changes when response is generated */
+  .response-generated .app-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Removed all conflicting override sections here */
+
+  /* Make Auto buttons narrower in mobile view */
+  [data-tone="auto"],
+  [data-length="auto"] {
+    min-width: 60px !important; /* Reduced from 80px */
+    padding: 0.4rem 0.6rem; /* Reduced horizontal padding */
+  }
+
+  /* Reset arrow position for mobile */
+  .toggle-tones {
+    right: 15px; /* Keep mobile position unchanged */
+  }
+
+  /* Ensure Auto buttons maintain proper text alignment */
+  [data-tone="auto"] {
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* Improve spacing between title and options */
+  .bright-blue-title {
+    margin-right: 8px; /* Add some spacing between title and options */
+  }
+
+  /* Add specific adjustment for inspirational button */
+  [data-tone="inspirational"] {
+    max-width: 130px; /* Allow more space for longer text */
+    min-width: 70px; /* Ensure minimum width */
   }
 }
 
