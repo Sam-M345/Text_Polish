@@ -564,7 +564,7 @@ textarea p {
 
 /* Reduce spacing between Thoughtful button and Improve button by 40% */
 .expanded-tones {
-  margin-bottom: 30px; /* Removed !important */
+  margin-bottom: 40px; /* Removed !important */
 }
 
 body.tones-expanded #improve-btn {
@@ -906,7 +906,7 @@ body.tones-expanded #improve-btn {
   /* Make Auto buttons narrower in mobile view */
   [data-tone="auto"],
   [data-length="auto"] {
-    min-width: 60px !important; /* Reduced from 80px */
+    min-width: 60px; /* Removed !important */
     padding: 0.4rem 0.6rem; /* Reduced horizontal padding */
   }
 
@@ -1025,9 +1025,40 @@ body.tones-expanded #improve-btn {
       overflow-x: visible; /* Remove horizontal scroll */
     }
   }
+
+  /* Add specific spacing between the Thoughtful button and Improve button */
+  .tone-category:last-child {
+    margin-bottom: 20px; /* Add clear spacing */
+  }
+
+  /* Make the improve button position relative to the content flow with proper spacing */
+  #improve-btn {
+    position: relative;
+    margin-top: 15px; /* Add explicit top margin for separation */
+    margin-bottom: 1.5rem;
+    z-index: 1;
+  }
+
+  /* Additional space when tones are expanded */
+  body.tones-expanded .tone-category:last-child {
+    margin-bottom: 25px; /* More space when tones are expanded */
+  }
 }
 
 /* Make share icon (⤴️) larger */
 #share-output .icon {
   font-size: 2.2rem; /* Increased from 1.2rem */
+}
+
+/* Ensure ALL icon buttons maintain full opacity, both input and output */
+.response-generated .icon-buttons,
+.response-generated .icon-buttons .icon-btn,
+.response-generated .output-icons,
+.response-generated .output-icons .icon-btn {
+  opacity: 1; /* No !important needed */
+}
+
+/* Icon-buttons increased gap for mobile */
+.icon-buttons {
+  gap: 1.2rem; /* Increased by 50% from 0.8rem - removed !important */
 }
