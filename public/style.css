@@ -12,7 +12,7 @@
 /* Logo styling */
 .logo-container {
   text-align: center;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.7rem;
   width: 100%; /* Ensure container takes full width */
 }
 
@@ -107,11 +107,12 @@ h3 {
   width: 100%;
   flex-wrap: nowrap;
   justify-content: flex-start;
+  max-width: 380px; /* Limit the width in desktop view */
 }
 
 .text-type-container h2 {
   margin: 0;
-  min-width: 150px;
+  min-width: 110px; /* Reduced from 150px to take less space */
   white-space: nowrap;
 }
 
@@ -120,8 +121,20 @@ h3 {
   justify-content: flex-start;
   display: flex;
   flex: 1;
-  margin-left: 20px;
+  margin-left: 10px; /* Reduced from 20px to save horizontal space */
   gap: 0.8rem;
+  position: relative; /* Added for positioning */
+}
+
+/* New styles for invisible container */
+.button-group-container {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem; /* Matches the reduced gap in mobile view */
+  padding: 0;
+  margin: 0;
+  background: transparent; /* Ensure container is invisible */
+  border: none;
 }
 
 .length-container h2 {
@@ -308,10 +321,10 @@ body.tones-expanded .output-section {
 /* Make Text Type buttons match width of length buttons */
 [data-type] {
   justify-content: center;
-  min-width: 60px; /* Reduced from 130px since emojis are removed */
+  min-width: 50px; /* Reduced from 60px to take less horizontal space */
   font-weight: 500;
   flex-shrink: 0;
-  padding: 0.6rem 1.2rem;
+  padding: 0.6rem 0.9rem; /* Reduced from 1.2rem to save horizontal space */
 }
 
 /* Special styling for Email and Messenger text-type buttons */
@@ -411,11 +424,11 @@ label {
 .unified-text-style,
 textarea,
 #improved-message {
-  font-size: 19px;
+  font-size: 15px;
   line-height: 1.6;
   color: var(--text-color);
   background-color: var(--card-bg);
-  padding: 20px;
+  padding: 10px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   white-space: pre-wrap;
@@ -427,10 +440,10 @@ textarea,
 /* Apply the unified style to the textarea */
 textarea {
   width: 100%;
-  min-height: 180px; /* Default height for text input area in mobile view */
+  min-height: 250px; /* Default height for text input area in desktop view */
   border: none;
   resize: vertical;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0rem;
   font-family: inherit;
   transition: box-shadow 0.3s ease;
 }
@@ -590,8 +603,7 @@ body.tones-expanded #improve-btn {
 
   /* Adjust key spacing to ensure button remains in view */
   .text-section {
-    margin-top: 1rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: 0.8rem;
   }
 
   textarea {
@@ -911,6 +923,51 @@ body.tones-expanded #improve-btn {
   [data-tone="inspirational"] {
     max-width: 130px; /* Allow more space for longer text */
     min-width: 70px; /* Ensure minimum width */
+  }
+
+  /* Control vertical space between button-group-container and text input area */
+  .text-type-container .button-group-container {
+    margin-bottom: 0rem; /* This controls the space between text type buttons and text input */
+  }
+
+  /* General button group container styles */
+  .button-group-container {
+    display: flex;
+    gap: 0.4rem;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* The text-section itself needs less top margin since the space is now controlled by button-group-container */
+  .text-section {
+    margin-top: 0; /* Reduced from 0.1rem since spacing is now controlled by button-group-container */
+  }
+
+  /* Adjust the option section that contains the text type */
+  .option-section:first-of-type {
+    margin-bottom: 0.3rem; /* Reduced margin for the text type section */
+  }
+
+  /* Specific styling for icon button containers */
+  .icon-group-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem;
+    margin: 0.5rem 0;
+    width: 100%;
+  }
+
+  /* Adjust input icon container spacing */
+  .text-section .icon-group-container {
+    margin-top: 0rem;
+    margin-bottom: 0.2rem;
+  }
+
+  /* Adjust output icon container spacing */
+  .output-icons .icon-group-container {
+    justify-content: flex-end;
+    margin-top: 0.5rem;
   }
 }
 

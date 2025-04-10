@@ -19,12 +19,14 @@
         <div class="text-type-container">
           <h2 class="bright-blue-title">Text Type</h2>
           <div class="option-buttons text-type-options">
-            <button class="option-btn" data-type="email">
-              <span class="emoji">📧</span> Email
-            </button>
-            <button class="option-btn selected" data-type="messenger">
-              <span class="emoji">💬</span> Text Message
-            </button>
+            <div class="button-group-container">
+              <button class="option-btn" data-type="email">
+                <span class="emoji">📧</span> Email
+              </button>
+              <button class="option-btn selected" data-type="messenger">
+                <span class="emoji">💬</span> Text Message
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -32,18 +34,20 @@
       <div class="text-section">
         <textarea
           id="message-input"
-          placeholder="Type your short message here..."
+          placeholder="Type your Email / Message here..."
         ></textarea>
         <div class="icon-buttons">
-          <button class="icon-btn" id="clear-input" title="Clear text">
-            <span class="icon">✕</span>
-          </button>
-          <button class="icon-btn" id="copy-input" title="Copy text">
-            <span class="icon">C</span>
-          </button>
-          <button class="icon-btn" id="paste-input" title="Paste text">
-            <span class="icon">📝</span>
-          </button>
+          <div class="button-group-container icon-group-container">
+            <button class="icon-btn" id="clear-input" title="Clear text">
+              <span class="icon">✕</span>
+            </button>
+            <button class="icon-btn" id="copy-input" title="Copy text">
+              <span class="icon">C</span>
+            </button>
+            <button class="icon-btn" id="paste-input" title="Paste text">
+              <span class="icon">📝</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -51,10 +55,14 @@
         <div class="length-container">
           <h2 class="bright-blue-title">Length</h2>
           <div class="option-buttons length-options">
-            <button class="option-btn selected" data-length="auto">Auto</button>
-            <button class="option-btn" data-length="short">Short</button>
-            <button class="option-btn" data-length="medium">Medium</button>
-            <button class="option-btn" data-length="long">Long</button>
+            <div class="button-group-container">
+              <button class="option-btn selected" data-length="auto">
+                Auto
+              </button>
+              <button class="option-btn" data-length="short">Short</button>
+              <button class="option-btn" data-length="medium">Medium</button>
+              <button class="option-btn" data-length="long">Long</button>
+            </div>
           </div>
         </div>
       </div>
@@ -64,7 +72,9 @@
           <h2 class="bright-blue-title">Writing Tone</h2>
           <button class="toggle-tones" id="toggle-tones">⏬</button>
           <div class="tone-options">
-            <button class="option-btn selected" data-tone="auto">Auto</button>
+            <div class="button-group-container">
+              <button class="option-btn selected" data-tone="auto">Auto</button>
+            </div>
           </div>
         </div>
 
@@ -131,18 +141,20 @@
         <div id="improved-message"></div>
       </div>
       <div class="icon-buttons output-icons">
-        <button class="icon-btn" id="clear-output" title="Clear output">
-          <span class="icon">✕</span>
-        </button>
-        <button class="icon-btn" id="copy-output" title="Copy output">
-          <span class="icon">C</span>
-        </button>
-        <button class="icon-btn" id="paste-output" title="Paste to input">
-          <span class="icon">📝</span>
-        </button>
-        <button class="icon-btn" id="share-output" title="Share output">
-          <span class="icon">⤴️</span>
-        </button>
+        <div class="button-group-container icon-group-container">
+          <button class="icon-btn" id="clear-output" title="Clear output">
+            <span class="icon">✕</span>
+          </button>
+          <button class="icon-btn" id="copy-output" title="Copy output">
+            <span class="icon">C</span>
+          </button>
+          <button class="icon-btn" id="paste-output" title="Paste to input">
+            <span class="icon">📝</span>
+          </button>
+          <button class="icon-btn" id="share-output" title="Share output">
+            <span class="icon">⤴️</span>
+          </button>
+        </div>
       </div>
     </div>
 
