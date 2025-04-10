@@ -12,7 +12,7 @@
 /* Logo styling */
 .logo-container {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.2rem;
   width: 100%; /* Ensure container takes full width */
 }
 
@@ -427,7 +427,7 @@ textarea,
 /* Apply the unified style to the textarea */
 textarea {
   width: 100%;
-  min-height: 150px;
+  min-height: 180px; /* Default height for text input area in mobile view */
   border: none;
   resize: vertical;
   margin-bottom: 0.5rem;
@@ -595,7 +595,7 @@ body.tones-expanded #improve-btn {
   }
 
   textarea {
-    min-height: 80px;
+    min-height: 180px; /* initial height in mobile view   */
   }
 
   .output-section {
