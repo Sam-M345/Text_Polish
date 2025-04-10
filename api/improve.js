@@ -124,6 +124,19 @@ module.exports = async (req, res) => {
     // Extract the improved message from the OpenAI response
     let improved = apiResponse.data.choices[0].message.content.trim();
 
+    // Strip surrounding quotation marks if present - apply multiple times to handle nested quotes
+    // First attempt with multiline support
+    improved = improved.replace(/^["'](.*)["']$/s, "$1").trim();
+    // Second attempt to catch any remaining quotes
+    improved = improved.replace(/^["'](.*)["']$/s, "$1").trim();
+    // Handle any remaining double or single quotes that completely wrap the text
+    if (
+      (improved.startsWith('"') && improved.endsWith('"')) ||
+      (improved.startsWith("'") && improved.endsWith("'"))
+    ) {
+      improved = improved.substring(1, improved.length - 1).trim();
+    }
+
     // Check if the improved message is empty or the same as original
     if (!improved || improved === text) {
       console.log("Warning: OpenAI returned empty or unchanged text");
@@ -186,7 +199,7 @@ function generatePrompt(originalText, messageType, textLength, tone) {
         : `DO NOT include any emojis in your response.`
     }
     
-    Original message: "${originalText}"
+    Original message: ${originalText}
     
     Provide ONLY the improved message text without any additional explanation or formatting.
     IMPORTANT: Make significant changes to the original text to ensure it clearly reflects the ${tone} tone.

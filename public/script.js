@@ -68,23 +68,58 @@ document.addEventListener("DOMContentLoaded", () => {
       // Update all tone buttons selection state
       handleButtonSelection(toneButtons, button);
 
-      // Find the top tone button
-      const topToneBtn = document.querySelector(".tone-options .option-btn");
+      // Find the top tone container and the tone options
+      const toneContainer = document.querySelector(".tone-container");
+      const toneOptions = document.querySelector(".tone-options");
+      const autoButton = toneOptions.querySelector('[data-tone="auto"]');
 
       if (selectedTone === "auto") {
-        // Reset the top button to "Auto" when Auto is selected
-        if (topToneBtn) {
-          topToneBtn.innerHTML = "Auto";
-          topToneBtn.dataset.tone = "auto";
+        // If Auto is selected:
+        // 1. Make sure Auto is selected with green highlight
+        autoButton.classList.add("selected");
+
+        // 2. If there's an existing secondary tone button, keep it but remove selected class
+        const existingToneButton = toneOptions.querySelector(
+          '.option-btn:not([data-tone="auto"])'
+        );
+        if (existingToneButton) {
+          existingToneButton.classList.remove("selected");
         }
       } else {
-        // Update the visible tone display if this isn't the top Auto button
-        if (topToneBtn) {
-          topToneBtn.innerHTML = toneText;
-          topToneBtn.dataset.tone = selectedTone;
+        // If another tone is selected:
+        // 1. Make sure Auto is there but not selected
+        autoButton.classList.remove("selected");
 
-          // Ensure the top button visually shows as selected
-          topToneBtn.classList.add("selected");
+        // 2. Check if there's already a selected tone button in the top
+        const existingToneButton = toneOptions.querySelector(
+          '.option-btn:not([data-tone="auto"])'
+        );
+
+        if (existingToneButton) {
+          // Update the existing button
+          existingToneButton.innerHTML = toneText;
+          existingToneButton.dataset.tone = selectedTone;
+          existingToneButton.classList.add("selected");
+        } else {
+          // Create a new button for the selected tone
+          const newSelectedButton = document.createElement("button");
+          newSelectedButton.className = "option-btn selected";
+          newSelectedButton.dataset.tone = selectedTone;
+          newSelectedButton.innerHTML = toneText;
+
+          // Add a click handler to the new button
+          newSelectedButton.addEventListener("click", function () {
+            // Find the original button in the categories and click it
+            const originalButton = document.querySelector(
+              `#tone-categories [data-tone="${selectedTone}"]`
+            );
+            if (originalButton) {
+              originalButton.click();
+            }
+          });
+
+          // Insert the new button after the Auto button
+          toneOptions.appendChild(newSelectedButton);
         }
       }
     });
@@ -407,7 +442,7 @@ document.addEventListener("DOMContentLoaded", () => {
       stopHourglassAnimation(improveBtn, "Improved OK");
       setTimeout(() => {
         improveBtn.textContent = "Improve";
-      }, 2000);
+      }, 800);
 
       // Show output container and icons when there's content
       outputContainer.style.display = "block";
