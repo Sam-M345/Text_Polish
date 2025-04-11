@@ -36,8 +36,9 @@ html {
   margin: 0;
   padding: 1rem;
   width: 100%;
-  padding-bottom: calc(
-    2rem + env(safe-area-inset-bottom, var(--ios-safe-area-bottom))
+  padding-bottom: max(
+    2rem,
+    env(safe-area-inset-bottom, var(--ios-safe-area-bottom))
   );
 }
 
@@ -620,7 +621,7 @@ body.tones-expanded .tone-category:last-child {
 #scroll-to-top {
   display: none;
   position: fixed;
-  bottom: calc(20px + env(safe-area-inset-bottom, 0));
+  bottom: max(20px, env(safe-area-inset-bottom, 20px));
   right: 20px;
   z-index: 99;
   border: none;
@@ -701,17 +702,6 @@ body.tones-expanded .tone-category:last-child {
   display: grid;
   flex-wrap: unset;
   overflow-x: visible;
-}
-
-/* Fix for notched iPhones */
-@supports (padding: max(0px)) {
-  .app-container {
-    padding-bottom: max(2rem, env(safe-area-inset-bottom, 80px));
-  }
-
-  #scroll-to-top {
-    bottom: max(20px, env(safe-area-inset-bottom, 20px));
-  }
 }
 
 /* Make sure the length-wrapper title is properly aligned */
@@ -860,5 +850,10 @@ body.tones-expanded .tone-category:last-child {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-top: 0.5rem;
+  margin-top: -0.7rem;
+}
+
+/* Fix for scroll-to-top button on notched iPhones */
+#scroll-to-top {
+  bottom: max(20px, env(safe-area-inset-bottom, 20px));
 }
