@@ -42,19 +42,16 @@ document.addEventListener("DOMContentLoaded", () => {
     button.addEventListener("click", () => {
       handleButtonSelection(lengthButtons, button);
 
-      // Adjust textarea based on selected length
+      // Remove height adjustment logic and keep a consistent placeholder
       const length = button.dataset.length;
+      // Only update the placeholder without changing height
       if (length === "auto") {
-        messageInputEl.style.minHeight = "120px";
         messageInputEl.placeholder = "Type your message here...";
       } else if (length === "short") {
-        messageInputEl.style.minHeight = "80px";
         messageInputEl.placeholder = "Type your short message here...";
       } else if (length === "medium") {
-        messageInputEl.style.minHeight = "120px";
         messageInputEl.placeholder = "Type your medium-length message here...";
       } else if (length === "long") {
-        messageInputEl.style.minHeight = "150px";
         messageInputEl.placeholder = "Type your detailed message here...";
       }
     });
@@ -486,13 +483,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (defaultLengthButton) {
     const defaultLength = defaultLengthButton.dataset.length;
     if (defaultLength === "short") {
-      messageInputEl.style.minHeight = "80px";
       messageInputEl.placeholder = "Type your short message here...";
     } else if (defaultLength === "medium") {
-      messageInputEl.style.minHeight = "120px";
       messageInputEl.placeholder = "Type your medium-length message here...";
     } else if (defaultLength === "long") {
-      messageInputEl.style.minHeight = "150px";
       messageInputEl.placeholder = "Type your detailed message here...";
     }
   }
