@@ -109,8 +109,16 @@ h3 {
   max-width: 380px;
 }
 
-.text-type-container:first-of-type {
-  margin-bottom: 0.3rem;
+/* Tone Settings Container - renamed from text-type-container */
+.tone-settings-container {
+  margin-top: 0;
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  position: relative;
+  max-width: none;
 }
 
 /* Container layouts */
@@ -389,7 +397,7 @@ h3 {
 .expanded-tones {
   max-height: 500px;
   transition: max-height 0.3s ease-in;
-  margin-bottom: 30px;
+
   position: relative;
   z-index: 2;
   width: 100%;
@@ -636,7 +644,7 @@ textarea p {
   cursor: pointer;
   transition: background-color 0.2s;
   position: relative;
-  margin-top: 15px;
+
   margin-bottom: 0rem;
   z-index: 1;
   touch-action: manipulation;
@@ -650,7 +658,6 @@ textarea p {
 
 /* Improve button state when tones are expanded */
 body.tones-expanded #improve-btn {
-  margin-top: 12px;
   margin-bottom: 80px;
   position: relative;
   z-index: 1;
@@ -659,10 +666,6 @@ body.tones-expanded #improve-btn {
 
 body.tones-expanded .output-section {
   margin-top: 30px;
-}
-
-body.tones-expanded .tone-category:last-child {
-  margin-bottom: 25px;
 }
 
 /* Scroll to top button */
