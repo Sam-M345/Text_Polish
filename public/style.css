@@ -130,12 +130,16 @@ h3 {
   margin-right: 10px; /* Add some space between "Length" text and buttons */
 }
 
-.length-wrapper .option-buttons {
-  display: flex;
-}
-
 .length-wrapper .button-group-container {
   margin-left: 0;
+  width: 100%; /* Make container fill available space */
+  display: flex;
+  justify-content: space-between; /* Distribute buttons evenly */
+}
+
+.length-wrapper .option-buttons {
+  display: flex;
+  width: 100%; /* Ensure the options container takes full width */
 }
 
 .text-type-container {
@@ -213,7 +217,8 @@ h3 {
   overflow-x: auto;
   white-space: nowrap;
   -webkit-overflow-scrolling: touch;
-  margin-left: 0; /* Remove left margin when in a row with the title */
+  margin-left: 0;
+  width: 100%; /* Ensure full width */
 }
 
 .tone-options {
@@ -261,9 +266,11 @@ h3 {
 }
 
 [data-length] {
-  min-width: 55px;
+  flex: 1; /* Allow buttons to grow equally */
+  min-width: unset; /* Remove fixed min-width */
   padding: 0.4rem 0.5rem;
   font-size: 0.96rem;
+  text-align: center; /* Center text in buttons */
 }
 
 [data-type] {
@@ -396,7 +403,7 @@ h3 {
   display: flex;
   gap: 1.2rem;
   margin-top: 0rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 2rem;
 }
 
 .output-icons {
@@ -709,4 +716,40 @@ body.tones-expanded #improve-btn {
 
 .text-type-options {
   margin-left: 0;
+}
+
+/* Stacked title for Output Length */
+.stacked-title {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  text-align: left;
+  margin-right: 10px;
+  min-width: 60px;
+}
+
+.stacked-title span {
+  display: block;
+}
+
+.stacked-title span:first-child {
+  margin-bottom: 4px; /* Increase this value to add more space between "Output" and "Length" */
+}
+
+/* Adjust length wrapper for the stacked title */
+.length-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+.length-wrapper h2 {
+  margin-bottom: 0;
+  margin-right: 10px;
+}
+
+/* Make sure auto button doesn't shrink too much */
+[data-length="auto"] {
+  min-width: 35px; /* Keep minimum width for auto button */
 }

@@ -42,18 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     button.addEventListener("click", () => {
       handleButtonSelection(lengthButtons, button);
 
-      // Remove height adjustment logic and keep a consistent placeholder
-      const length = button.dataset.length;
-      // Only update the placeholder without changing height
-      if (length === "auto") {
-        messageInputEl.placeholder = "Type your message here...";
-      } else if (length === "short") {
-        messageInputEl.placeholder = "Type your short message here...";
-      } else if (length === "medium") {
-        messageInputEl.placeholder = "Type your medium-length message here...";
-      } else if (length === "long") {
-        messageInputEl.placeholder = "Type your detailed message here...";
-      }
+      // Remove all placeholder customization to keep consistent message
     });
   });
 
@@ -474,21 +463,6 @@ document.addEventListener("DOMContentLoaded", () => {
         (window.innerHeight || document.documentElement.clientHeight) &&
       rect.right <= (window.innerWidth || document.documentElement.clientWidth)
     );
-  }
-
-  // Initialize length based on default selection
-  const defaultLengthButton = document.querySelector(
-    ".option-btn[data-length].selected"
-  );
-  if (defaultLengthButton) {
-    const defaultLength = defaultLengthButton.dataset.length;
-    if (defaultLength === "short") {
-      messageInputEl.placeholder = "Type your short message here...";
-    } else if (defaultLength === "medium") {
-      messageInputEl.placeholder = "Type your medium-length message here...";
-    } else if (defaultLength === "long") {
-      messageInputEl.placeholder = "Type your detailed message here...";
-    }
   }
 
   // Add toggle functionality for tone categories
