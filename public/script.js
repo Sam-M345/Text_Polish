@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const toneButtons = document.querySelectorAll(".option-btn[data-tone]");
 
   // Get other elements
-  const messageInputEl = document.getElementById("message-input");
+  const messageInputEl = document.getElementById("text-input-area");
   const improveBtn = document.getElementById("improve-btn");
   const improvedMessageEl = document.getElementById("improved-message");
   const outputContainer = document.getElementById("output-container");
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (SpeechRecognition) {
       recognition = new SpeechRecognition();
       recognition.continuous = true; // Keep listening until stopped
-      recognition.interimResults = true; // Show results as the user speaks
+      recognition.interimResults = false; // Only get final results to avoid changing previous words
       recognition.lang = "en-US"; // Default to English
 
       recognition.onstart = function () {
@@ -49,71 +49,55 @@ document.addEventListener("DOMContentLoaded", () => {
         micInputBtn.style.borderColor = "#25a56a";
       };
 
-      // Track current session to avoid duplicating text
-      let currentSession = {
-        transcript: "",
-        cursorPosition: 0,
-        isFinal: false,
-      };
-
       recognition.onresult = function (event) {
-        // Get cursor position at the start of this recognition session
-        if (!currentSession.cursorPosition) {
-          currentSession.cursorPosition = messageInputEl.selectionStart;
-        }
-
-        // Get the current text
+        // Get current cursor position for insertion
+        const cursorPosition = messageInputEl.selectionStart;
         const currentText = messageInputEl.value;
 
-        // Get latest speech recognition result (last result)
+        // Get only the latest final result
         const latestResult = event.results[event.results.length - 1];
-        const transcript = latestResult[0].transcript;
-        const isFinal = latestResult.isFinal;
+        let newText = latestResult[0].transcript;
 
-        // Calculate text to insert or replace
-        let textBefore = currentText.substring(
-          0,
-          currentSession.cursorPosition
-        );
-        let textAfter = currentText.substring(
-          currentSession.cursorPosition +
-            (currentSession.transcript?.length || 0)
-        );
+        // Fix first word duplication only on the first recognized text
+        if (currentText.trim() === "" || cursorPosition === 0) {
+          // Fix first word duplication using a simple pattern match
+          const firstWordMatch = newText.match(/^(\w+['']?\w*)\s+\1\b/i);
+          if (firstWordMatch) {
+            newText = newText.replace(/^(\w+['']?\w*)\s+/, "");
+            console.log("Fixed repeated first word");
+          }
+        }
 
-        // Update the text area - replace previous interim result with new one
-        messageInputEl.value = textBefore + transcript + textAfter;
+        // Add space before new text if needed (if cursor isn't at the start and doesn't end with space)
+        if (
+          cursorPosition > 0 &&
+          cursorPosition === currentText.length &&
+          !currentText.endsWith(" ") &&
+          currentText.trim() !== "" &&
+          !newText.startsWith(" ")
+        ) {
+          newText = " " + newText;
+        }
 
-        // Save the current transcript and final state
-        currentSession.transcript = transcript;
-        currentSession.isFinal = isFinal;
+        // Insert the new text at the cursor position
+        messageInputEl.value =
+          currentText.substring(0, cursorPosition) +
+          newText +
+          currentText.substring(cursorPosition);
 
         // Move cursor to end of inserted text
-        const newCursorPosition =
-          currentSession.cursorPosition + transcript.length;
+        const newCursorPosition = cursorPosition + newText.length;
         messageInputEl.selectionStart = newCursorPosition;
         messageInputEl.selectionEnd = newCursorPosition;
 
-        // If result is final, reset for the next utterance
-        if (isFinal) {
-          currentSession = {
-            transcript: "",
-            cursorPosition: newCursorPosition,
-            isFinal: false,
-          };
-        }
+        // Scroll textarea to keep cursor visible
+        messageInputEl.scrollTop = messageInputEl.scrollHeight;
       };
 
       recognition.onend = function () {
         isRecognizing = false;
         micInputBtn.style.backgroundColor = ""; // Reset color
         micInputBtn.style.borderColor = "";
-
-        // Reset session tracking
-        currentSession = {
-          transcript: "",
-          cursorPosition: 0,
-          isFinal: false,
-        };
       };
 
       recognition.onerror = function (event) {
