@@ -97,18 +97,24 @@ h3 {
 }
 
 /* Option Sections */
-.option-section {
+.text-type-container {
   margin-top: 0;
   margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  position: relative;
+  max-width: 380px;
 }
 
-.option-section:first-of-type {
+.text-type-container:first-of-type {
   margin-bottom: 0.3rem;
 }
 
 /* Container layouts */
 .length-container,
-.text-type-container,
 .tone-container {
   display: flex;
   align-items: center;
@@ -131,7 +137,7 @@ h3 {
   margin-right: 10px; /* Add some space between "Length" text and buttons */
 }
 
-.length-wrapper .button-group-container {
+.length-wrapper .length-buttons {
   margin-left: 0;
   width: 100%; /* Make container fill available space */
   display: flex;
@@ -143,24 +149,19 @@ h3 {
   width: 100%; /* Ensure the options container takes full width */
 }
 
-.text-type-container {
-  max-width: 380px;
-}
-
-.text-type-container h2 {
-  min-width: 80px;
-}
-
 .tone-container {
-  height: 40px;
+  height: auto;
+  min-height: 40px;
+  margin-bottom: 0;
+  position: relative;
 }
 
 .length-container h2 {
   min-width: 55px;
 }
 
-/* Button groups */
-.button-group-container {
+/* Button groups - Base Styles */
+.button-group-base {
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -170,16 +171,60 @@ h3 {
   border: none;
 }
 
-.text-type-container .button-group-container {
+/* Text Type Button Group */
+.text-type-buttons {
+  composes: button-group-base;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  width: 100%;
   margin-bottom: 0;
 }
 
-.icon-group-container {
+.text-type-buttons .option-btn {
+  flex: 0 1 auto;
+  white-space: nowrap;
+}
+
+/* Apply specific styling to the email button to push it right */
+.text-type-buttons .option-btn[data-type="email"] {
+  margin-left: auto;
+}
+
+/* Length Button Group */
+.length-buttons {
+  composes: button-group-base;
+  margin-left: 0;
+  width: 100%; /* Make container fill available space */
+  display: flex;
+  justify-content: space-between; /* Distribute buttons evenly */
+}
+
+/* Tone Button Group */
+.tone-buttons {
+  composes: button-group-base;
+}
+
+/* Icon Button Group */
+.icon-buttons-group {
+  composes: button-group-base;
   display: flex;
   align-items: center;
   gap: 1rem;
   margin: 0.5rem 0;
   width: 100%;
+}
+
+/* Output Action Button Group */
+.output-action-buttons {
+  composes: button-group-base;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 0.5rem;
+  gap: 0.8rem;
 }
 
 /* Option buttons layout */
@@ -266,14 +311,6 @@ h3 {
   flex-shrink: 0;
 }
 
-[data-length] {
-  flex: 1; /* Allow buttons to grow equally */
-  min-width: unset; /* Remove fixed min-width */
-  padding: 0.4rem 0.5rem;
-  font-size: 0.96rem;
-  text-align: center; /* Center text in buttons */
-}
-
 [data-type] {
   justify-content: center;
   min-width: auto;
@@ -344,6 +381,9 @@ h3 {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease-out;
+  width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .expanded-tones {
@@ -352,6 +392,7 @@ h3 {
   margin-bottom: 30px;
   position: relative;
   z-index: 2;
+  width: 100%;
 }
 
 .tone-category {
@@ -410,13 +451,20 @@ h3 {
 .output-icons {
   margin-top: 0rem;
   margin-bottom: 2rem;
+  display: flex;
+  width: 100%;
   justify-content: flex-end;
   transition: opacity 0.3s ease;
 }
 
-.output-icons .icon-group-container {
+.output-icons .output-action-buttons {
+  display: flex;
+  flex-direction: row;
   justify-content: flex-end;
+  align-items: center;
+  width: 100%;
   margin-top: 0.5rem;
+  gap: 0.8rem;
 }
 
 .icon-btn {
@@ -468,7 +516,7 @@ h3 {
   position: relative;
 }
 
-.text-section .icon-group-container {
+.text-section .icon-buttons-group {
   display: flex;
   justify-content: flex-end;
   width: 100%;
@@ -678,7 +726,6 @@ body.tones-expanded .tone-category:last-child {
 [data-length="auto"],
 [data-tone="auto"] {
   min-width: 35px;
-  padding: 0.4rem 0.5rem;
   border-radius: 50px;
   background-color: #2a2a2a;
   border: 2px solid var(--card-bg);
@@ -716,28 +763,37 @@ body.tones-expanded .tone-category:last-child {
   flex-direction: row;
   align-items: center;
   width: 100%;
+  flex-wrap: nowrap;
 }
 
 .text-type-wrapper h2 {
-  margin-bottom: 0;
-  margin-right: 10px;
-}
-
-.text-type-wrapper .option-buttons {
-  display: flex;
-}
-
-.text-type-wrapper .button-group-container {
-  margin-left: 0;
-}
-
-.text-type-wrapper .bright-blue-title {
-  display: inline-flex;
-  align-items: center;
+  margin-bottom: 10;
+  margin-right: 0px;
+  white-space: nowrap;
 }
 
 .text-type-options {
-  margin-left: 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: var(--spacing-md);
+  width: auto;
+}
+
+.text-type-buttons {
+  composes: button-group-base;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.text-type-buttons .option-btn {
+  flex: 0 1 auto;
+  white-space: nowrap;
 }
 
 /* Stacked title for Output Length */
@@ -856,4 +912,14 @@ body.tones-expanded .tone-category:last-child {
 /* Fix for scroll-to-top button on notched iPhones */
 #scroll-to-top {
   bottom: max(20px, env(safe-area-inset-bottom, 20px));
+}
+
+/* Ensure proper positioning of tone categories within its container */
+#tone-categories {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.text-type-container:last-of-type {
+  max-width: none;
 }

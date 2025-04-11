@@ -15,19 +15,17 @@
         <img src="images/logo.png" alt="Text Polish Logo" class="site-logo" />
       </div>
 
-      <div class="option-section">
-        <div class="text-type-container">
-          <div class="text-type-wrapper">
-            <h2 class="bright-blue-title">Text Type</h2>
-            <div class="option-buttons text-type-options">
-              <div class="button-group-container">
-                <button class="option-btn selected" data-type="messenger">
-                  <span class="emoji">💬</span> Text Message
-                </button>
-                <button class="option-btn" data-type="email">
-                  <span class="emoji">📧</span> Email
-                </button>
-              </div>
+      <div class="text-type-container">
+        <div class="text-type-wrapper">
+          <h2 class="bright-blue-title">Text Type</h2>
+          <div class="option-buttons text-type-options">
+            <div class="text-type-buttons">
+              <button class="option-btn selected" data-type="messenger">
+                <span class="emoji">💬</span> Text Message
+              </button>
+              <button class="option-btn" data-type="email">
+                <span class="emoji">📧</span> Email
+              </button>
             </div>
           </div>
         </div>
@@ -44,7 +42,7 @@
             👂🏻
           </div>
 
-          <div class="button-group-container icon-group-container">
+          <div class="icon-buttons-group">
             <button class="icon-btn" id="mic-input" title="Speech to text">
               <span class="icon">🎙️</span>
             </button>
@@ -61,7 +59,7 @@
         </div>
       </div>
 
-      <div class="option-section">
+      <div class="text-type-container">
         <div class="length-container">
           <div class="length-wrapper">
             <h2 class="bright-blue-title stacked-title">
@@ -69,7 +67,7 @@
               <span>Length</span>
             </h2>
             <div class="option-buttons length-options">
-              <div class="button-group-container">
+              <div class="length-buttons">
                 <button class="option-btn selected" data-length="auto">
                   Auto
                 </button>
@@ -82,12 +80,12 @@
         </div>
       </div>
 
-      <div class="option-section">
+      <div class="text-type-container">
         <div class="tone-container">
           <h2 class="bright-blue-title">Writing Tone</h2>
           <button class="toggle-tones" id="toggle-tones">⏬</button>
           <div class="tone-options">
-            <div class="button-group-container">
+            <div class="tone-buttons">
               <button class="option-btn selected" data-tone="auto">Auto</button>
             </div>
           </div>
@@ -149,7 +147,7 @@
       <div id="output-container">
         <div id="improved-message"></div>
         <div class="output-icons">
-          <div class="button-group-container icon-group-container">
+          <div class="output-action-buttons">
             <button class="icon-btn" id="edit-output" title="Edit output">
               <span class="icon">✏️</span>
             </button>
