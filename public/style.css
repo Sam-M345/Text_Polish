@@ -464,11 +464,13 @@ h3 {
 .text-section {
   margin-bottom: 0.8rem;
   margin-top: 0;
+  position: relative;
 }
 
 .text-section .icon-group-container {
-  margin-top: 0;
-  margin-bottom: 0.2rem;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
 }
 
 /* Unified text style for input and output */
@@ -497,6 +499,7 @@ textarea {
   margin-bottom: 0;
   font-family: inherit;
   transition: box-shadow 0.3s ease;
+  padding: 10px; /* Remove extra left padding */
 }
 
 .response-generated textarea {
@@ -519,12 +522,19 @@ textarea {
 #improved-message {
   max-height: none;
   overflow: visible;
-  padding: 15px;
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #e0e0e0;
+  padding: 10px; /* Match textarea padding */
+  font-size: 17.5px; /* Match textarea font size */
+  line-height: 1.6; /* Match textarea line height */
+  color: var(--text-color);
+  background-color: var(
+    --card-bg
+  ); /* Explicit matching of textarea background */
   white-space: pre-wrap;
   word-break: break-word;
+  font-family: inherit; /* Match textarea font family */
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Match textarea box shadow */
 }
 
 /* Improved message when editable */
@@ -787,4 +797,68 @@ body.tones-expanded .tone-category:last-child {
 .icon-btn {
   transition: background-color 0.3s ease, transform 0.2s ease,
     box-shadow 0.2s ease;
+}
+
+/* Listening indicator for speech recognition */
+#listening-indicator {
+  position: static; /* Change from absolute to static */
+  font-size: 1.8rem; /* Increased from 1.5rem to 1.8rem (20% larger) */
+  color: #25a56a;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+  margin-left: 0.5rem;
+  min-width: 80px; /* Reserve space for the animation */
+  text-align: left;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px; /* Add margin to raise the ear up slightly */
+  padding-top: 0px; /* Further adjustment to fine-tune vertical alignment */
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Animation for the listening dots */
+@keyframes listeningDots {
+  0%,
+  100% {
+    content: "👂🏻";
+  }
+  10% {
+    content: "👂🏻.";
+  }
+  20% {
+    content: "👂🏻..";
+  }
+  30% {
+    content: "👂🏻...";
+  }
+  40% {
+    content: "👂🏻....";
+  }
+  50% {
+    content: "👂🏻...";
+  }
+  60% {
+    content: "👂🏻..";
+  }
+  70% {
+    content: "👂🏻.";
+  }
+  80% {
+    content: "👂🏻";
+  }
+  90% {
+    content: "👂🏻";
+  }
+}
+
+/* Speech controls container for ear animation and mic controls */
+.speech-controls-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 0.5rem;
 }

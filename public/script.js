@@ -26,6 +26,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const clearOutputBtn = document.getElementById("clear-output");
   const copyOutputBtn = document.getElementById("copy-output");
   const pasteOutputBtn = document.getElementById("paste-output");
+  const listeningIndicator = document.getElementById("listening-indicator");
+
+  // Ensure listening indicator is hidden initially
+  if (listeningIndicator) {
+    listeningIndicator.classList.add("hidden");
+  }
 
   // Speech recognition setup
   let recognition = null;
@@ -43,10 +49,19 @@ document.addEventListener("DOMContentLoaded", () => {
       recognition.interimResults = false; // Only get final results to avoid changing previous words
       recognition.lang = "en-US"; // Default to English
 
+      // Initialize with the indicator hidden
+      if (listeningIndicator) {
+        listeningIndicator.classList.add("hidden");
+      }
+
       recognition.onstart = function () {
         isRecognizing = true;
         micInputBtn.style.backgroundColor = "#25a56a"; // Green to indicate active
         micInputBtn.style.borderColor = "#25a56a";
+        // Show the listening indicator
+        listeningIndicator.classList.remove("hidden");
+        listeningIndicator.style.display = "flex";
+        startListeningAnimation();
       };
 
       recognition.onresult = function (event) {
@@ -98,6 +113,10 @@ document.addEventListener("DOMContentLoaded", () => {
         isRecognizing = false;
         micInputBtn.style.backgroundColor = ""; // Reset color
         micInputBtn.style.borderColor = "";
+        // Hide the listening indicator
+        listeningIndicator.classList.add("hidden");
+        listeningIndicator.style.display = "none";
+        stopListeningAnimation();
       };
 
       recognition.onerror = function (event) {
@@ -105,6 +124,10 @@ document.addEventListener("DOMContentLoaded", () => {
         isRecognizing = false;
         micInputBtn.style.backgroundColor = ""; // Reset color
         micInputBtn.style.borderColor = "";
+        // Hide the listening indicator
+        listeningIndicator.classList.add("hidden");
+        listeningIndicator.style.display = "none";
+        stopListeningAnimation();
       };
 
       return true;
@@ -126,19 +149,41 @@ document.addEventListener("DOMContentLoaded", () => {
       if (isRecognizing) {
         // Stop listening
         recognition.stop();
+        // Explicitly hide the listening indicator when microphone is manually stopped
+        if (listeningIndicator) {
+          listeningIndicator.classList.add("hidden");
+          listeningIndicator.style.display = "none";
+        }
       } else {
         // Start listening
         try {
           messageInputEl.focus(); // Focus the textarea
           recognition.start();
           showIconFeedback(micInputBtn);
+
+          // Explicitly show the listening indicator when microphone is activated
+          if (listeningIndicator) {
+            listeningIndicator.classList.remove("hidden");
+            listeningIndicator.style.display = "flex";
+          }
         } catch (error) {
           console.error("Speech recognition error:", error);
           // If the recognition is already started, stop and restart
           if (error.name === "InvalidStateError") {
             recognition.stop();
+            // Make sure the indicator is hidden when stopping
+            if (listeningIndicator) {
+              listeningIndicator.classList.add("hidden");
+              listeningIndicator.style.display = "none";
+            }
+
             setTimeout(() => {
               recognition.start();
+              // Show the indicator when restarting
+              if (listeningIndicator) {
+                listeningIndicator.classList.remove("hidden");
+                listeningIndicator.style.display = "flex";
+              }
             }, 200);
           }
         }
@@ -763,5 +808,32 @@ document.addEventListener("DOMContentLoaded", () => {
         behavior: "smooth",
       });
     });
+  }
+
+  // Functions for listening animation
+  let listeningAnimationInterval;
+  const dotStates = ["", ".", "..", "...", "....", "...", "..", "."];
+
+  function startListeningAnimation() {
+    if (listeningAnimationInterval) {
+      clearInterval(listeningAnimationInterval);
+    }
+
+    let dotIndex = 0;
+    const ear = "👂🏻";
+
+    listeningAnimationInterval = setInterval(() => {
+      if (listeningIndicator) {
+        listeningIndicator.textContent = ear + dotStates[dotIndex];
+        dotIndex = (dotIndex + 1) % dotStates.length;
+      }
+    }, 250); // Update every 250ms for smooth animation
+  }
+
+  function stopListeningAnimation() {
+    if (listeningAnimationInterval) {
+      clearInterval(listeningAnimationInterval);
+      listeningAnimationInterval = null;
+    }
   }
 });
