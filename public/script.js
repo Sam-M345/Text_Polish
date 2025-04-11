@@ -18,12 +18,149 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Get icon buttons
+  const micInputBtn = document.getElementById("mic-input");
   const clearInputBtn = document.getElementById("clear-input");
   const copyInputBtn = document.getElementById("copy-input");
   const pasteInputBtn = document.getElementById("paste-input");
+  const editOutputBtn = document.getElementById("edit-output");
   const clearOutputBtn = document.getElementById("clear-output");
   const copyOutputBtn = document.getElementById("copy-output");
   const pasteOutputBtn = document.getElementById("paste-output");
+
+  // Speech recognition setup
+  let recognition = null;
+  let isRecognizing = false;
+
+  // Initialize speech recognition if available
+  function initSpeechRecognition() {
+    // Check for SpeechRecognition API support
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.continuous = true; // Keep listening until stopped
+      recognition.interimResults = true; // Show results as the user speaks
+      recognition.lang = "en-US"; // Default to English
+
+      recognition.onstart = function () {
+        isRecognizing = true;
+        micInputBtn.style.backgroundColor = "#25a56a"; // Green to indicate active
+        micInputBtn.style.borderColor = "#25a56a";
+      };
+
+      // Track current session to avoid duplicating text
+      let currentSession = {
+        transcript: "",
+        cursorPosition: 0,
+        isFinal: false,
+      };
+
+      recognition.onresult = function (event) {
+        // Get cursor position at the start of this recognition session
+        if (!currentSession.cursorPosition) {
+          currentSession.cursorPosition = messageInputEl.selectionStart;
+        }
+
+        // Get the current text
+        const currentText = messageInputEl.value;
+
+        // Get latest speech recognition result (last result)
+        const latestResult = event.results[event.results.length - 1];
+        const transcript = latestResult[0].transcript;
+        const isFinal = latestResult.isFinal;
+
+        // Calculate text to insert or replace
+        let textBefore = currentText.substring(
+          0,
+          currentSession.cursorPosition
+        );
+        let textAfter = currentText.substring(
+          currentSession.cursorPosition +
+            (currentSession.transcript?.length || 0)
+        );
+
+        // Update the text area - replace previous interim result with new one
+        messageInputEl.value = textBefore + transcript + textAfter;
+
+        // Save the current transcript and final state
+        currentSession.transcript = transcript;
+        currentSession.isFinal = isFinal;
+
+        // Move cursor to end of inserted text
+        const newCursorPosition =
+          currentSession.cursorPosition + transcript.length;
+        messageInputEl.selectionStart = newCursorPosition;
+        messageInputEl.selectionEnd = newCursorPosition;
+
+        // If result is final, reset for the next utterance
+        if (isFinal) {
+          currentSession = {
+            transcript: "",
+            cursorPosition: newCursorPosition,
+            isFinal: false,
+          };
+        }
+      };
+
+      recognition.onend = function () {
+        isRecognizing = false;
+        micInputBtn.style.backgroundColor = ""; // Reset color
+        micInputBtn.style.borderColor = "";
+
+        // Reset session tracking
+        currentSession = {
+          transcript: "",
+          cursorPosition: 0,
+          isFinal: false,
+        };
+      };
+
+      recognition.onerror = function (event) {
+        console.error("Speech recognition error:", event.error);
+        isRecognizing = false;
+        micInputBtn.style.backgroundColor = ""; // Reset color
+        micInputBtn.style.borderColor = "";
+      };
+
+      return true;
+    } else {
+      console.log("Speech recognition not supported");
+      return false;
+    }
+  }
+
+  // Speech to text button
+  if (micInputBtn) {
+    micInputBtn.addEventListener("click", () => {
+      // Initialize on first click if not already done
+      if (!recognition && !initSpeechRecognition()) {
+        alert("Speech recognition is not supported in your browser.");
+        return;
+      }
+
+      if (isRecognizing) {
+        // Stop listening
+        recognition.stop();
+      } else {
+        // Start listening
+        try {
+          messageInputEl.focus(); // Focus the textarea
+          recognition.start();
+          showIconFeedback(micInputBtn);
+        } catch (error) {
+          console.error("Speech recognition error:", error);
+          // If the recognition is already started, stop and restart
+          if (error.name === "InvalidStateError") {
+            recognition.stop();
+            setTimeout(() => {
+              recognition.start();
+            }, 200);
+          }
+        }
+      }
+    });
+  }
 
   // Button selection handlers
   function handleButtonSelection(buttons, clickedButton) {
@@ -147,6 +284,32 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   });
 
+  // Edit output text
+  if (editOutputBtn) {
+    editOutputBtn.addEventListener("click", () => {
+      // Check if we're already in edit mode
+      const isEditing =
+        improvedMessageEl.getAttribute("contenteditable") === "true";
+
+      if (isEditing) {
+        // Save changes and exit edit mode
+        improvedMessageEl.setAttribute("contenteditable", "false");
+        // Change button appearance to indicate editing is complete
+        editOutputBtn.classList.remove("active");
+        editOutputBtn.title = "Edit output";
+        showIconFeedback(editOutputBtn);
+      } else {
+        // Enter edit mode
+        improvedMessageEl.setAttribute("contenteditable", "true");
+        // Focus the element for immediate editing
+        improvedMessageEl.focus();
+        // Change button appearance to indicate we're in edit mode
+        editOutputBtn.classList.add("active");
+        editOutputBtn.title = "Save edits";
+      }
+    });
+  }
+
   // Clear output text
   clearOutputBtn.addEventListener("click", () => {
     improvedMessageEl.textContent = "";
@@ -193,42 +356,120 @@ document.addEventListener("DOMContentLoaded", () => {
       if (improvedMessageEl.innerText || improvedMessageEl.textContent) {
         const textToShare =
           improvedMessageEl.innerText || improvedMessageEl.textContent;
+        console.log("Share button clicked, text length:", textToShare.length);
 
         if (navigator.share) {
+          console.log("Web Share API available, attempting to use it");
           navigator
             .share({
               title: "Text Polish Output",
               text: textToShare,
             })
             .then(() => {
+              console.log("Share successful via Web Share API");
               showIconFeedback(shareOutputBtn);
             })
             .catch((error) => {
-              console.error("Error sharing:", error);
+              console.error("Error sharing via Web Share API:", error);
               // Fallback to copy if sharing fails
-              navigator.clipboard.writeText(textToShare).then(() => {
-                alert("Text copied to clipboard for sharing!");
-                showIconFeedback(shareOutputBtn);
-              });
+              tryClipboardFallback(textToShare);
             });
         } else {
-          // Fallback for browsers that don't support the Web Share API
-          navigator.clipboard.writeText(textToShare).then(() => {
-            alert("Text copied to clipboard for sharing!");
-            showIconFeedback(shareOutputBtn);
-          });
+          console.log("Web Share API not available, using clipboard fallback");
+          tryClipboardFallback(textToShare);
         }
+      } else {
+        console.warn("Nothing to share - no text in output");
+        alert("Nothing to share - please polish some text first");
       }
     });
   }
 
+  // Separate function for clipboard fallback with better error handling
+  function tryClipboardFallback(text) {
+    console.log("Attempting clipboard fallback...");
+
+    // Check if the Clipboard API is available
+    if (!navigator.clipboard) {
+      console.error("Clipboard API not available");
+      offerManualCopy(text);
+      return;
+    }
+
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        console.log("Text successfully copied to clipboard");
+        alert("Text copied to clipboard for sharing!");
+        showIconFeedback(shareOutputBtn);
+      })
+      .catch((err) => {
+        console.error("Failed to copy text to clipboard:", err);
+        offerManualCopy(text);
+      });
+  }
+
+  // iOS-friendly manual copy fallback
+  function offerManualCopy(text) {
+    console.log("Offering manual copy option");
+
+    // Create a temporary textarea element
+    const tempTextArea = document.createElement("textarea");
+    tempTextArea.value = text;
+    tempTextArea.style.position = "fixed";
+    tempTextArea.style.top = "0";
+    tempTextArea.style.left = "0";
+    tempTextArea.style.width = "100%";
+    tempTextArea.style.height = "200px";
+    tempTextArea.style.padding = "10px";
+    tempTextArea.style.zIndex = "9999";
+    tempTextArea.style.background = "#fff";
+    tempTextArea.style.color = "#000";
+    tempTextArea.style.border = "1px solid #ccc";
+
+    // Add instructions
+    const instructions = document.createElement("div");
+    instructions.innerHTML = `
+      <div style="position:fixed; top:200px; left:0; width:100%; padding:15px; background:#f8f8f8; z-index:9999; text-align:center;">
+        <p style="margin:0 0 10px 0;">Tap and hold to select all text, then copy</p>
+        <button id="manualCopyDone" style="padding:8px 15px; background:#25a56a; color:white; border:none; border-radius:4px;">Done</button>
+      </div>
+    `;
+
+    // Add to document
+    document.body.appendChild(tempTextArea);
+    document.body.appendChild(instructions);
+
+    // Select the text
+    tempTextArea.focus();
+    tempTextArea.select();
+
+    // Add event listener to the Done button
+    document
+      .getElementById("manualCopyDone")
+      .addEventListener("click", function () {
+        document.body.removeChild(tempTextArea);
+        document.body.removeChild(instructions);
+
+        // Show feedback
+        showIconFeedback(shareOutputBtn);
+      });
+  }
+
   // Provide visual feedback when icon button is clicked
   function showIconFeedback(button) {
-    const originalBg = button.style.backgroundColor;
+    console.log("Showing visual feedback for button");
+    const originalBg = button.style.backgroundColor || "";
     button.style.backgroundColor = "#25a56a";
+
+    // Add a temporary class for additional visual feedback
+    button.classList.add("button-feedback");
+
     setTimeout(() => {
       button.style.backgroundColor = originalBg;
-    }, 300);
+      button.classList.remove("button-feedback");
+      console.log("Visual feedback completed");
+    }, 500); // Increased to 500ms for more noticeable effect
   }
 
   // Create a spinning animation for the hourglass
@@ -424,11 +665,10 @@ document.addEventListener("DOMContentLoaded", () => {
           .scrollIntoView({ behavior: "smooth" });
       }
 
-      // Show "Improved OK" for 3 seconds
-      stopHourglassAnimation(improveBtn, "Improved OK");
+      stopHourglassAnimation(improveBtn, "✓ Improve");
       setTimeout(() => {
         improveBtn.textContent = "Improve";
-      }, 800);
+      }, 2000);
 
       // Show output container and icons when there's content
       outputContainer.style.display = "block";

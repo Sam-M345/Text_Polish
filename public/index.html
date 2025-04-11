@@ -40,6 +40,9 @@
         ></textarea>
         <div class="icon-buttons">
           <div class="button-group-container icon-group-container">
+            <button class="icon-btn" id="mic-input" title="Speech to text">
+              <span class="icon">🎙️</span>
+            </button>
             <button class="icon-btn" id="clear-input" title="Clear text">
               <span class="icon">✕</span>
             </button>
@@ -146,21 +149,24 @@
 
       <div id="output-container">
         <div id="improved-message"></div>
-      </div>
-      <div class="icon-buttons output-icons">
-        <div class="button-group-container icon-group-container">
-          <button class="icon-btn" id="clear-output" title="Clear output">
-            <span class="icon">✕</span>
-          </button>
-          <button class="icon-btn" id="copy-output" title="Copy output">
-            <span class="icon">C</span>
-          </button>
-          <button class="icon-btn" id="paste-output" title="Paste to input">
-            <span class="icon">📝</span>
-          </button>
-          <button class="icon-btn" id="share-output" title="Share output">
-            <span class="icon">⤴️</span>
-          </button>
+        <div class="output-icons">
+          <div class="button-group-container icon-group-container">
+            <button class="icon-btn" id="edit-output" title="Edit output">
+              <span class="icon">✏️</span>
+            </button>
+            <button class="icon-btn" id="clear-output" title="Clear output">
+              <span class="icon">✕</span>
+            </button>
+            <button class="icon-btn" id="copy-output" title="Copy output">
+              <span class="icon">C</span>
+            </button>
+            <button class="icon-btn" id="paste-output" title="Paste to input">
+              <span class="icon">📝</span>
+            </button>
+            <button class="icon-btn" id="share-output" title="Share output">
+              <span class="icon">⤴️</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

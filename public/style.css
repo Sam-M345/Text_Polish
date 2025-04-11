@@ -407,7 +407,7 @@ h3 {
 }
 
 .output-icons {
-  margin-top: 0.5rem;
+  margin-top: 0rem;
   margin-bottom: 2rem;
   justify-content: flex-end;
   transition: opacity 0.3s ease;
@@ -503,6 +503,7 @@ textarea {
   min-height: 150px;
 }
 
+/* Output container */
 #output-container {
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
@@ -514,10 +515,35 @@ textarea {
   transition: opacity 0.3s ease;
 }
 
+/* Improved message */
 #improved-message {
   max-height: none;
   overflow: visible;
   padding: 15px;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #e0e0e0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Improved message when editable */
+#improved-message[contenteditable="true"] {
+  border: 1px dashed #25a56a;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: rgba(37, 165, 106, 0.05);
+  outline: none;
+}
+
+#improved-message[contenteditable="true"]:focus {
+  border-color: #25a56a;
+  box-shadow: 0 0 0 2px rgba(37, 165, 106, 0.2);
+}
+
+/* Edit button active state */
+#edit-output.active {
+  background-color: #25a56a;
 }
 
 textarea:focus,
@@ -537,11 +563,11 @@ textarea p {
   margin-bottom: 0;
 }
 
-/* Improve button */
+/* Improve button - all styles consolidated */
 #improve-btn {
   display: block;
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   background-color: #146d43;
   color: white;
   border: none;
@@ -552,7 +578,7 @@ textarea p {
   transition: background-color 0.2s;
   position: relative;
   margin-top: 15px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0rem;
   z-index: 1;
   touch-action: manipulation;
   -webkit-appearance: none;
@@ -563,10 +589,10 @@ textarea p {
   transform: scale(0.98);
 }
 
-/* Tones expanded state */
+/* Improve button state when tones are expanded */
 body.tones-expanded #improve-btn {
   margin-top: 12px;
-  margin-bottom: 30px;
+  margin-bottom: 80px;
   position: relative;
   z-index: 1;
   box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
@@ -667,10 +693,6 @@ body.tones-expanded .tone-category:last-child {
   overflow-x: visible;
 }
 
-body.tones-expanded #improve-btn {
-  margin-bottom: 80px;
-}
-
 /* Fix for notched iPhones */
 @supports (padding: max(0px)) {
   .app-container {
@@ -752,4 +774,17 @@ body.tones-expanded #improve-btn {
 /* Make sure auto button doesn't shrink too much */
 [data-length="auto"] {
   min-width: 35px; /* Keep minimum width for auto button */
+}
+
+/* Button feedback animation */
+.button-feedback {
+  transform: scale(1.15);
+  box-shadow: 0 0 8px rgba(37, 165, 106, 0.8);
+  transition: all 0.2s ease;
+}
+
+/* Make sure icons have transitions for smoother effects */
+.icon-btn {
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
