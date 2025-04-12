@@ -241,7 +241,7 @@ function generatePrompt(
     console.log(
       "Generating email prompt with separate subject and body response"
     );
-    // Return a specialized prompt that instructs GPT to create subject + body
+    // Return a simplified prompt that instructs GPT to create subject + body without emojis
     return `
       You are rewriting the following text as a polished email.
       Please output valid JSON with exactly two keys: "subject" and "body".
@@ -254,17 +254,10 @@ function generatePrompt(
       Requirements:
       - "subject" must be short (one line, no extra punctuation)
       - "body" must be the refined email text, multiple paragraphs allowed
-      - Do not add an example recipient, sign-off, or greeting unless it's part of the improved text.
-      - Fix grammar/spelling. Apply the "${tone}" tone as you already do.
-      - ${
-        shouldIncludeEmojis
-          ? `Include appropriate emojis that match the ${
-              tone === "auto" || tone === "automatic"
-                ? "automatically selected"
-                : tone
-            } tone.`
-          : `DO NOT include any emojis in your response.`
-      }
+      - Do not add an example recipient, sign-off, or greeting unless it's part of the improved text
+      - Fix grammar and spelling
+      - Apply the "${tone}" tone to make it sound more professional
+      - DO NOT include any emojis in your response
 
       Output only valid JSON in this format:
       {
