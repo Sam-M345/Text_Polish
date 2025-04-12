@@ -124,34 +124,65 @@ module.exports = async (req, res) => {
     // Extract the improved message from the OpenAI response
     let improved = apiResponse.data.choices[0].message.content.trim();
 
-    // Strip surrounding quotation marks if present - apply multiple times to handle nested quotes
-    // First attempt with multiline support
-    improved = improved.replace(/^["'](.*)["']$/s, "$1").trim();
-    // Second attempt to catch any remaining quotes
-    improved = improved.replace(/^["'](.*)["']$/s, "$1").trim();
-    // Handle any remaining double or single quotes that completely wrap the text
-    if (
-      (improved.startsWith('"') && improved.endsWith('"')) ||
-      (improved.startsWith("'") && improved.endsWith("'"))
-    ) {
-      improved = improved.substring(1, improved.length - 1).trim();
-    }
+    // If we're expecting JSON for an email, parse it
+    if (messageType === "email") {
+      try {
+        console.log("Received response for email, parsing JSON:", improved);
+        // Try to parse as JSON
+        const parsed = JSON.parse(improved);
 
-    // Check if the improved message is empty or the same as original
-    if (!improved || improved === text) {
-      console.log("Warning: OpenAI returned empty or unchanged text");
-      return res.status(500).json({
-        error:
-          "AI couldn't improve the text. Please try again with different content.",
-      });
-    }
+        // Validate shape
+        if (parsed.subject && parsed.body) {
+          console.log(
+            "Successfully parsed email response with subject and body"
+          );
+          console.log("Subject:", parsed.subject);
+          console.log("Body preview:", parsed.body.substring(0, 50) + "...");
+          // Replace `improved` with your structured object
+          improved = parsed;
+        } else {
+          console.error("JSON missing 'subject' or 'body'");
+          throw new Error("JSON missing 'subject' or 'body'");
+        }
+      } catch (err) {
+        console.error("Could not parse JSON for email:", err);
+        console.log("Raw response:", improved);
+        // Return error or fallback
+        return res.status(500).json({
+          error: "The AI response was not valid JSON for an email.",
+          details: err.message,
+        });
+      }
+    } else {
+      // Strip surrounding quotation marks if present - apply multiple times to handle nested quotes
+      // First attempt with multiline support
+      improved = improved.replace(/^["'](.*)["']$/s, "$1").trim();
+      // Second attempt to catch any remaining quotes
+      improved = improved.replace(/^["'](.*)["']$/s, "$1").trim();
+      // Handle any remaining double or single quotes that completely wrap the text
+      if (
+        (improved.startsWith('"') && improved.endsWith('"')) ||
+        (improved.startsWith("'") && improved.endsWith("'"))
+      ) {
+        improved = improved.substring(1, improved.length - 1).trim();
+      }
 
-    // If we should include emojis and response doesn't already have them, add the tone emoji
-    if (shouldIncludeEmojis && !containsEmoji(improved) && toneEmoji) {
-      improved = addEmojiToText(improved, toneEmoji, tone);
-    } else if (!shouldIncludeEmojis) {
-      // Remove any emojis if this tone shouldn't have them
-      improved = removeEmojis(improved);
+      // Check if the improved message is empty or the same as original
+      if (!improved || improved === text) {
+        console.log("Warning: OpenAI returned empty or unchanged text");
+        return res.status(500).json({
+          error:
+            "AI couldn't improve the text. Please try again with different content.",
+        });
+      }
+
+      // If we should include emojis and response doesn't already have them, add the tone emoji
+      if (shouldIncludeEmojis && !containsEmoji(improved) && toneEmoji) {
+        improved = addEmojiToText(improved, toneEmoji, tone);
+      } else if (!shouldIncludeEmojis) {
+        // Remove any emojis if this tone shouldn't have them
+        improved = removeEmojis(improved);
+      }
     }
 
     // Send the improved message back to the client
@@ -169,11 +200,17 @@ module.exports = async (req, res) => {
 };
 
 // Helper function to generate prompts for the LLM
-function generatePrompt(originalText, messageType, textLength, tone) {
+function generatePrompt(
+  originalText,
+  messageType,
+  textLength,
+  tone,
+  returnFormat
+) {
   // Define desired output length based on textLength parameter without strict limits
   let lengthGuidance;
 
-  if (textLength === "auto") {
+  if (textLength === "auto" || textLength === "automatic") {
     lengthGuidance =
       "Determine the appropriate length for your response based on the context and complexity of the original message.";
   } else if (textLength === "short") {
@@ -190,19 +227,73 @@ function generatePrompt(originalText, messageType, textLength, tone) {
   // Determine if this tone should include emojis
   const shouldIncludeEmojis = !noEmojiTones.includes(tone);
 
+  // Handle tone instructions
+  let toneInstruction;
+  if (tone === "auto" || tone === "automatic") {
+    toneInstruction =
+      "Automatically select the most appropriate tone based on the content of the original message. This is for automatic tone detection only.";
+  } else {
+    toneInstruction = `Rewrite the following ${messageType} message to make it sound more ${tone}.`;
+  }
+
+  // If message type is email, always return JSON with separate subject and body
+  if (messageType === "email") {
+    console.log(
+      "Generating email prompt with separate subject and body response"
+    );
+    // Return a specialized prompt that instructs GPT to create subject + body
+    return `
+      You are rewriting the following text as a polished email.
+      Please output valid JSON with exactly two keys: "subject" and "body".
+      1) "subject": a concise, compelling subject line for the email
+      2) "body": the main email text itself
+
+      Do not include any other text, and do not wrap it in backticks or code fences.
+      The original text to improve is: "${originalText}"
+
+      Requirements:
+      - "subject" must be short (one line, no extra punctuation)
+      - "body" must be the refined email text, multiple paragraphs allowed
+      - Do not add an example recipient, sign-off, or greeting unless it's part of the improved text.
+      - Fix grammar/spelling. Apply the "${tone}" tone as you already do.
+      - ${
+        shouldIncludeEmojis
+          ? `Include appropriate emojis that match the ${
+              tone === "auto" || tone === "automatic"
+                ? "automatically selected"
+                : tone
+            } tone.`
+          : `DO NOT include any emojis in your response.`
+      }
+
+      Output only valid JSON in this format:
+      {
+        "subject": "...",
+        "body": "..."
+      }
+    `;
+  }
+
+  // Standard prompt for all messages
   return `
-    Rewrite the following ${messageType} message to make it sound more ${tone}.
+    ${toneInstruction}
     ${lengthGuidance}
     ${
       shouldIncludeEmojis
-        ? `Include appropriate emojis that match the ${tone} tone.`
+        ? `Include appropriate emojis that match the ${
+            tone === "auto" || tone === "automatic"
+              ? "automatically selected"
+              : tone
+          } tone.`
         : `DO NOT include any emojis in your response.`
     }
     
-    Original message: ${originalText}
+    Original message: "${originalText}"
     
     Provide ONLY the improved message text without any additional explanation or formatting.
-    IMPORTANT: Make significant changes to the original text to ensure it clearly reflects the ${tone} tone.
+    IMPORTANT: Make significant changes to the original text to ensure it clearly reflects the ${
+      tone === "auto" || tone === "automatic" ? "automatically selected" : tone
+    } tone.
     Fix any spelling or grammar errors in the original text.
   `;
 }

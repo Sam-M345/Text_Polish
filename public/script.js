@@ -598,6 +598,10 @@ document.addEventListener("DOMContentLoaded", () => {
           ? "http://localhost:3000/api/improve"
           : "/api/improve";
 
+      // Set returnFormat parameter for emails to get structured response
+      const returnFormat = selectedType === "email" ? "json" : "text";
+      console.log(`Request type: ${selectedType}, format: ${returnFormat}`);
+
       // Call our backend API
       const response = await fetch(apiUrl, {
         method: "POST",
@@ -607,6 +611,7 @@ document.addEventListener("DOMContentLoaded", () => {
           messageType: selectedType,
           textLength: apiLength, // Use the mapped value
           tone: apiTone, // Use the mapped value
+          returnFormat: returnFormat, // Add format parameter
         }),
       });
 
@@ -629,15 +634,44 @@ document.addEventListener("DOMContentLoaded", () => {
         // Add a class to the body to indicate content has been generated
         document.body.classList.add("response-generated");
 
-        // Apply emoji density limitation
-        const processedText = limitEmojiDensity(data.improved);
+        // Handle the improved text based on its format (plain text or JSON with subject/body)
+        let displayText;
 
-        // Format as email if email type is selected
-        let displayText = processedText;
+        if (selectedType === "email" && typeof data.improved === "object") {
+          console.log("Received structured email response:", data.improved);
+          console.log("Subject:", data.improved.subject);
+          console.log(
+            "Body preview:",
+            data.improved.body.substring(0, 50) + "..."
+          );
 
-        if (selectedType === "email") {
-          // Apply email template formatting
-          displayText = formatEmailTemplate(processedText);
+          // Format using the subject and body from the response
+          displayText = `Subject: ${data.improved.subject}
+
+***********************
+
+Hello [Name],
+
+Hope you're doing well.
+
+${data.improved.body}
+
+Let me know if you have any questions.
+
+Best regards,
+
+[Your Name]`;
+        } else {
+          // Apply emoji density limitation
+          displayText = limitEmojiDensity(data.improved);
+
+          // If email type but we didn't get a structured response, apply our template
+          if (selectedType === "email" && typeof data.improved === "string") {
+            console.log(
+              "Received unstructured email response, formatting locally"
+            );
+            displayText = formatEmailTemplate(displayText);
+          }
         }
 
         // Split text by line breaks (handle both \n\n and single \n with proper spacing)
@@ -783,21 +817,18 @@ document.addEventListener("DOMContentLoaded", () => {
       return emailText;
     }
 
-    // Extract a subject from the first sentence if possible
-    let subject = "";
-    const firstSentenceMatch = emailText.match(/^([^.!?]+[.!?])/);
-    if (firstSentenceMatch) {
-      subject = firstSentenceMatch[1].trim();
-      // Limit subject length
-      if (subject.length > 50) {
-        subject = subject.substring(0, 47) + "...";
-      }
-    } else {
-      subject = "Email Subject";
-    }
+    // Extract and format subject from the first sentence
+    const subjectText = (() => {
+      const firstSentenceMatch = emailText.match(/^([^.!?]+[.!?])/);
+      if (!firstSentenceMatch) return "Email Subject";
 
-    // Format the email with the template structure - removed labels
-    return `Subject: ${subject}
+      let text = firstSentenceMatch[1].trim();
+      // Limit subject length to 50 chars
+      return text.length > 50 ? text.substring(0, 47) + "..." : text;
+    })();
+
+    // Format the email with the template structure
+    return `Subject: ${subjectText}
 
 ***********************
 
