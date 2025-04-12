@@ -736,89 +736,27 @@ Best regards,
           improvedMessageEl.innerText || improvedMessageEl.textContent;
         console.log("Share button clicked, text length:", textToShare.length);
 
-        // Check if we're sharing an email
-        const isEmail = textToShare.trim().startsWith("Subject:");
-        let emailSubject = "";
-        let emailBody = "";
-
-        if (isEmail) {
-          console.log("Detected email format for sharing");
-
-          // Use saved email data if available
-          if (lastEmailData.subject && lastEmailData.body) {
-            console.log("Using saved email data for sharing");
-            emailSubject = lastEmailData.subject;
-            emailBody = lastEmailData.body;
-          } else {
-            // Extract subject line from text if needed
-            console.log("Extracting email parts from formatted output");
-            const subjectMatch = textToShare.match(/Subject:\s*([^\n]+)/);
-            emailSubject = subjectMatch
-              ? subjectMatch[1].trim()
-              : "Text Polish Output";
-
-            // Extract body (everything after the divider line)
-            const bodyStartIndex = textToShare.indexOf(
-              "***********************"
-            );
-            if (bodyStartIndex > -1) {
-              emailBody = textToShare.substring(bodyStartIndex).trim();
-            } else {
-              emailBody = textToShare;
-            }
-          }
-        }
-
         if (navigator.share) {
-          console.log("Web Share API available, attempting to use it");
+          console.log("Web Share API available, sharing content");
 
-          // For emails, include both the text and a mailto URL to ensure proper field population
-          const shareData = isEmail
-            ? {
-                title: emailSubject,
-                text: textToShare, // Share the full formatted email text for consistency
-                url: `mailto:?subject=${encodeURIComponent(
-                  emailSubject
-                )}&body=${encodeURIComponent(emailBody)}`, // Include mailto for email apps
-              }
-            : {
-                title: "Text Polish Output",
-                text: textToShare,
-              };
-
-          console.log("Share data prepared:", {
-            title: shareData.title,
-            textPreview: shareData.text.substring(0, 30) + "...",
-            hasMailto: isEmail,
-          });
-
+          // Simple share with just title and text for all content types
           navigator
-            .share(shareData)
+            .share({
+              title: "Text Polish",
+              text: textToShare,
+            })
             .then(() => {
               console.log("Share successful via Web Share API");
               showIconFeedback(shareOutputBtn);
             })
             .catch((error) => {
               console.error("Error sharing via Web Share API:", error);
-
-              // If sharing fails and it's an email, try direct mailto
-              if (isEmail && lastEmailData.subject) {
-                console.log("Share failed, trying direct mailto for email");
-                tryMailtoFallback(lastEmailData.subject, lastEmailData.body);
-              } else {
-                // Otherwise fall back to clipboard
-                tryClipboardFallback(textToShare);
-              }
+              // Fall back to clipboard
+              tryClipboardFallback(textToShare);
             });
         } else {
-          console.log("Web Share API not available, using fallback");
-
-          // For emails without Web Share API, use mailto directly
-          if (isEmail && lastEmailData.subject) {
-            tryMailtoFallback(lastEmailData.subject, lastEmailData.body);
-          } else {
-            tryClipboardFallback(textToShare);
-          }
+          console.log("Web Share API not available, using clipboard fallback");
+          tryClipboardFallback(textToShare);
         }
       } else {
         console.warn("Nothing to share - no text in output");
@@ -827,21 +765,15 @@ Best regards,
     });
   }
 
-  // Separate function for clipboard fallback with better error handling
+  // Simplified clipboard fallback
   function tryClipboardFallback(text) {
     console.log("Attempting clipboard fallback...");
 
-    // Check if we're sharing an email by looking at the text content
-    const isEmail = text.trim().startsWith("Subject:");
-
-    // Always use clipboard for consistent behavior across content types
     navigator.clipboard
       .writeText(text)
       .then(() => {
         console.log("Text successfully copied to clipboard");
-        if (!isEmail) {
-          alert("Text copied to clipboard for sharing!");
-        }
+        alert("Text copied to clipboard for sharing!");
         showIconFeedback(shareOutputBtn);
       })
       .catch((err) => {
