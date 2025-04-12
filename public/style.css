@@ -6,7 +6,7 @@
   --text-color: #ffffff;
   --secondary-text: #aaaaaa;
   --border-color: #444444;
-  --ios-safe-area-bottom: 80px;
+  --safe-area-bottom: max(32px, env(safe-area-inset-bottom, 80px));
 }
 
 /* Global reset */
@@ -26,9 +26,10 @@ html {
   line-height: 1.6;
   overflow-x: hidden;
   max-width: 100vw;
-  min-height: calc(100vh + var(--ios-safe-area-bottom));
+  min-height: calc(100vh + var(--safe-area-bottom));
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
+  overflow-y: auto;
 }
 
 /* Layout */
@@ -36,10 +37,7 @@ html {
   margin: 0;
   padding: 1rem;
   width: 100%;
-  padding-bottom: max(
-    2rem,
-    env(safe-area-inset-bottom, var(--ios-safe-area-bottom))
-  );
+  padding-bottom: calc(1rem + var(--safe-area-bottom));
 }
 
 /* Typography */
@@ -224,15 +222,18 @@ h3 {
   width: 100%;
 }
 
-/* Output Action Button Group */
-.output-action-buttons {
-  composes: button-group-base;
+/* Output icons - consolidated from output-action-buttons */
+.output-icons {
+  margin-top: 0rem;
+  margin-bottom: 2rem;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
+  align-items: center;
   width: 100%;
   margin-top: 0.5rem;
   gap: 0.8rem;
+  transition: opacity 0.3s ease;
 }
 
 /* Option buttons layout */
@@ -456,25 +457,6 @@ h3 {
   margin-bottom: 2rem;
 }
 
-.output-icons {
-  margin-top: 0rem;
-  margin-bottom: 2rem;
-  display: flex;
-  width: 100%;
-  justify-content: flex-end;
-  transition: opacity 0.3s ease;
-}
-
-.output-icons .output-action-buttons {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: center;
-  width: 100%;
-  margin-top: 0.5rem;
-  gap: 0.8rem;
-}
-
 .icon-btn {
   display: flex;
   align-items: center;
@@ -534,7 +516,7 @@ h3 {
 .unified-text-style,
 textarea,
 #improved-message {
-  font-size: 17.5px;
+  font-size: 20px;
   line-height: 1.6;
   color: var(--text-color);
   background-color: var(--card-bg);
@@ -548,6 +530,7 @@ textarea,
   -webkit-appearance: none;
 }
 
+/* Additional styles for textarea */
 textarea {
   width: 100%;
   min-height: 150px;
@@ -556,42 +539,19 @@ textarea {
   margin-bottom: 0;
   font-family: inherit;
   transition: box-shadow 0.3s ease;
-  padding: 10px; /* Remove extra left padding */
 }
 
 .response-generated textarea {
   min-height: 150px;
 }
 
-/* Output container */
-#output-container {
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
-  overflow: visible;
-  max-height: none;
-  height: auto;
-  position: relative;
-  z-index: 1;
-  transition: opacity 0.3s ease;
-}
-
-/* Improved message */
+/* Additional styles for improved message */
 #improved-message {
   max-height: none;
   overflow: visible;
-  padding: 10px; /* Match textarea padding */
-  font-size: 17.5px; /* Match textarea font size */
-  line-height: 1.6; /* Match textarea line height */
-  color: var(--text-color);
-  background-color: var(
-    --card-bg
-  ); /* Explicit matching of textarea background */
-  white-space: pre-wrap;
   word-break: break-word;
-  font-family: inherit; /* Match textarea font family */
+  font-family: inherit;
   border: none;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Match textarea box shadow */
 }
 
 /* Improved message when editable */
@@ -606,6 +566,18 @@ textarea {
 #improved-message[contenteditable="true"]:focus {
   border-color: #25a56a;
   box-shadow: 0 0 0 2px rgba(37, 165, 106, 0.2);
+}
+
+/* Output container */
+#output-container {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  overflow: visible;
+  max-height: none;
+  height: auto;
+  position: relative;
+  z-index: 1;
+  transition: opacity 0.3s ease;
 }
 
 /* Edit button active state */
@@ -644,7 +616,7 @@ textarea p {
   cursor: pointer;
   transition: background-color 0.2s;
   position: relative;
-
+  margin-top: 1.1rem;
   margin-bottom: 0rem;
   z-index: 1;
   touch-action: manipulation;
@@ -660,7 +632,7 @@ textarea p {
 body.tones-expanded #improve-btn {
   margin-bottom: 80px;
   position: relative;
-  z-index: 1;
+  z-index: 3;
   box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
 }
 
@@ -672,7 +644,7 @@ body.tones-expanded .output-section {
 #scroll-to-top {
   display: none;
   position: fixed;
-  bottom: max(20px, env(safe-area-inset-bottom, 20px));
+  bottom: var(--safe-area-bottom);
   right: 20px;
   z-index: 99;
   border: none;
@@ -914,7 +886,7 @@ body.tones-expanded .output-section {
 
 /* Fix for scroll-to-top button on notched iPhones */
 #scroll-to-top {
-  bottom: max(20px, env(safe-area-inset-bottom, 20px));
+  bottom: var(--safe-area-bottom);
 }
 
 /* Ensure proper positioning of tone categories within its container */

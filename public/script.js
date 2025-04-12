@@ -11,6 +11,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const outputContainer = document.getElementById("output-container");
   const outputIcons = document.querySelector(".output-icons");
 
+  // Check for content on page load to handle scrolling
+  checkContentAndUpdateBody();
+
+  // Add event listeners to detect content changes
+  messageInputEl.addEventListener("input", checkContentAndUpdateBody);
+
+  // Function to check for content and update body class - only disable elastic scroll when absolutely no content
+  function checkContentAndUpdateBody() {
+    if (
+      messageInputEl.value.trim() ||
+      (improvedMessageEl.textContent &&
+        improvedMessageEl.textContent.trim() !== "Processing...") ||
+      document.body.classList.contains("tones-expanded")
+    ) {
+      document.body.classList.add("has-content");
+    } else {
+      document.body.classList.remove("has-content");
+    }
+  }
+
   // Initially hide output container and icons if empty
   if (!improvedMessageEl.textContent.trim()) {
     outputContainer.style.display = "none";
@@ -283,6 +303,7 @@ document.addEventListener("DOMContentLoaded", () => {
     messageInputEl.value = "";
     messageInputEl.focus();
     showIconFeedback(clearInputBtn);
+    checkContentAndUpdateBody();
   });
 
   // Copy input text
@@ -348,6 +369,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Hide output container and icons when cleared
     outputContainer.style.display = "none";
     outputIcons.style.display = "none";
+    checkContentAndUpdateBody();
   });
 
   // Copy output text
@@ -418,13 +440,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function tryClipboardFallback(text) {
     console.log("Attempting clipboard fallback...");
 
-    // Check if the Clipboard API is available
-    if (!navigator.clipboard) {
-      console.error("Clipboard API not available");
-      offerManualCopy(text);
-      return;
-    }
-
     navigator.clipboard
       .writeText(text)
       .then(() => {
@@ -434,54 +449,7 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .catch((err) => {
         console.error("Failed to copy text to clipboard:", err);
-        offerManualCopy(text);
-      });
-  }
-
-  // iOS-friendly manual copy fallback
-  function offerManualCopy(text) {
-    console.log("Offering manual copy option");
-
-    // Create a temporary textarea element
-    const tempTextArea = document.createElement("textarea");
-    tempTextArea.value = text;
-    tempTextArea.style.position = "fixed";
-    tempTextArea.style.top = "0";
-    tempTextArea.style.left = "0";
-    tempTextArea.style.width = "100%";
-    tempTextArea.style.height = "200px";
-    tempTextArea.style.padding = "10px";
-    tempTextArea.style.zIndex = "9999";
-    tempTextArea.style.background = "#fff";
-    tempTextArea.style.color = "#000";
-    tempTextArea.style.border = "1px solid #ccc";
-
-    // Add instructions
-    const instructions = document.createElement("div");
-    instructions.innerHTML = `
-      <div style="position:fixed; top:200px; left:0; width:100%; padding:15px; background:#f8f8f8; z-index:9999; text-align:center;">
-        <p style="margin:0 0 10px 0;">Tap and hold to select all text, then copy</p>
-        <button id="manualCopyDone" style="padding:8px 15px; background:#25a56a; color:white; border:none; border-radius:4px;">Done</button>
-      </div>
-    `;
-
-    // Add to document
-    document.body.appendChild(tempTextArea);
-    document.body.appendChild(instructions);
-
-    // Select the text
-    tempTextArea.focus();
-    tempTextArea.select();
-
-    // Add event listener to the Done button
-    document
-      .getElementById("manualCopyDone")
-      .addEventListener("click", function () {
-        document.body.removeChild(tempTextArea);
-        document.body.removeChild(instructions);
-
-        // Show feedback
-        showIconFeedback(shareOutputBtn);
+        alert("Could not copy text to clipboard");
       });
   }
 
@@ -664,8 +632,16 @@ document.addEventListener("DOMContentLoaded", () => {
         // Apply emoji density limitation
         const processedText = limitEmojiDensity(data.improved);
 
+        // Format as email if email type is selected
+        let displayText = processedText;
+
+        if (selectedType === "email") {
+          // Apply email template formatting
+          displayText = formatEmailTemplate(processedText);
+        }
+
         // Split text by line breaks (handle both \n\n and single \n with proper spacing)
-        const paragraphs = processedText.split(/\n\n+/).flatMap((block) => {
+        const paragraphs = displayText.split(/\n\n+/).flatMap((block) => {
           // Further split by single newlines but preserve as separate paragraphs
           return block.split(/\n/).filter((p) => p.trim());
         });
@@ -681,8 +657,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // If there were no paragraphs, just set the text directly
         if (improvedMessageEl.children.length === 0) {
-          improvedMessageEl.textContent = processedText;
+          improvedMessageEl.textContent = displayText;
         }
+
+        // Update body class since we have content
+        document.body.classList.add("has-content");
       } else {
         improvedMessageEl.textContent = "No improvements were made.";
       }
@@ -716,6 +695,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // Reset button state
       stopHourglassAnimation(improveBtn, "Improve");
       improveBtn.disabled = false;
+
+      // Make sure to check content state
+      checkContentAndUpdateBody();
     } finally {
       // Enable button
       improveBtn.disabled = false;
@@ -744,51 +726,11 @@ document.addEventListener("DOMContentLoaded", () => {
         toneCategories.classList.remove("collapsed-tones");
         toneCategories.classList.add("expanded-tones");
         toggleTonesBtn.textContent = "⏫";
-        // Add class to body to enable improve button safe zone
+        // Add class to body to enable improve button safe zone and disable elastic bounce
         document.body.classList.add("tones-expanded");
+        document.body.classList.add("has-content");
 
-        // Give time for the transition to complete before scrolling
-        setTimeout(() => {
-          // On iOS, scroll to position the first category at the top of the screen
-          if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-            // Find the "1. Positive & Engaging" heading specifically
-            const firstCategoryHeading = Array.from(
-              document.querySelectorAll(".tone-category h3")
-            ).find((h) => h.textContent.includes("1. Positive & Engaging"));
-
-            if (firstCategoryHeading) {
-              // Scroll the first category to the top of the viewport
-              firstCategoryHeading.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              });
-
-              // Apply a small offset to ensure it's exactly at the top edge
-              setTimeout(() => {
-                // Slight adjustment to position exactly at the top edge
-                window.scrollBy({
-                  top: -5, // Small negative offset to account for any padding
-                  behavior: "smooth",
-                });
-              }, 400);
-            } else {
-              // Fallback if heading not found
-              const firstCategory = document.querySelector(".tone-category");
-              if (firstCategory) {
-                firstCategory.scrollIntoView({
-                  behavior: "smooth",
-                  block: "start",
-                });
-              } else {
-                // Last resort fallback
-                toneCategories.scrollIntoView({
-                  behavior: "smooth",
-                  block: "start",
-                });
-              }
-            }
-          }
-        }, 350);
+        // No scrolling behavior - removed to keep improve button visible
       } else {
         toneCategories.classList.remove("expanded-tones");
         toneCategories.classList.add("collapsed-tones");
@@ -835,5 +777,47 @@ document.addEventListener("DOMContentLoaded", () => {
       clearInterval(listeningAnimationInterval);
       listeningAnimationInterval = null;
     }
+  }
+
+  // Add helper function to format email content
+  function formatEmailTemplate(emailText) {
+    // Check if already formatted (has Subject: line)
+    if (emailText.trim().startsWith("Subject:")) {
+      return emailText;
+    }
+
+    // Extract a subject from the first sentence if possible
+    let subject = "";
+    const firstSentenceMatch = emailText.match(/^([^.!?]+[.!?])/);
+    if (firstSentenceMatch) {
+      subject = firstSentenceMatch[1].trim();
+      // Limit subject length
+      if (subject.length > 50) {
+        subject = subject.substring(0, 47) + "...";
+      }
+    } else {
+      subject = "Email Subject";
+    }
+
+    // Format the email with the template structure
+    return `***********************
+
+Subject: ${subject}
+
+Greeting:
+Hello [Name],
+
+Opening line:
+Hope you're doing well.
+
+Main content:
+${emailText}
+
+Closing line:
+Let me know if you have any questions.
+
+Best regards,
+
+[Your Name]`;
   }
 });
