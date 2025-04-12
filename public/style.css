@@ -80,7 +80,7 @@ h3 {
 /* Logo */
 .logo-container {
   text-align: center;
-  margin-bottom: 0.7rem;
+  margin-bottom: 1.2rem;
   width: 100%;
 }
 
@@ -94,8 +94,7 @@ h3 {
 
 /* Option Sections */
 .text-type-container {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   display: flex;
   align-items: flex-start;
   width: 100%;
@@ -103,6 +102,39 @@ h3 {
   justify-content: flex-start;
   position: relative;
   max-width: 380px;
+  flex-direction: row;
+}
+
+.text-type-container h2 {
+  margin-bottom: 0;
+  margin-right: 0px;
+  white-space: nowrap;
+}
+
+/* Output Length Container - renamed from text-type-container */
+.output-length-container {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  position: relative;
+  max-width: none;
+  flex-direction: row;
+}
+
+.output-length-container h2 {
+  margin-bottom: 0;
+  margin-right: 10px;
+  min-width: 60px;
+}
+
+.output-length-container .output-length-buttons {
+  margin-left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
 }
 
 /* Tone Settings Container - renamed from text-type-container */
@@ -118,7 +150,6 @@ h3 {
 }
 
 /* Container layouts */
-.length-container,
 .tone-container {
   display: flex;
   align-items: center;
@@ -126,10 +157,13 @@ h3 {
   flex-wrap: nowrap;
   justify-content: flex-start;
   position: relative;
+  height: auto;
+  min-height: 40px;
+  margin-bottom: 0;
 }
 
-/* Length wrapper to control vertical spacing */
-.length-wrapper {
+/* Length wrapper to control vertical spacing - Keeping for reference, not being used anymore */
+/* .length-wrapper {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -138,31 +172,20 @@ h3 {
 
 .length-wrapper h2 {
   margin-bottom: 0;
-  margin-right: 10px; /* Add some space between "Length" text and buttons */
+  margin-right: 10px;
 }
 
 .length-wrapper .output-length-buttons {
   margin-left: 0;
-  width: 100%; /* Make container fill available space */
+  width: 100%;
   display: flex;
-  justify-content: space-between; /* Distribute buttons evenly */
+  justify-content: space-between;
 }
 
 .length-wrapper .option-buttons {
   display: flex;
-  width: 100%; /* Make container fill available space */
-}
-
-.tone-container {
-  height: auto;
-  min-height: 40px;
-  margin-bottom: 0;
-  position: relative;
-}
-
-.length-container h2 {
-  min-width: 55px;
-}
+  width: 100%;
+} */
 
 /* Button groups - Base Styles */
 .button-group-base {
@@ -258,9 +281,11 @@ h3 {
 
 .text-type-options {
   flex: 1;
-  flex-wrap: nowrap;
-  gap: 0.4rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
   margin-left: 10px;
+  width: 100%; /* Ensure full width */
 }
 
 .text-type-options .option-btn {
@@ -718,49 +743,10 @@ body.tones-expanded .output-section {
   overflow-x: visible;
 }
 
-/* Make sure the length-wrapper title is properly aligned */
-.length-wrapper .bright-blue-title {
+/* Make sure the title is properly aligned */
+.output-length-container .bright-blue-title {
   display: inline-flex;
   align-items: center;
-}
-
-/* Text type wrapper (similar to length-wrapper) */
-.text-type-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  width: 100%;
-  flex-wrap: nowrap;
-}
-
-.text-type-wrapper h2 {
-  margin-bottom: 10;
-  margin-right: 0px;
-  white-space: nowrap;
-}
-
-.text-type-options {
-  flex: 1;
-  overflow-x: auto;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
-  margin-left: 10px;
-  width: 100%; /* Ensure full width */
-}
-
-.text-type-buttons {
-  composes: button-group-base;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 0;
-}
-
-.text-type-buttons .option-btn {
-  flex: 0 1 auto;
-  white-space: nowrap;
 }
 
 /* Stacked title for Output Length */
@@ -779,19 +765,6 @@ body.tones-expanded .output-section {
 
 .stacked-title span:first-child {
   margin-bottom: 4px; /* Increase this value to add more space between "Output" and "Length" */
-}
-
-/* Adjust length wrapper for the stacked title */
-.length-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  width: 100%;
-}
-
-.length-wrapper h2 {
-  margin-bottom: 0;
-  margin-right: 10px;
 }
 
 /* Make sure auto button doesn't shrink too much */
@@ -882,6 +855,7 @@ body.tones-expanded .output-section {
   margin-top: 0.5rem;
 }
 
-.text-type-container:last-of-type {
+/* Update max-width for output length container */
+.output-length-container {
   max-width: none;
 }
