@@ -666,12 +666,11 @@ document.addEventListener("DOMContentLoaded", () => {
         improvedMessageEl.textContent = "No improvements were made.";
       }
 
-      // Scroll to the output if it's off-screen
-      if (!isElementInViewport(document.getElementById("output-container"))) {
-        document
-          .getElementById("output-container")
-          .scrollIntoView({ behavior: "smooth" });
-      }
+      // Scroll to the very bottom of the page
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth",
+      });
 
       stopHourglassAnimation(improveBtn, "✓ Improve");
       setTimeout(() => {
