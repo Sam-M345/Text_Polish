@@ -736,88 +736,49 @@ Best regards,
           improvedMessageEl.innerText || improvedMessageEl.textContent;
         console.log("Share button clicked, text length:", textToShare.length);
 
-        // Check if content is an email (only to extract subject if needed)
-        const isEmail = textToShare.trim().startsWith("Subject:");
-        let emailSubject = "Text Polish";
-        let emailBody = textToShare;
-
-        // Extract subject if this is an email format
-        if (isEmail) {
-          console.log("Detected email format for sharing");
-
-          // Use saved email data if available
-          if (lastEmailData && lastEmailData.subject && lastEmailData.body) {
-            console.log("Using saved email data for proper field population");
-            emailSubject = lastEmailData.subject;
-            emailBody = lastEmailData.body;
-          } else {
-            // Extract subject line from text
-            console.log("Extracting subject from formatted output");
-            const subjectMatch = textToShare.match(/Subject:\s*([^\n]+)/);
-            if (subjectMatch) {
-              emailSubject = subjectMatch[1].trim();
-            }
-          }
-        }
-
         if (navigator.share) {
           console.log("Web Share API available, sharing content");
 
-          // Add a mailto URL only for proper mail app field population, not to bypass share sheet
-          const shareData = {
-            title: emailSubject,
-            text: textToShare,
-            url: isEmail
-              ? `mailto:?subject=${encodeURIComponent(
-                  emailSubject
-                )}&body=${encodeURIComponent(emailBody)}`
-              : undefined,
-          };
-
-          console.log("Share data prepared:", {
-            title: shareData.title,
-            textPreview: shareData.text.substring(0, 30) + "...",
-            hasMailto: !!shareData.url,
-          });
-
-          // This will show the iOS share sheet with all options
+          // Simple share with just title and text for all content types
           navigator
-            .share(shareData)
+            .share({
+              title: "Text Polish",
+              text: textToShare,
+            })
             .then(() => {
               console.log("Share successful via Web Share API");
               showIconFeedback(shareOutputBtn);
             })
             .catch((error) => {
               console.error("Error sharing via Web Share API:", error);
-              // Fall back to clipboard but don't show alert
-              navigator.clipboard
-                .writeText(textToShare)
-                .then(() => {
-                  console.log("Text copied to clipboard as fallback");
-                  showIconFeedback(shareOutputBtn);
-                })
-                .catch((err) => {
-                  console.error("Failed to copy text to clipboard:", err);
-                });
+              // Fall back to clipboard
+              tryClipboardFallback(textToShare);
             });
         } else {
           console.log("Web Share API not available, using clipboard fallback");
-          // Silent clipboard fallback without alerts
-          navigator.clipboard
-            .writeText(textToShare)
-            .then(() => {
-              console.log("Text copied to clipboard");
-              showIconFeedback(shareOutputBtn);
-            })
-            .catch((err) => {
-              console.error("Failed to copy text to clipboard:", err);
-            });
+          tryClipboardFallback(textToShare);
         }
       } else {
         console.warn("Nothing to share - no text in output");
         alert("Nothing to share - please polish some text first");
       }
     });
+  }
+
+  // Simplified clipboard fallback
+  function tryClipboardFallback(text) {
+    console.log("Attempting clipboard fallback...");
+
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        console.log("Text successfully copied to clipboard");
+        alert("Text copied to clipboard for sharing!");
+        showIconFeedback(shareOutputBtn);
+      })
+      .catch((err) => {
+        console.error("Failed to copy text to clipboard:", err);
+      });
   }
 
   // Provide visual feedback when icon button is clicked
