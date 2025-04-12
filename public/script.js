@@ -428,12 +428,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // Format email with subject and body
     format: function (subject, body) {
       console.log("Formatting email with subject and body");
+
+      // Remove [Your Name] and variations with regex
+      const cleanedBody = body.replace(
+        /\[Your Name\]|\[NAME\]|\[Name\]|\[your name\]/g,
+        ""
+      );
+
       return `${subject}
 
 ***
 
 
-${body}
+${cleanedBody}
 
 
 `;
@@ -562,123 +569,143 @@ ${body}
     outputIcons.style.display = "flex";
     improvedMessageEl.textContent = "Processing...";
 
-    try {
-      // Create the API URL - works for both local development and production
-      const apiUrl =
-        window.location.hostname === "localhost"
-          ? "http://localhost:3000/api/improve"
-          : "/api/improve";
+    // Add retry functionality
+    const maxRetries = 2; // Maximum number of retry attempts
+    let retryCount = 0;
 
-      // Set returnFormat parameter for emails to get structured response
-      const returnFormat = selectedType === "email" ? "json" : "text";
-      console.log(`Request type: ${selectedType}, format: ${returnFormat}`);
+    async function callAPIWithRetry() {
+      try {
+        // Create the API URL - works for both local development and production
+        const apiUrl =
+          window.location.hostname === "localhost"
+            ? "http://localhost:3000/api/improve"
+            : "/api/improve";
 
-      // Call our backend API
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: originalMessage,
-          messageType: selectedType,
-          textLength: apiLength, // Use the mapped value
-          tone: apiTone, // Use the mapped value
-          returnFormat: returnFormat, // Add format parameter
-        }),
-      });
+        // Set returnFormat parameter for emails to get structured response
+        const returnFormat = selectedType === "email" ? "json" : "text";
+        console.log(`Request type: ${selectedType}, format: ${returnFormat}`);
 
-      if (!response.ok) {
-        throw new Error(`Server responded with status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      // Check if there's an error message in the response
-      if (data.error) {
-        throw new Error(`API Error: ${data.error}`);
-      }
-
-      // Format the improved text with proper paragraphs
-      if (data.improved) {
-        // Clear existing content
-        improvedMessageEl.innerHTML = "";
-
-        // Add a class to the body to indicate content has been generated
-        document.body.classList.add("response-generated");
-
-        // Handle the improved text based on its format (plain text or JSON with subject/body)
-        let displayText;
-
-        if (selectedType === "email") {
-          // Process email using the consolidated EmailHandler
-          displayText = EmailHandler.processResponse(data);
-        } else {
-          // For non-email responses
-          // Apply emoji density limitation
-          displayText = limitEmojiDensity(data.improved);
-
-          // Clear email data since this is not an email
-          EmailHandler.clearData();
-        }
-
-        // Split text by line breaks (handle both \n\n and single \n with proper spacing)
-        const paragraphs = displayText.split(/\n\n+/).flatMap((block) => {
-          // Further split by single newlines but preserve as separate paragraphs
-          return block.split(/\n/).filter((p) => p.trim());
+        // Call our backend API
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: originalMessage,
+            messageType: selectedType,
+            textLength: apiLength, // Use the mapped value
+            tone: apiTone, // Use the mapped value
+            returnFormat: returnFormat, // Add format parameter
+          }),
         });
 
-        // Create paragraph elements for each section
-        paragraphs.forEach((paragraph) => {
-          if (paragraph.trim()) {
-            const p = document.createElement("p");
-            p.textContent = paragraph.trim();
-            improvedMessageEl.appendChild(p);
+        if (!response.ok) {
+          // If we get a 500 error and haven't exceeded max retries
+          if (response.status === 500 && retryCount < maxRetries) {
+            retryCount++;
+            console.log(
+              `API returned 500 error. Retry attempt ${retryCount}...`
+            );
+            improvedMessageEl.textContent = `Processing... (Retry ${retryCount}/${maxRetries})`;
+            // Wait a second before retrying
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return callAPIWithRetry(); // Recursive retry
           }
-        });
-
-        // If there were no paragraphs, just set the text directly
-        if (improvedMessageEl.children.length === 0) {
-          improvedMessageEl.textContent = displayText;
+          throw new Error(`Server responded with status: ${response.status}`);
         }
 
-        // Update body class since we have content
-        document.body.classList.add("has-content");
-      } else {
-        improvedMessageEl.textContent = "No improvements were made.";
+        const data = await response.json();
+
+        // Check if there's an error message in the response
+        if (data.error) {
+          throw new Error(`API Error: ${data.error}`);
+        }
+
+        // Format the improved text with proper paragraphs
+        if (data.improved) {
+          // Clear existing content
+          improvedMessageEl.innerHTML = "";
+
+          // Add a class to the body to indicate content has been generated
+          document.body.classList.add("response-generated");
+
+          // Handle the improved text based on its format (plain text or JSON with subject/body)
+          let displayText;
+
+          if (selectedType === "email") {
+            // Process email using the consolidated EmailHandler
+            displayText = EmailHandler.processResponse(data);
+          } else {
+            // For non-email responses
+            // Apply emoji density limitation
+            displayText = limitEmojiDensity(data.improved);
+
+            // Clear email data since this is not an email
+            EmailHandler.clearData();
+          }
+
+          // Split text by line breaks (handle both \n\n and single \n with proper spacing)
+          const paragraphs = displayText.split(/\n\n+/).flatMap((block) => {
+            // Further split by single newlines but preserve as separate paragraphs
+            return block.split(/\n/).filter((p) => p.trim());
+          });
+
+          // Create paragraph elements for each section
+          paragraphs.forEach((paragraph) => {
+            if (paragraph.trim()) {
+              const p = document.createElement("p");
+              p.textContent = paragraph.trim();
+              improvedMessageEl.appendChild(p);
+            }
+          });
+
+          // If there were no paragraphs, just set the text directly
+          if (improvedMessageEl.children.length === 0) {
+            improvedMessageEl.textContent = displayText;
+          }
+
+          // Update body class since we have content
+          document.body.classList.add("has-content");
+        } else {
+          improvedMessageEl.textContent = "No improvements were made.";
+        }
+
+        // Scroll to the very bottom of the page
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: "smooth",
+        });
+
+        // Set button text back to normal immediately
+        stopHourglassAnimation(improveBtn, "Improve");
+
+        // Show output container and icons when there's content
+        outputContainer.style.display = "block";
+        outputIcons.style.display = "flex";
+      } catch (error) {
+        improvedMessageEl.textContent = `Something went wrong: ${error.message}. Please try again.`;
+        console.error("Error:", error);
+
+        // Remove the response-generated class on error
+        document.body.classList.remove("response-generated");
+
+        // Still show output container and icons for error messages
+        outputContainer.style.display = "block";
+        outputIcons.style.display = "flex";
+
+        // Reset button state
+        stopHourglassAnimation(improveBtn, "Improve");
+        improveBtn.disabled = false;
+
+        // Make sure to check content state
+        checkContentAndUpdateBody();
+      } finally {
+        // Enable button
+        improveBtn.disabled = false;
       }
-
-      // Scroll to the very bottom of the page
-      window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: "smooth",
-      });
-
-      // Set button text back to normal immediately
-      stopHourglassAnimation(improveBtn, "Improve");
-
-      // Show output container and icons when there's content
-      outputContainer.style.display = "block";
-      outputIcons.style.display = "flex";
-    } catch (error) {
-      improvedMessageEl.textContent = `Something went wrong: ${error.message}. Please try again.`;
-      console.error("Error:", error);
-
-      // Remove the response-generated class on error
-      document.body.classList.remove("response-generated");
-
-      // Still show output container and icons for error messages
-      outputContainer.style.display = "block";
-      outputIcons.style.display = "flex";
-
-      // Reset button state
-      stopHourglassAnimation(improveBtn, "Improve");
-      improveBtn.disabled = false;
-
-      // Make sure to check content state
-      checkContentAndUpdateBody();
-    } finally {
-      // Enable button
-      improveBtn.disabled = false;
     }
+
+    // Start the API call with retry functionality
+    await callAPIWithRetry();
   });
 
   // Helper function to check if an element is in the viewport

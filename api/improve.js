@@ -288,11 +288,31 @@ function generatePrompt(
 
       Requirements:
       - "subject" must be short (one line, no extra punctuation)
-      - "body" must be the refined email text, multiple paragraphs allowed
-      - "body" must include an appropriate greeting at the beginning and a professional closing at the end    
+      - "body" MUST follow this EXACT structure:
+          [Formal Greeting on its own line],
+
+          [Main content paragraphs with improved text]
+
+          [Professional closing],
+          [Name placeholder or signature]
+      - The greeting MUST be the first element of the body on its own line (e.g., "Dear Team," or "Hello,")
+      - The closing MUST be separated from content by a blank line and MUST include both a closing phrase AND signature
+      - Responses without proper greeting and closing will be rejected
       - Fix grammar and spelling
       - Apply the "${tone}" tone.
 
+      Example format:
+      {
+        "subject": "Meeting Request: Project Update",
+        "body": "Dear Marketing Team,
+
+          I am writing to provide an update on our current project status. We have made significant progress on the key deliverables.
+
+          The next phase will begin next week and we anticipate completion by the end of the month.
+
+          Best regards,
+          Marketing Director"
+      }
 
       Output only valid JSON in this format:
       {
