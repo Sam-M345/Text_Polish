@@ -2,10 +2,10 @@
   "name": "message-improver",
   "version": "1.0.0",
   "description": "A web app that improves text messages based on tone",
-  "main": "src/app.js",
+  "main": "api/improve.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "start": "node api/improve.js",
+    "dev": "nodemon api/improve.js"
   },
   "dependencies": {
     "axios": "^1.6.0",

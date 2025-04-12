@@ -220,7 +220,24 @@ document.addEventListener("DOMContentLoaded", () => {
   // Add click event listeners to all option buttons
   typeButtons.forEach((button) => {
     button.addEventListener("click", () => {
+      const previousType = document.querySelector(
+        ".option-btn[data-type].selected"
+      )?.dataset.type;
+      const newType = button.dataset.type;
+
+      // Clear email data when switching away from email type
+      if (previousType === "email" && newType !== "email") {
+        EmailHandler.clearData();
+      }
+
       handleButtonSelection(typeButtons, button);
+
+      // Update placeholder based on selected type
+      if (newType === "email") {
+        messageInputEl.placeholder = "Type your email content here...";
+      } else {
+        messageInputEl.placeholder = "Type your message here...";
+      }
     });
   });
 
@@ -406,6 +423,101 @@ document.addEventListener("DOMContentLoaded", () => {
     body: "",
   };
 
+  // Email Handler - Consolidated email-related functionality
+  const EmailHandler = {
+    // Format email with subject and body
+    format: function (subject, body) {
+      console.log("Formatting email with subject and body");
+      return `${subject}
+
+***
+
+
+${body}
+
+
+`;
+    },
+
+    // Process email response from API
+    processResponse: function (data) {
+      console.log("Processing email response");
+      let displayText;
+
+      // Handle structured JSON response
+      if (typeof data.improved === "object") {
+        console.log("Received structured email response:", data.improved);
+        console.log("Subject:", data.improved.subject);
+        console.log(
+          "Body preview:",
+          data.improved.body.substring(0, 50) + "..."
+        );
+
+        // Save for sharing
+        lastEmailData.subject = data.improved.subject;
+        lastEmailData.body = data.improved.body;
+
+        // Format using the subject and body from the response
+        displayText = this.format(data.improved.subject, data.improved.body);
+      }
+      // Handle string response
+      else if (typeof data.improved === "string") {
+        console.log("Received unstructured email response, formatting locally");
+
+        // Extract subject from the first sentence
+        const subjectText = this.extractSubject(data.improved);
+
+        // Save for sharing
+        lastEmailData.subject = subjectText;
+        lastEmailData.body = data.improved;
+
+        // Format the email
+        displayText = this.format(subjectText, data.improved);
+      }
+
+      return displayText;
+    },
+
+    // Extract subject from email text
+    extractSubject: function (text) {
+      const firstSentenceMatch = text.match(/^([^.!?]+[.!?])/);
+      if (!firstSentenceMatch) return "Email Subject";
+
+      let subjectText = firstSentenceMatch[1].trim();
+      // Limit subject length to 50 chars
+      return subjectText.length > 50
+        ? subjectText.substring(0, 47) + "..."
+        : subjectText;
+    },
+
+    // Share email via mailto
+    shareViaEmail: function () {
+      console.log("Opening email client with mailto link");
+
+      // Create and click a mailto link
+      const mailtoLink = document.createElement("a");
+      mailtoLink.href = `mailto:?subject=${encodeURIComponent(
+        lastEmailData.subject
+      )}&body=${encodeURIComponent(lastEmailData.body)}`;
+      mailtoLink.style.display = "none";
+      document.body.appendChild(mailtoLink);
+
+      // Click the link to open the email client
+      mailtoLink.click();
+
+      // Remove the link from the DOM
+      setTimeout(() => {
+        document.body.removeChild(mailtoLink);
+      }, 100);
+    },
+
+    // Clear email data
+    clearData: function () {
+      lastEmailData.subject = "";
+      lastEmailData.body = "";
+    },
+  };
+
   // Update the improveBtn event listener to handle text formatting
   improveBtn.addEventListener("click", async () => {
     // Get selected options
@@ -496,59 +608,16 @@ document.addEventListener("DOMContentLoaded", () => {
         // Handle the improved text based on its format (plain text or JSON with subject/body)
         let displayText;
 
-        if (selectedType === "email" && typeof data.improved === "object") {
-          console.log("Received structured email response:", data.improved);
-          console.log("Subject:", data.improved.subject);
-          console.log(
-            "Body preview:",
-            data.improved.body.substring(0, 50) + "..."
-          );
-
-          // Save the original subject and body for sharing
-          lastEmailData.subject = data.improved.subject;
-          lastEmailData.body = data.improved.body;
-
-          // Format using the subject and body from the response
-          displayText = formatEmailTemplate(
-            null,
-            data.improved.subject,
-            data.improved.body
-          );
+        if (selectedType === "email") {
+          // Process email using the consolidated EmailHandler
+          displayText = EmailHandler.processResponse(data);
         } else {
-          // For non-email or string email responses
+          // For non-email responses
+          // Apply emoji density limitation
+          displayText = limitEmojiDensity(data.improved);
 
-          // Apply emoji density limitation for non-email
-          if (selectedType !== "email") {
-            displayText = limitEmojiDensity(data.improved);
-          }
-
-          // If email type but we didn't get a structured response, apply our template
-          if (selectedType === "email" && typeof data.improved === "string") {
-            console.log(
-              "Received unstructured email response, formatting locally"
-            );
-
-            // Extract subject from the first sentence
-            const subjectText = (() => {
-              const firstSentenceMatch = data.improved.match(/^([^.!?]+[.!?])/);
-              if (!firstSentenceMatch) return "Email Subject";
-
-              let text = firstSentenceMatch[1].trim();
-              // Limit subject length to 50 chars
-              return text.length > 50 ? text.substring(0, 47) + "..." : text;
-            })();
-
-            // Save for sharing
-            lastEmailData.subject = subjectText;
-            lastEmailData.body = data.improved;
-
-            displayText = formatEmailTemplate(null, subjectText, data.improved);
-          } else if (selectedType !== "email") {
-            // Not an email, clear email data and use the text directly
-            lastEmailData.subject = "";
-            lastEmailData.body = "";
-            displayText = data.improved;
-          }
+          // Clear email data since this is not an email
+          EmailHandler.clearData();
         }
 
         // Split text by line breaks (handle both \n\n and single \n with proper spacing)
@@ -687,46 +756,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Add helper function to format email content
-  function formatEmailTemplate(emailText, subject = null, body = null) {
-    // If subject and body are provided directly, use them
-    if (subject && body) {
-      console.log("Formatting email with provided subject and body");
-      return createEmailWithTemplate(subject, body);
-    }
-
-    // Check if already formatted (has Subject: line)
-    if (emailText.trim().startsWith("Subject:")) {
-      return emailText;
-    }
-
-    // Extract and format subject from the first sentence
-    const subjectText = (() => {
-      const firstSentenceMatch = emailText.match(/^([^.!?]+[.!?])/);
-      if (!firstSentenceMatch) return "Email Subject";
-
-      let text = firstSentenceMatch[1].trim();
-      // Limit subject length to 50 chars
-      return text.length > 50 ? text.substring(0, 47) + "..." : text;
-    })();
-
-    // Use the central function to create email with template
-    return createEmailWithTemplate(subjectText, emailText);
-  }
-
-  // Central function for email template to avoid duplication
-  function createEmailWithTemplate(subject, body) {
-    return `${subject}
-
-***
-
-
-${body}
-
-
-`;
-  }
-
   // Share output text
   const shareOutputBtn = document.getElementById("share-output");
   if (shareOutputBtn) {
@@ -736,6 +765,15 @@ ${body}
           improvedMessageEl.innerText || improvedMessageEl.textContent;
         console.log("Share button clicked, text length:", textToShare.length);
 
+        // Check if we have email data to share
+        if (lastEmailData.subject && lastEmailData.body) {
+          console.log("Sharing as email");
+          EmailHandler.shareViaEmail();
+          showIconFeedback(shareOutputBtn);
+          return;
+        }
+
+        // Regular sharing for non-email content
         if (navigator.share) {
           console.log("Web Share API available, sharing content");
 
@@ -877,24 +915,7 @@ ${body}
 
   // Function to open an email client with subject and body
   function tryMailtoFallback(subject, body) {
-    console.log("Opening email client with mailto link");
-
-    // Create and click a mailto link
-    const mailtoLink = document.createElement("a");
-    mailtoLink.href = `mailto:?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(body)}`;
-    mailtoLink.style.display = "none";
-    document.body.appendChild(mailtoLink);
-
-    // Click the link to open the email client
-    mailtoLink.click();
-
-    // Remove the link from the DOM
-    setTimeout(() => {
-      document.body.removeChild(mailtoLink);
-    }, 100);
-
+    EmailHandler.shareViaEmail();
     showIconFeedback(shareOutputBtn);
   }
 });

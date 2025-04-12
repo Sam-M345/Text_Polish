@@ -1,5 +1,8 @@
 // Import required modules
 const axios = require("axios");
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 
 // Define lists of tones that should not include emojis
@@ -18,8 +21,8 @@ const noEmojiTones = [
   // "surprised" - Removed to enable emojis for Surprised tone
 ];
 
-// Vercel serverless function handler
-module.exports = async (req, res) => {
+// Create the improveHandler function that will be used by both serverless and Express
+async function improveHandler(req, res) {
   // Set CORS headers
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -197,7 +200,39 @@ module.exports = async (req, res) => {
       details: error.message,
     });
   }
-};
+}
+
+// Set up Express server if this file is run directly
+if (require.main === module) {
+  const app = express();
+
+  // Middleware
+  app.use(cors());
+  app.use(express.json());
+
+  // Serve static files from the 'public' directory
+  app.use(express.static(path.join(__dirname, "../public")));
+
+  // API endpoint
+  app.post("/api/improve", improveHandler);
+
+  // Catch-all route to serve the main HTML page for client-side routing
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../public/index.html"));
+  });
+
+  // Start the server
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(
+      `OpenAI API Key: ${process.env.OPENAI_API_KEY ? "Found" : "Missing"}`
+    );
+  });
+} else {
+  // Export for serverless use
+  module.exports = improveHandler;
+}
 
 // Helper function to generate prompts for the LLM
 function generatePrompt(
