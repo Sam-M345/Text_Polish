@@ -819,17 +819,49 @@ Best regards,
   function tryClipboardFallback(text) {
     console.log("Attempting clipboard fallback...");
 
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        console.log("Text successfully copied to clipboard");
-        alert("Text copied to clipboard for sharing!");
-        showIconFeedback(shareOutputBtn);
-      })
-      .catch((err) => {
-        console.error("Failed to copy text to clipboard:", err);
-        alert("Could not copy text to clipboard");
-      });
+    // Check if we're sharing an email by looking at the text content
+    const isEmail = text.trim().startsWith("Subject:");
+
+    if (isEmail && lastEmailData.subject) {
+      console.log("Email sharing fallback - opening mailto link");
+
+      // Use saved email data if available
+      const emailSubject = lastEmailData.subject;
+      const emailBody = lastEmailData.body;
+
+      // Create a mailto link that will open the default email client
+      const mailtoLink = document.createElement("a");
+      mailtoLink.href = `mailto:?subject=${encodeURIComponent(
+        emailSubject
+      )}&body=${encodeURIComponent(emailBody)}`;
+      mailtoLink.style.display = "none";
+      document.body.appendChild(mailtoLink);
+
+      // Click the link to open the email client
+      mailtoLink.click();
+
+      // Remove the link from the DOM
+      setTimeout(() => {
+        document.body.removeChild(mailtoLink);
+      }, 100);
+
+      showIconFeedback(shareOutputBtn);
+    } else {
+      // For non-email content, use clipboard as before
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          console.log("Text successfully copied to clipboard");
+          if (!isEmail) {
+            alert("Text copied to clipboard for sharing!");
+          }
+          showIconFeedback(shareOutputBtn);
+        })
+        .catch((err) => {
+          console.error("Failed to copy text to clipboard:", err);
+          alert("Could not copy text to clipboard");
+        });
+    }
   }
 
   // Provide visual feedback when icon button is clicked
