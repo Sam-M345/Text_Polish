@@ -731,7 +731,22 @@ ${body}
 
   // Functions for listening animation
   let listeningAnimationInterval;
-  const dotStates = ["", ".", "..", "...", "....", "...", "..", "."];
+  const dotStates = [
+    "",
+    ".",
+    "..",
+    "...",
+    "....",
+    ".....",
+    "......",
+    ".......",
+    "......",
+    ".....",
+    "....",
+    "...",
+    "..",
+    ".",
+  ];
 
   function startListeningAnimation() {
     if (listeningAnimationInterval) {

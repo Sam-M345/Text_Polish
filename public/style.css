@@ -807,35 +807,50 @@ body.tones-expanded .output-section {
 
 /* Animation for the listening dots */
 @keyframes listeningDots {
-  0%,
-  100% {
+  0% {
     content: "👂🏻";
   }
-  10% {
+  8% {
     content: "👂🏻.";
   }
-  20% {
+  16% {
     content: "👂🏻..";
   }
-  30% {
+  24% {
     content: "👂🏻...";
   }
-  40% {
+  32% {
     content: "👂🏻....";
   }
-  50% {
-    content: "👂🏻...";
+  40% {
+    content: "👂🏻.....";
   }
-  60% {
-    content: "👂🏻..";
+  48% {
+    content: "👂🏻......";
   }
-  70% {
-    content: "👂🏻.";
+  56% {
+    content: "👂🏻.......";
+  }
+  64% {
+    content: "👂🏻......";
+  }
+  72% {
+    content: "👂🏻.....";
   }
   80% {
-    content: "👂🏻";
+    content: "👂🏻....";
   }
-  90% {
+  84% {
+    content: "👂🏻...";
+  }
+  88% {
+    content: "👂🏻..";
+  }
+  92% {
+    content: "👂🏻.";
+  }
+  96%,
+  100% {
     content: "👂🏻";
   }
 }
