@@ -515,8 +515,12 @@ document.addEventListener("DOMContentLoaded", () => {
             data.improved.body
           );
         } else {
-          // Apply emoji density limitation
-          displayText = limitEmojiDensity(data.improved);
+          // For non-email or string email responses
+
+          // Apply emoji density limitation for non-email
+          if (selectedType !== "email") {
+            displayText = limitEmojiDensity(data.improved);
+          }
 
           // If email type but we didn't get a structured response, apply our template
           if (selectedType === "email" && typeof data.improved === "string") {
@@ -538,11 +542,12 @@ document.addEventListener("DOMContentLoaded", () => {
             lastEmailData.subject = subjectText;
             lastEmailData.body = data.improved;
 
-            displayText = formatEmailTemplate(subjectText, null, data.improved);
-          } else {
-            // Not an email, clear email data
+            displayText = formatEmailTemplate(null, subjectText, data.improved);
+          } else if (selectedType !== "email") {
+            // Not an email, clear email data and use the text directly
             lastEmailData.subject = "";
             lastEmailData.body = "";
+            displayText = data.improved;
           }
         }
 

@@ -30,7 +30,21 @@ const noEmojiTones = [
 
 // Function to remove car/automobile emojis from text
 function removeCarEmojis(text) {
-  // Regex for common vehicle emojis
+  // If text is an object (for email responses), process subject and body separately
+  if (typeof text === "object" && text.subject && text.body) {
+    return {
+      subject: text.subject
+        .replace(/[🚗🚙🚘🚖🚕🏎️🛻🚚🚛🚐🚜🛵🏍️🛺🚲🛴🚍🚔🚓🚑🚒]/gu, "")
+        .replace(/\s+/g, " ")
+        .trim(),
+      body: text.body
+        .replace(/[🚗🚙🚘🚖🚕🏎️🛻🚚🚛🚐🚜🛵🏍️🛺🚲🛴🚍🚔🚓🚑🚒]/gu, "")
+        .replace(/\s+/g, " ")
+        .trim(),
+    };
+  }
+
+  // Regex for common vehicle emojis (for string responses)
   return text
     .replace(/[🚗🚙🚘🚖🚕🏎️🛻🚚🚛🚐🚜🛵🏍️🛺🚲🛴🚍🚔🚓🚑🚒]/gu, "")
     .replace(/\s+/g, " ")
@@ -131,6 +145,35 @@ app.post("/api/improve", async (req, res) => {
       console.log("Warning: OpenAI returned empty or unchanged text");
       // Force a different response
       improved = generateFallbackResponse(text, tone, textLength);
+    }
+
+    // If message type is email, try to parse the response as JSON
+    if (messageType === "email") {
+      try {
+        console.log("Checking if email response is valid JSON:", improved);
+        // Try to parse as JSON
+        const parsed = JSON.parse(improved);
+
+        // Validate shape
+        if (parsed.subject && parsed.body) {
+          console.log(
+            "Successfully parsed email response with subject and body"
+          );
+          console.log("Subject:", parsed.subject);
+          console.log("Body preview:", parsed.body.substring(0, 50) + "...");
+          // Replace improved with the parsed object
+          improved = parsed;
+        } else {
+          console.log(
+            "JSON missing 'subject' or 'body', treating as plain text"
+          );
+        }
+      } catch (err) {
+        console.log(
+          "Email response is not valid JSON, treating as plain text:",
+          err.message
+        );
+      }
     }
 
     // If we should include emojis and response doesn't already have them, add the tone emoji
@@ -377,6 +420,37 @@ function generatePrompt(originalText, messageType, textLength, tone) {
     toneInstruction = `Rewrite the following ${messageType} message to make it sound more ${tone}.`;
   }
 
+  // If message type is email, always return JSON with separate subject and body
+  if (messageType === "email") {
+    console.log(
+      "Generating email prompt with separate subject and body response"
+    );
+    // Return a simplified prompt that instructs GPT to create subject + body without emojis
+    return `
+      You are rewriting the following text as a polished email.
+      Please output valid JSON with exactly two keys: "subject" and "body".
+      1) "subject": a concise, compelling subject line for the email
+      2) "body": the main email text itself
+
+      Do not include any other text, and do not wrap it in backticks or code fences.
+      The original text to improve is: "${originalText}"
+
+      Requirements:
+      - "subject" must be short (one line, no extra punctuation)
+      - "body" must be the refined email text, multiple paragraphs allowed
+      - Do not add an example recipient, sign-off, or greeting unless it's part of the improved text
+      - Fix grammar and spelling
+      - Apply the "${tone}" tone to make it sound more professional
+      - DO NOT include any emojis in your response
+
+      Output only valid JSON in this format:
+      {
+        "subject": "...",
+        "body": "..."
+      }
+    `;
+  }
+
   return `
     ${toneInstruction}
     ${lengthGuidance}
@@ -469,6 +543,27 @@ function addEmojiToText(text, emoji, tone) {
 
 // Function to remove emojis from text
 function removeEmojis(text) {
+  // If text is an object (for email responses), process subject and body separately
+  if (typeof text === "object" && text.subject && text.body) {
+    return {
+      subject: text.subject
+        .replace(
+          /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,
+          ""
+        )
+        .replace(/\s+/g, " ")
+        .trim(),
+      body: text.body
+        .replace(
+          /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,
+          ""
+        )
+        .replace(/\s+/g, " ")
+        .trim(),
+    };
+  }
+
+  // For string responses
   return text
     .replace(
       /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,
