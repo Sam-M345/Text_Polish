@@ -249,12 +249,12 @@ function generatePrompt(
     lengthGuidance =
       "Determine the appropriate length for your response based on the context and complexity of the original message.";
   } else if (textLength === "short") {
-    lengthGuidance = "Keep the response relatively brief.";
+    lengthGuidance = "Keep the response relatively short and brief.";
   } else if (textLength === "medium") {
-    lengthGuidance = "Provide a moderate length response.";
+    lengthGuidance = "Provide a moderate  medium-length response.";
   } else if (textLength === "long") {
     lengthGuidance =
-      "Create an extensive, comprehensive, and detailed response. Include multiple paragraphs with thorough explanation and elaboration. Do not be concerned about length - longer is better for this option.";
+      "Create an extensive, long, comprehensive, and detailed response. Include multiple paragraphs with thorough explanation and elaboration. Do not be concerned about length - longer is better for this option.";
   } else {
     lengthGuidance = "Provide an appropriate length response.";
   }
