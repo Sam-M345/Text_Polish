@@ -400,152 +400,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Share output text
-  const shareOutputBtn = document.getElementById("share-output");
-  if (shareOutputBtn) {
-    shareOutputBtn.addEventListener("click", () => {
-      if (improvedMessageEl.innerText || improvedMessageEl.textContent) {
-        const textToShare =
-          improvedMessageEl.innerText || improvedMessageEl.textContent;
-        console.log("Share button clicked, text length:", textToShare.length);
-
-        if (navigator.share) {
-          console.log("Web Share API available, attempting to use it");
-          navigator
-            .share({
-              title: "Text Polish Output",
-              text: textToShare,
-            })
-            .then(() => {
-              console.log("Share successful via Web Share API");
-              showIconFeedback(shareOutputBtn);
-            })
-            .catch((error) => {
-              console.error("Error sharing via Web Share API:", error);
-              // Fallback to copy if sharing fails
-              tryClipboardFallback(textToShare);
-            });
-        } else {
-          console.log("Web Share API not available, using clipboard fallback");
-          tryClipboardFallback(textToShare);
-        }
-      } else {
-        console.warn("Nothing to share - no text in output");
-        alert("Nothing to share - please polish some text first");
-      }
-    });
-  }
-
-  // Separate function for clipboard fallback with better error handling
-  function tryClipboardFallback(text) {
-    console.log("Attempting clipboard fallback...");
-
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        console.log("Text successfully copied to clipboard");
-        alert("Text copied to clipboard for sharing!");
-        showIconFeedback(shareOutputBtn);
-      })
-      .catch((err) => {
-        console.error("Failed to copy text to clipboard:", err);
-        alert("Could not copy text to clipboard");
-      });
-  }
-
-  // Provide visual feedback when icon button is clicked
-  function showIconFeedback(button) {
-    console.log("Showing visual feedback for button");
-    const originalBg = button.style.backgroundColor || "";
-    button.style.backgroundColor = "#25a56a";
-
-    // Add a temporary class for additional visual feedback
-    button.classList.add("button-feedback");
-
-    setTimeout(() => {
-      button.style.backgroundColor = originalBg;
-      button.classList.remove("button-feedback");
-      console.log("Visual feedback completed");
-    }, 500); // Increased to 500ms for more noticeable effect
-  }
-
-  // Create a spinning animation for the hourglass
-  function startHourglassAnimation(button) {
-    // Reset any existing animation
-    clearInterval(button.spinInterval);
-
-    const hourglassEmojis = ["⏳", "⌛"];
-    let hourglassIndex = 0;
-
-    // Dot animation pattern - now includes 4 dots in the sequence
-    const dotPatterns = [" ", ".", "..", "...", "....", "...", "..", "."];
-    let dotIndex = 0;
-
-    // Store the original text without emoji
-    const originalText = "Polishing";
-
-    // Set initial state
-    button.textContent = `${originalText} ${hourglassEmojis[hourglassIndex]}${dotPatterns[dotIndex]}`;
-
-    // Start animation interval
-    button.spinInterval = setInterval(() => {
-      // Update hourglass every other frame
-      if (dotIndex % 2 === 0) {
-        hourglassIndex = (hourglassIndex + 1) % hourglassEmojis.length;
-      }
-
-      // Update dot pattern every frame
-      dotIndex = (dotIndex + 1) % dotPatterns.length;
-
-      button.textContent = `${originalText} ${hourglassEmojis[hourglassIndex]}${dotPatterns[dotIndex]}`;
-    }, 300); // Slightly faster animation (300ms) to make the dots more fluid
-  }
-
-  // Stop the animation and reset the button
-  function stopHourglassAnimation(button, newText) {
-    clearInterval(button.spinInterval);
-    button.textContent = newText;
-  }
-
-  // Add a function to limit emoji density in generated text
-  function limitEmojiDensity(text) {
-    // 1. Remove consecutive emojis by keeping only the first one in each group
-    let reducedText = text.replace(/(\p{Emoji})\p{Emoji}+/gu, "$1");
-
-    // 2. Count remaining emojis and text
-    const emojiCount = (reducedText.match(/\p{Emoji}/gu) || []).length;
-    const wordCount = reducedText.split(/\s+/).length;
-
-    // 3. Enforce emoji density limits (more strict enforcement)
-    // Maximum 2 emojis per paragraph for all tone categories that allow emojis
-    const maxEmojisPerParagraph = 2;
-    const paragraphs = reducedText.split(/\n\n+/);
-
-    let result = [];
-    for (const paragraph of paragraphs) {
-      // Count emojis in this paragraph
-      const paragraphEmojiCount = (paragraph.match(/\p{Emoji}/gu) || []).length;
-
-      if (paragraphEmojiCount > maxEmojisPerParagraph) {
-        // Remove extra emojis, keeping only the first few
-        let processedParagraph = paragraph;
-        const emojis = paragraph.match(/\p{Emoji}/gu) || [];
-        for (let i = maxEmojisPerParagraph; i < emojis.length; i++) {
-          const emoji = emojis[i];
-          // Replace the emoji and any immediately following whitespace
-          processedParagraph = processedParagraph.replace(
-            new RegExp(emoji + "\\s*", "u"),
-            ""
-          );
-        }
-        result.push(processedParagraph);
-      } else {
-        result.push(paragraph);
-      }
-    }
-
-    return result.join("\n\n");
-  }
+  // Track the last processed email data for sharing
+  let lastEmailData = {
+    subject: "",
+    body: "",
+  };
 
   // Update the improveBtn event listener to handle text formatting
   improveBtn.addEventListener("click", async () => {
@@ -645,6 +504,10 @@ document.addEventListener("DOMContentLoaded", () => {
             data.improved.body.substring(0, 50) + "..."
           );
 
+          // Save the original subject and body for sharing
+          lastEmailData.subject = data.improved.subject;
+          lastEmailData.body = data.improved.body;
+
           // Format using the subject and body from the response
           displayText = `Subject: ${data.improved.subject}
 
@@ -670,7 +533,26 @@ Best regards,
             console.log(
               "Received unstructured email response, formatting locally"
             );
+
+            // Extract subject from the first sentence
+            const subjectText = (() => {
+              const firstSentenceMatch = data.improved.match(/^([^.!?]+[.!?])/);
+              if (!firstSentenceMatch) return "Email Subject";
+
+              let text = firstSentenceMatch[1].trim();
+              // Limit subject length to 50 chars
+              return text.length > 50 ? text.substring(0, 47) + "..." : text;
+            })();
+
+            // Save for sharing
+            lastEmailData.subject = subjectText;
+            lastEmailData.body = data.improved;
+
             displayText = formatEmailTemplate(displayText);
+          } else {
+            // Not an email, clear email data
+            lastEmailData.subject = "";
+            lastEmailData.body = "";
           }
         }
 
@@ -843,5 +725,204 @@ Let me know if you have any questions.
 Best regards,
 
 [Your Name]`;
+  }
+
+  // Share output text
+  const shareOutputBtn = document.getElementById("share-output");
+  if (shareOutputBtn) {
+    shareOutputBtn.addEventListener("click", () => {
+      if (improvedMessageEl.innerText || improvedMessageEl.textContent) {
+        const textToShare =
+          improvedMessageEl.innerText || improvedMessageEl.textContent;
+        console.log("Share button clicked, text length:", textToShare.length);
+
+        // Check if we're sharing an email
+        const isEmail = textToShare.trim().startsWith("Subject:");
+        let emailSubject = "";
+        let emailBody = "";
+
+        if (isEmail) {
+          console.log("Detected email format for sharing");
+
+          // Use saved email data if available
+          if (lastEmailData.subject && lastEmailData.body) {
+            console.log("Using saved email data for sharing");
+            emailSubject = lastEmailData.subject;
+            emailBody = lastEmailData.body;
+          } else {
+            // Extract subject line from text if needed
+            console.log("Extracting email parts from formatted output");
+            const subjectMatch = textToShare.match(/Subject:\s*([^\n]+)/);
+            emailSubject = subjectMatch
+              ? subjectMatch[1].trim()
+              : "Text Polish Output";
+
+            // Extract body (everything after the divider line)
+            const bodyStartIndex = textToShare.indexOf(
+              "***********************"
+            );
+            if (bodyStartIndex > -1) {
+              emailBody = textToShare.substring(bodyStartIndex).trim();
+            } else {
+              emailBody = textToShare;
+            }
+          }
+        }
+
+        if (navigator.share) {
+          console.log("Web Share API available, attempting to use it");
+
+          // Prepare share data
+          const shareData = isEmail
+            ? {
+                title: emailSubject,
+                text: emailBody,
+                // Add URL field for email clients that support mailto format
+                url: `mailto:?subject=${encodeURIComponent(
+                  emailSubject
+                )}&body=${encodeURIComponent(emailBody)}`,
+              }
+            : {
+                title: "Text Polish Output",
+                text: textToShare,
+              };
+
+          console.log("Share data prepared:", {
+            title: shareData.title,
+            textPreview: shareData.text.substring(0, 30) + "...",
+            hasUrl: !!shareData.url,
+          });
+
+          navigator
+            .share(shareData)
+            .then(() => {
+              console.log("Share successful via Web Share API");
+              showIconFeedback(shareOutputBtn);
+            })
+            .catch((error) => {
+              console.error("Error sharing via Web Share API:", error);
+              // Fallback to copy if sharing fails
+              tryClipboardFallback(textToShare);
+            });
+        } else {
+          console.log("Web Share API not available, using clipboard fallback");
+          tryClipboardFallback(textToShare);
+        }
+      } else {
+        console.warn("Nothing to share - no text in output");
+        alert("Nothing to share - please polish some text first");
+      }
+    });
+  }
+
+  // Separate function for clipboard fallback with better error handling
+  function tryClipboardFallback(text) {
+    console.log("Attempting clipboard fallback...");
+
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        console.log("Text successfully copied to clipboard");
+        alert("Text copied to clipboard for sharing!");
+        showIconFeedback(shareOutputBtn);
+      })
+      .catch((err) => {
+        console.error("Failed to copy text to clipboard:", err);
+        alert("Could not copy text to clipboard");
+      });
+  }
+
+  // Provide visual feedback when icon button is clicked
+  function showIconFeedback(button) {
+    console.log("Showing visual feedback for button");
+    const originalBg = button.style.backgroundColor || "";
+    button.style.backgroundColor = "#25a56a";
+
+    // Add a temporary class for additional visual feedback
+    button.classList.add("button-feedback");
+
+    setTimeout(() => {
+      button.style.backgroundColor = originalBg;
+      button.classList.remove("button-feedback");
+      console.log("Visual feedback completed");
+    }, 500); // Increased to 500ms for more noticeable effect
+  }
+
+  // Create a spinning animation for the hourglass
+  function startHourglassAnimation(button) {
+    // Reset any existing animation
+    clearInterval(button.spinInterval);
+
+    const hourglassEmojis = ["⏳", "⌛"];
+    let hourglassIndex = 0;
+
+    // Dot animation pattern - now includes 4 dots in the sequence
+    const dotPatterns = [" ", ".", "..", "...", "....", "...", "..", "."];
+    let dotIndex = 0;
+
+    // Store the original text without emoji
+    const originalText = "Polishing";
+
+    // Set initial state
+    button.textContent = `${originalText} ${hourglassEmojis[hourglassIndex]}${dotPatterns[dotIndex]}`;
+
+    // Start animation interval
+    button.spinInterval = setInterval(() => {
+      // Update hourglass every other frame
+      if (dotIndex % 2 === 0) {
+        hourglassIndex = (hourglassIndex + 1) % hourglassEmojis.length;
+      }
+
+      // Update dot pattern every frame
+      dotIndex = (dotIndex + 1) % dotPatterns.length;
+
+      button.textContent = `${originalText} ${hourglassEmojis[hourglassIndex]}${dotPatterns[dotIndex]}`;
+    }, 300); // Slightly faster animation (300ms) to make the dots more fluid
+  }
+
+  // Stop the animation and reset the button
+  function stopHourglassAnimation(button, newText) {
+    clearInterval(button.spinInterval);
+    button.textContent = newText;
+  }
+
+  // Add a function to limit emoji density in generated text
+  function limitEmojiDensity(text) {
+    // 1. Remove consecutive emojis by keeping only the first one in each group
+    let reducedText = text.replace(/(\p{Emoji})\p{Emoji}+/gu, "$1");
+
+    // 2. Count remaining emojis and text
+    const emojiCount = (reducedText.match(/\p{Emoji}/gu) || []).length;
+    const wordCount = reducedText.split(/\s+/).length;
+
+    // 3. Enforce emoji density limits (more strict enforcement)
+    // Maximum 2 emojis per paragraph for all tone categories that allow emojis
+    const maxEmojisPerParagraph = 2;
+    const paragraphs = reducedText.split(/\n\n+/);
+
+    let result = [];
+    for (const paragraph of paragraphs) {
+      // Count emojis in this paragraph
+      const paragraphEmojiCount = (paragraph.match(/\p{Emoji}/gu) || []).length;
+
+      if (paragraphEmojiCount > maxEmojisPerParagraph) {
+        // Remove extra emojis, keeping only the first few
+        let processedParagraph = paragraph;
+        const emojis = paragraph.match(/\p{Emoji}/gu) || [];
+        for (let i = maxEmojisPerParagraph; i < emojis.length; i++) {
+          const emoji = emojis[i];
+          // Replace the emoji and any immediately following whitespace
+          processedParagraph = processedParagraph.replace(
+            new RegExp(emoji + "\\s*", "u"),
+            ""
+          );
+        }
+        result.push(processedParagraph);
+      } else {
+        result.push(paragraph);
+      }
+    }
+
+    return result.join("\n\n");
   }
 });
