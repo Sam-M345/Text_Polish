@@ -509,21 +509,11 @@ document.addEventListener("DOMContentLoaded", () => {
           lastEmailData.body = data.improved.body;
 
           // Format using the subject and body from the response
-          displayText = `Subject: ${data.improved.subject}
-
-***********************
-
-Hello [Name],
-
-Hope you're doing well.
-
-${data.improved.body}
-
-Let me know if you have any questions.
-
-Best regards,
-
-[Your Name]`;
+          displayText = formatEmailTemplate(
+            null,
+            data.improved.subject,
+            data.improved.body
+          );
         } else {
           // Apply emoji density limitation
           displayText = limitEmojiDensity(data.improved);
@@ -548,7 +538,7 @@ Best regards,
             lastEmailData.subject = subjectText;
             lastEmailData.body = data.improved;
 
-            displayText = formatEmailTemplate(displayText);
+            displayText = formatEmailTemplate(subjectText, null, data.improved);
           } else {
             // Not an email, clear email data
             lastEmailData.subject = "";
@@ -693,7 +683,13 @@ Best regards,
   }
 
   // Add helper function to format email content
-  function formatEmailTemplate(emailText) {
+  function formatEmailTemplate(emailText, subject = null, body = null) {
+    // If subject and body are provided directly, use them
+    if (subject && body) {
+      console.log("Formatting email with provided subject and body");
+      return createEmailWithTemplate(subject, body);
+    }
+
     // Check if already formatted (has Subject: line)
     if (emailText.trim().startsWith("Subject:")) {
       return emailText;
@@ -709,22 +705,21 @@ Best regards,
       return text.length > 50 ? text.substring(0, 47) + "..." : text;
     })();
 
-    // Format the email with the template structure
-    return `Subject: ${subjectText}
+    // Use the central function to create email with template
+    return createEmailWithTemplate(subjectText, emailText);
+  }
 
-***********************
+  // Central function for email template to avoid duplication
+  function createEmailWithTemplate(subject, body) {
+    return `${subject}
 
-Hello [Name],
+***
 
-Hope you're doing well.
 
-${emailText}
+${body}
 
-Let me know if you have any questions.
 
-Best regards,
-
-[Your Name]`;
+`;
   }
 
   // Share output text
