@@ -289,10 +289,10 @@ function generatePrompt(
       Requirements:
       - "subject" must be short (one line, no extra punctuation)
       - "body" must be the refined email text, multiple paragraphs allowed
-      - Do not add an example recipient, sign-off, or greeting unless it's part of the improved text
+      - "body" must include an appropriate greeting at the beginning and a professional closing at the end    
       - Fix grammar and spelling
-      - Apply the "${tone}" tone to make it sound more professional
-      - DO NOT include any emojis in your response
+      - Apply the "${tone}" tone.
+
 
       Output only valid JSON in this format:
       {
