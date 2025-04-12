@@ -315,7 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
           showIconFeedback(copyInputBtn);
         })
         .catch((err) => {
-          console.error("Could not copy text: ", err);
+          console.error("Failed to copy text to clipboard:", err);
         });
     }
   });
@@ -330,7 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showIconFeedback(pasteInputBtn);
       })
       .catch((err) => {
-        console.error("Could not paste text: ", err);
+        console.error("Failed to copy text to clipboard:", err);
       });
   });
 
@@ -385,7 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
           showIconFeedback(copyOutputBtn);
         })
         .catch((err) => {
-          console.error("Could not copy text: ", err);
+          console.error("Failed to copy text to clipboard:", err);
         });
     }
   });
@@ -772,15 +772,14 @@ Best regards,
         if (navigator.share) {
           console.log("Web Share API available, attempting to use it");
 
-          // Prepare share data
+          // For emails, include both the text and a mailto URL to ensure proper field population
           const shareData = isEmail
             ? {
                 title: emailSubject,
-                text: emailBody,
-                // Add URL field for email clients that support mailto format
+                text: textToShare, // Share the full formatted email text for consistency
                 url: `mailto:?subject=${encodeURIComponent(
                   emailSubject
-                )}&body=${encodeURIComponent(emailBody)}`,
+                )}&body=${encodeURIComponent(emailBody)}`, // Include mailto for email apps
               }
             : {
                 title: "Text Polish Output",
@@ -790,7 +789,7 @@ Best regards,
           console.log("Share data prepared:", {
             title: shareData.title,
             textPreview: shareData.text.substring(0, 30) + "...",
-            hasUrl: !!shareData.url,
+            hasMailto: isEmail,
           });
 
           navigator
@@ -801,12 +800,25 @@ Best regards,
             })
             .catch((error) => {
               console.error("Error sharing via Web Share API:", error);
-              // Fallback to copy if sharing fails
-              tryClipboardFallback(textToShare);
+
+              // If sharing fails and it's an email, try direct mailto
+              if (isEmail && lastEmailData.subject) {
+                console.log("Share failed, trying direct mailto for email");
+                tryMailtoFallback(lastEmailData.subject, lastEmailData.body);
+              } else {
+                // Otherwise fall back to clipboard
+                tryClipboardFallback(textToShare);
+              }
             });
         } else {
-          console.log("Web Share API not available, using clipboard fallback");
-          tryClipboardFallback(textToShare);
+          console.log("Web Share API not available, using fallback");
+
+          // For emails without Web Share API, use mailto directly
+          if (isEmail && lastEmailData.subject) {
+            tryMailtoFallback(lastEmailData.subject, lastEmailData.body);
+          } else {
+            tryClipboardFallback(textToShare);
+          }
         }
       } else {
         console.warn("Nothing to share - no text in output");
@@ -822,46 +834,19 @@ Best regards,
     // Check if we're sharing an email by looking at the text content
     const isEmail = text.trim().startsWith("Subject:");
 
-    if (isEmail && lastEmailData.subject) {
-      console.log("Email sharing fallback - opening mailto link");
-
-      // Use saved email data if available
-      const emailSubject = lastEmailData.subject;
-      const emailBody = lastEmailData.body;
-
-      // Create a mailto link that will open the default email client
-      const mailtoLink = document.createElement("a");
-      mailtoLink.href = `mailto:?subject=${encodeURIComponent(
-        emailSubject
-      )}&body=${encodeURIComponent(emailBody)}`;
-      mailtoLink.style.display = "none";
-      document.body.appendChild(mailtoLink);
-
-      // Click the link to open the email client
-      mailtoLink.click();
-
-      // Remove the link from the DOM
-      setTimeout(() => {
-        document.body.removeChild(mailtoLink);
-      }, 100);
-
-      showIconFeedback(shareOutputBtn);
-    } else {
-      // For non-email content, use clipboard as before
-      navigator.clipboard
-        .writeText(text)
-        .then(() => {
-          console.log("Text successfully copied to clipboard");
-          if (!isEmail) {
-            alert("Text copied to clipboard for sharing!");
-          }
-          showIconFeedback(shareOutputBtn);
-        })
-        .catch((err) => {
-          console.error("Failed to copy text to clipboard:", err);
-          alert("Could not copy text to clipboard");
-        });
-    }
+    // Always use clipboard for consistent behavior across content types
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        console.log("Text successfully copied to clipboard");
+        if (!isEmail) {
+          alert("Text copied to clipboard for sharing!");
+        }
+        showIconFeedback(shareOutputBtn);
+      })
+      .catch((err) => {
+        console.error("Failed to copy text to clipboard:", err);
+      });
   }
 
   // Provide visual feedback when icon button is clicked
@@ -956,5 +941,28 @@ Best regards,
     }
 
     return result.join("\n\n");
+  }
+
+  // Function to open an email client with subject and body
+  function tryMailtoFallback(subject, body) {
+    console.log("Opening email client with mailto link");
+
+    // Create and click a mailto link
+    const mailtoLink = document.createElement("a");
+    mailtoLink.href = `mailto:?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
+    mailtoLink.style.display = "none";
+    document.body.appendChild(mailtoLink);
+
+    // Click the link to open the email client
+    mailtoLink.click();
+
+    // Remove the link from the DOM
+    setTimeout(() => {
+      document.body.removeChild(mailtoLink);
+    }, 100);
+
+    showIconFeedback(shareOutputBtn);
   }
 });
