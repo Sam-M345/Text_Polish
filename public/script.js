@@ -672,10 +672,8 @@ document.addEventListener("DOMContentLoaded", () => {
         behavior: "smooth",
       });
 
-      stopHourglassAnimation(improveBtn, "✓ Improve");
-      setTimeout(() => {
-        improveBtn.textContent = "Improve";
-      }, 2000);
+      // Set button text back to normal immediately
+      stopHourglassAnimation(improveBtn, "Improve");
 
       // Show output container and icons when there's content
       outputContainer.style.display = "block";
@@ -798,21 +796,17 @@ document.addEventListener("DOMContentLoaded", () => {
       subject = "Email Subject";
     }
 
-    // Format the email with the template structure
-    return `***********************
+    // Format the email with the template structure - removed labels
+    return `Subject: ${subject}
 
-Subject: ${subject}
+***********************
 
-Greeting:
 Hello [Name],
 
-Opening line:
 Hope you're doing well.
 
-Main content:
 ${emailText}
 
-Closing line:
 Let me know if you have any questions.
 
 Best regards,

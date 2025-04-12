@@ -142,7 +142,7 @@ h3 {
   margin-right: 10px; /* Add some space between "Length" text and buttons */
 }
 
-.length-wrapper .length-buttons {
+.length-wrapper .output-length-buttons {
   margin-left: 0;
   width: 100%; /* Make container fill available space */
   display: flex;
@@ -151,7 +151,7 @@ h3 {
 
 .length-wrapper .option-buttons {
   display: flex;
-  width: 100%; /* Ensure the options container takes full width */
+  width: 100%; /* Make container fill available space */
 }
 
 .tone-container {
@@ -198,12 +198,16 @@ h3 {
 }
 
 /* Length Button Group */
-.length-buttons {
+.output-length-buttons {
   composes: button-group-base;
   margin-left: 0;
   width: 100%; /* Make container fill available space */
   display: flex;
   justify-content: space-between; /* Distribute buttons evenly */
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
 }
 
 /* Tone Button Group */
@@ -245,7 +249,6 @@ h3 {
 }
 
 .text-type-options,
-.length-options,
 .tone-options {
   flex-wrap: nowrap;
   justify-content: flex-start;
@@ -264,15 +267,6 @@ h3 {
 .text-type-options .option-btn {
   padding: 0.5rem 0.8rem;
   min-width: auto;
-}
-
-.length-options {
-  flex: 1;
-  overflow-x: auto;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
-  margin-left: 0;
-  width: 100%; /* Ensure full width */
 }
 
 .tone-options {
@@ -747,12 +741,12 @@ body.tones-expanded .output-section {
 }
 
 .text-type-options {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  gap: var(--spacing-md);
-  width: auto;
+  flex: 1;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  margin-left: 10px;
+  width: 100%; /* Ensure full width */
 }
 
 .text-type-buttons {
