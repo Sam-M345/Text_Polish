@@ -991,30 +991,32 @@ ${cleanedBody}
       firstEmojiPos + firstEmojiMatch[0].length
     );
 
-    // Process the section after the first emoji to add paragraph breaks after any subsequent emojis
-    // Match all emojis in the remaining text
-    const emojiMatches = [...afterFirstEmoji.matchAll(/\p{Emoji}/gu)];
+    // Instead of processing individual emojis, find groups of emojis (consecutive emojis)
+    // Use a regex that matches both individual emojis and consecutive emoji groups
+    const emojiGroupRegex = /\p{Emoji}+/gu;
+    const emojiGroups = [...afterFirstEmoji.matchAll(emojiGroupRegex)];
 
-    // Start from the end to avoid messing up indices
-    for (let i = emojiMatches.length - 1; i >= 0; i--) {
-      const match = emojiMatches[i];
-      const emojiPos = match.index;
+    // Start from the end to avoid messing up indices when adding line breaks
+    for (let i = emojiGroups.length - 1; i >= 0; i--) {
+      const match = emojiGroups[i];
+      const groupPos = match.index;
+      const groupLength = match[0].length;
 
-      // Skip if the emoji is already at the end of a line
+      // Skip if the emoji group is already at the end of a paragraph
       if (
         afterFirstEmoji.substring(
-          emojiPos + match[0].length,
-          emojiPos + match[0].length + 2
+          groupPos + groupLength,
+          groupPos + groupLength + 2
         ) === "\n\n"
       ) {
         continue;
       }
 
-      // Add double newline after this emoji
+      // Add double newline after the emoji group (not after each emoji in the group)
       afterFirstEmoji =
-        afterFirstEmoji.substring(0, emojiPos + match[0].length) +
+        afterFirstEmoji.substring(0, groupPos + groupLength) +
         "\n\n" +
-        afterFirstEmoji.substring(emojiPos + match[0].length).trim();
+        afterFirstEmoji.substring(groupPos + groupLength).trim();
     }
 
     // Combine the parts back together
