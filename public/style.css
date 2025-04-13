@@ -358,7 +358,7 @@ h3 {
 .tone-buttons:not(.selected):not([data-tone="auto"]) {
   background-color: var(--card-bg);
   border-color: var(--border-color);
-  opacity: 0.8;
+  opacity: 1;
 }
 
 .tone-buttons:not(.selected):not([data-tone="auto"]):active {
@@ -461,10 +461,6 @@ h3 {
 
 .tone-category {
   margin-bottom: 0.7rem;
-}
-
-.tone-category:last-child {
-  margin-bottom: 20px;
 }
 
 /* Mobile grid layout for tone categories */
