@@ -346,7 +346,22 @@ function generatePrompt(
   `;
 }
 
-
+// Function to get emoji for a tone
+function getToneEmoji(tone) {
+  const emojiMap = {
+    exciting: "🤩",
+    friendly: "😄",
+    humorous: "😆",
+    congrats: "👏🏻",
+    loving: "💖",
+    supportive: "🤝",
+    formal: "",
+    informative: "",
+    motivational: "",
+    urgent: "",
+    blunt: "⚡",
+    surprised: "😲",
+  };
 
   return emojiMap[tone] || "";
 }
