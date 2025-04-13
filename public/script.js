@@ -643,6 +643,11 @@ ${cleanedBody}
             EmailHandler.clearData();
           }
 
+          // For text messages, format paragraphs with emoji breaks
+          if (selectedType === "messenger") {
+            displayText = formatEmojiBreaks(displayText);
+          }
+
           // Split text by line breaks (handle both \n\n and single \n with proper spacing)
           const paragraphs = displayText.split(/\n\n+/).flatMap((block) => {
             // Further split by single newlines but preserve as separate paragraphs
@@ -959,5 +964,60 @@ ${cleanedBody}
   function tryMailtoFallback(subject, body) {
     EmailHandler.shareViaEmail();
     showIconFeedback(shareOutputBtn);
+  }
+
+  // Function to add paragraph breaks after emojis (except the first one) in text messages
+  function formatEmojiBreaks(text) {
+    // Don't process empty text
+    if (!text || text.length === 0) return text;
+
+    // Find the position of the first emoji (if any)
+    const emojiRegex = /\p{Emoji}/u;
+    const firstEmojiMatch = text.match(emojiRegex);
+
+    // If no emoji found, return the original text
+    if (!firstEmojiMatch) return text;
+
+    // Get the position of the first emoji
+    const firstEmojiPos = text.indexOf(firstEmojiMatch[0]);
+
+    // Split the text into sections: before the first emoji, the first emoji itself, and after the first emoji
+    const beforeFirstEmoji = text.substring(0, firstEmojiPos);
+    const firstEmoji = text.substring(
+      firstEmojiPos,
+      firstEmojiPos + firstEmojiMatch[0].length
+    );
+    let afterFirstEmoji = text.substring(
+      firstEmojiPos + firstEmojiMatch[0].length
+    );
+
+    // Process the section after the first emoji to add paragraph breaks after any subsequent emojis
+    // Match all emojis in the remaining text
+    const emojiMatches = [...afterFirstEmoji.matchAll(/\p{Emoji}/gu)];
+
+    // Start from the end to avoid messing up indices
+    for (let i = emojiMatches.length - 1; i >= 0; i--) {
+      const match = emojiMatches[i];
+      const emojiPos = match.index;
+
+      // Skip if the emoji is already at the end of a line
+      if (
+        afterFirstEmoji.substring(
+          emojiPos + match[0].length,
+          emojiPos + match[0].length + 2
+        ) === "\n\n"
+      ) {
+        continue;
+      }
+
+      // Add double newline after this emoji
+      afterFirstEmoji =
+        afterFirstEmoji.substring(0, emojiPos + match[0].length) +
+        "\n\n" +
+        afterFirstEmoji.substring(emojiPos + match[0].length).trim();
+    }
+
+    // Combine the parts back together
+    return beforeFirstEmoji + firstEmoji + afterFirstEmoji;
   }
 });
