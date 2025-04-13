@@ -318,14 +318,52 @@ h3 {
   -webkit-appearance: none;
 }
 
-.option-btn:active {
+/* Specific class for tone buttons */
+.tone-buttons {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.7rem;
+  border-radius: 50px;
+  border: 2px solid var(--card-bg);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 40px;
+  box-sizing: border-box;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+  justify-content: center;
+  min-width: 60px;
+  max-width: 160px;
+  font-weight: 500;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.option-btn:active,
+.tone-buttons:active {
   background-color: #3a3a3a;
   transform: scale(0.98);
 }
 
-.option-btn.selected {
+.option-btn.selected,
+.tone-buttons.selected {
   border-color: var(--primary-color);
   background-color: rgba(37, 165, 106, 0.2);
+}
+
+/* Tone button hover and active states */
+.tone-buttons:not(.selected):not([data-tone="auto"]) {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  opacity: 0.8;
+}
+
+.tone-buttons:not(.selected):not([data-tone="auto"]):active {
+  background-color: #3a3a3a;
+  opacity: 1;
 }
 
 /* Button type variations */
@@ -394,7 +432,8 @@ h3 {
   display: flex;
   align-items: center;
   position: absolute;
-  top: -10px;
+  top: 50%;
+  transform: translateY(-50%);
   right: 0px;
   width: 40px;
   justify-content: center;
@@ -440,28 +479,41 @@ h3 {
   justify-content: start;
 }
 
-.tone-category:first-of-type .option-btn:nth-child(odd),
-.tone-category:nth-of-type(2) .option-btn:nth-child(odd),
-.tone-category:nth-of-type(3) .option-btn:nth-child(odd) {
+.tone-category:first-of-type .tone-buttons:nth-child(odd),
+.tone-category:nth-of-type(2) .tone-buttons:nth-child(odd),
+.tone-category:nth-of-type(3) .tone-buttons:nth-child(odd) {
   justify-self: flex-end;
   width: auto;
   min-width: 0;
   margin-right: 0;
 }
 
-.tone-category:first-of-type .option-btn:nth-child(even),
-.tone-category:nth-of-type(2) .option-btn:nth-child(even),
-.tone-category:nth-of-type(3) .option-btn:nth-child(even) {
+.tone-category:first-of-type .tone-buttons:nth-child(even),
+.tone-category:nth-of-type(2) .tone-buttons:nth-child(even),
+.tone-category:nth-of-type(3) .tone-buttons:nth-child(even) {
   justify-self: flex-start;
   margin-left: 0;
   width: auto;
   min-width: 0;
 }
 
-.tone-category:first-of-type .option-btn,
-.tone-category:nth-of-type(2) .option-btn,
-.tone-category:nth-of-type(3) .option-btn {
+.tone-category:first-of-type .tone-buttons,
+.tone-category:nth-of-type(2) .tone-buttons,
+.tone-category:nth-of-type(3) .tone-buttons {
   padding: 0.5rem 0.8rem;
+  white-space: nowrap;
+}
+
+/* Tone options styling */
+.tone-options .tone-buttons {
+  justify-content: center;
+  min-width: 60px;
+  max-width: 160px;
+  font-weight: 500;
+  flex-shrink: 0;
+  background-color: var(--card-bg);
+  overflow: visible;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

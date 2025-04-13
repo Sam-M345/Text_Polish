@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Get option buttons
   const typeButtons = document.querySelectorAll(".option-btn[data-type]");
   const lengthButtons = document.querySelectorAll(".option-btn[data-length]");
-  const toneButtons = document.querySelectorAll(".option-btn[data-tone]");
+  const toneButtons = document.querySelectorAll(".tone-buttons[data-tone]");
 
   // Get other elements
   const messageInputEl = document.getElementById("text-input-area");
@@ -10,6 +10,45 @@ document.addEventListener("DOMContentLoaded", () => {
   const improvedMessageEl = document.getElementById("improved-message");
   const outputContainer = document.getElementById("output-container");
   const outputIcons = document.querySelector(".output-icons");
+
+  // Set default selections: Text Message, Auto length, and Friendly tone
+  function setDefaultSelections() {
+    // Default to Text Message (already selected in HTML)
+    const defaultType = document.querySelector(
+      ".option-btn[data-type='messenger']"
+    );
+    if (defaultType) handleButtonSelection(typeButtons, defaultType);
+
+    // Default to Auto length (already selected in HTML)
+    const defaultLength = document.querySelector(
+      ".option-btn[data-length='auto']"
+    );
+    if (defaultLength) handleButtonSelection(lengthButtons, defaultLength);
+
+    // Update default tone based on message type
+    updateDefaultTone();
+  }
+
+  // Function to update default tone based on selected message type
+  function updateDefaultTone() {
+    const selectedType = document.querySelector(
+      ".option-btn[data-type].selected"
+    )?.dataset.type;
+
+    // Different default tones based on message type
+    const defaultTone = selectedType === "email" ? "formal" : "friendly";
+
+    // Find and click the appropriate tone button
+    const toneButton = document.querySelector(
+      `.tone-buttons[data-tone='${defaultTone}']`
+    );
+    if (toneButton) {
+      toneButton.click();
+    }
+  }
+
+  // Call the function after all other initialization
+  setTimeout(setDefaultSelections, 100);
 
   // Check for content on page load to handle scrolling
   checkContentAndUpdateBody();
@@ -225,6 +264,11 @@ document.addEventListener("DOMContentLoaded", () => {
       )?.dataset.type;
       const newType = button.dataset.type;
 
+      // Skip processing if the same button is clicked again
+      if (previousType === newType) {
+        return;
+      }
+
       // Clear email data when switching away from email type
       if (previousType === "email" && newType !== "email") {
         EmailHandler.clearData();
@@ -238,6 +282,9 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         messageInputEl.placeholder = "Type your message here...";
       }
+
+      // Update default tone whenever message type changes
+      updateDefaultTone();
     });
   });
 
@@ -260,7 +307,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // Find the top tone container and the tone options
       const toneContainer = document.querySelector(".tone-container");
       const toneOptions = document.querySelector(".tone-options");
-      const autoButton = toneOptions.querySelector('[data-tone="auto"]');
+      const autoButton = toneOptions.querySelector(
+        '.tone-buttons[data-tone="auto"]'
+      );
 
       if (selectedTone === "auto") {
         // If Auto is selected:
@@ -269,7 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 2. If there's an existing secondary tone button, keep it but remove selected class
         const existingToneButton = toneOptions.querySelector(
-          '.option-btn:not([data-tone="auto"])'
+          '.tone-buttons:not([data-tone="auto"])'
         );
         if (existingToneButton) {
           existingToneButton.classList.remove("selected");
@@ -281,7 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 2. Check if there's already a selected tone button in the top
         const existingToneButton = toneOptions.querySelector(
-          '.option-btn:not([data-tone="auto"])'
+          '.tone-buttons:not([data-tone="auto"])'
         );
 
         if (existingToneButton) {
@@ -292,7 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           // Create a new button for the selected tone
           const newSelectedButton = document.createElement("button");
-          newSelectedButton.className = "option-btn selected";
+          newSelectedButton.className = "tone-buttons selected";
           newSelectedButton.dataset.tone = selectedTone;
           newSelectedButton.innerHTML = toneText;
 
@@ -535,7 +584,7 @@ ${cleanedBody}
       ".option-btn[data-length].selected"
     ).dataset.length;
     const selectedTone = document.querySelector(
-      ".option-btn[data-tone].selected"
+      ".tone-buttons[data-tone].selected"
     ).dataset.tone;
     const originalMessage = messageInputEl.value.trim();
 
@@ -966,35 +1015,23 @@ ${cleanedBody}
     showIconFeedback(shareOutputBtn);
   }
 
-  // Function to add paragraph breaks after emojis (except the first one) in text messages
+  // Function to add paragraph breaks after emojis (except those at the very beginning) in text messages
   function formatEmojiBreaks(text) {
     // Don't process empty text
     if (!text || text.length === 0) return text;
 
-    // Find the position of the first emoji (if any)
-    const emojiRegex = /\p{Emoji}/u;
-    const firstEmojiMatch = text.match(emojiRegex);
-
-    // If no emoji found, return the original text
-    if (!firstEmojiMatch) return text;
-
-    // Get the position of the first emoji
-    const firstEmojiPos = text.indexOf(firstEmojiMatch[0]);
-
-    // Split the text into sections: before the first emoji, the first emoji itself, and after the first emoji
-    const beforeFirstEmoji = text.substring(0, firstEmojiPos);
-    const firstEmoji = text.substring(
-      firstEmojiPos,
-      firstEmojiPos + firstEmojiMatch[0].length
-    );
-    let afterFirstEmoji = text.substring(
-      firstEmojiPos + firstEmojiMatch[0].length
-    );
-
-    // Instead of processing individual emojis, find groups of emojis (consecutive emojis)
-    // Use a regex that matches both individual emojis and consecutive emoji groups
+    // Find all emoji groups in the text
     const emojiGroupRegex = /\p{Emoji}+/gu;
-    const emojiGroups = [...afterFirstEmoji.matchAll(emojiGroupRegex)];
+    const emojiGroups = [...text.matchAll(emojiGroupRegex)];
+
+    // If no emojis found, return the original text
+    if (!emojiGroups.length) return text;
+
+    // Check if the very first character is an emoji
+    const hasEmojiAtBeginning = emojiGroups.some((match) => match.index === 0);
+
+    // Create a working copy of the text
+    let processedText = text;
 
     // Start from the end to avoid messing up indices when adding line breaks
     for (let i = emojiGroups.length - 1; i >= 0; i--) {
@@ -1002,9 +1039,12 @@ ${cleanedBody}
       const groupPos = match.index;
       const groupLength = match[0].length;
 
-      // Skip if the emoji group is already at the end of a paragraph
+      // Skip if:
+      // 1. The emoji is the absolute first character of the text
+      // 2. Or if the emoji is already at the end of a paragraph
       if (
-        afterFirstEmoji.substring(
+        groupPos === 0 ||
+        processedText.substring(
           groupPos + groupLength,
           groupPos + groupLength + 2
         ) === "\n\n"
@@ -1012,14 +1052,13 @@ ${cleanedBody}
         continue;
       }
 
-      // Add double newline after the emoji group (not after each emoji in the group)
-      afterFirstEmoji =
-        afterFirstEmoji.substring(0, groupPos + groupLength) +
+      // Add double newline after the emoji group
+      processedText =
+        processedText.substring(0, groupPos + groupLength) +
         "\n\n" +
-        afterFirstEmoji.substring(groupPos + groupLength).trim();
+        processedText.substring(groupPos + groupLength).trim();
     }
 
-    // Combine the parts back together
-    return beforeFirstEmoji + firstEmoji + afterFirstEmoji;
+    return processedText;
   }
 });
