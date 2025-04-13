@@ -664,6 +664,9 @@ ${cleanedBody}
 
         const data = await response.json();
 
+        // Log the raw API response
+        console.log("Raw API response:", data);
+
         // Check if there's an error message in the response
         if (data.error) {
           throw new Error(`API Error: ${data.error}`);
@@ -671,6 +674,8 @@ ${cleanedBody}
 
         // Format the improved text with proper paragraphs
         if (data.improved) {
+          console.log("Original improved text:", data.improved);
+
           // Clear existing content
           improvedMessageEl.innerHTML = "";
 
@@ -683,10 +688,12 @@ ${cleanedBody}
           if (selectedType === "email") {
             // Process email using the consolidated EmailHandler
             displayText = EmailHandler.processResponse(data);
+            console.log("After email processing:", displayText);
           } else {
             // For non-email responses
             // Apply emoji density limitation
-            displayText = limitEmojiDensity(data.improved);
+            displayText = data.improved;
+            console.log("Bypassing emoji density limiting:", displayText);
 
             // Clear email data since this is not an email
             EmailHandler.clearData();
@@ -695,17 +702,23 @@ ${cleanedBody}
           // For text messages, format paragraphs with emoji breaks
           if (selectedType === "messenger") {
             displayText = formatEmojiBreaks(displayText);
+            console.log("After emoji breaks formatting:", displayText);
           }
 
           // Split text by line breaks (handle both \n\n and single \n with proper spacing)
           const paragraphs = displayText.split(/\n\n+/).flatMap((block) => {
             // Further split by single newlines but preserve as separate paragraphs
-            return block.split(/\n/).filter((p) => p.trim());
+            const result = block.split(/\n/).filter((p) => p.trim());
+            console.log("Paragraphs after splitting:", result);
+            return result;
           });
 
+          console.log("All paragraphs after processing:", paragraphs);
+
           // Create paragraph elements for each section
-          paragraphs.forEach((paragraph) => {
+          paragraphs.forEach((paragraph, index) => {
             if (paragraph.trim()) {
+              console.log(`Creating paragraph ${index}:`, paragraph.trim());
               const p = document.createElement("p");
               p.textContent = paragraph.trim();
               improvedMessageEl.appendChild(p);
@@ -969,66 +982,38 @@ ${cleanedBody}
     button.textContent = newText;
   }
 
-  // Add a function to limit emoji density in generated text
-  function limitEmojiDensity(text) {
-    // 1. Remove consecutive emojis by keeping only the first one in each group
-    let reducedText = text.replace(/(\p{Emoji})\p{Emoji}+/gu, "$1");
-
-    // 2. Count remaining emojis and text
-    const emojiCount = (reducedText.match(/\p{Emoji}/gu) || []).length;
-    const wordCount = reducedText.split(/\s+/).length;
-
-    // 3. Enforce emoji density limits (more strict enforcement)
-    // Maximum 2 emojis per paragraph for all tone categories that allow emojis
-    const maxEmojisPerParagraph = 2;
-    const paragraphs = reducedText.split(/\n\n+/);
-
-    let result = [];
-    for (const paragraph of paragraphs) {
-      // Count emojis in this paragraph
-      const paragraphEmojiCount = (paragraph.match(/\p{Emoji}/gu) || []).length;
-
-      if (paragraphEmojiCount > maxEmojisPerParagraph) {
-        // Remove extra emojis, keeping only the first few
-        let processedParagraph = paragraph;
-        const emojis = paragraph.match(/\p{Emoji}/gu) || [];
-        for (let i = maxEmojisPerParagraph; i < emojis.length; i++) {
-          const emoji = emojis[i];
-          // Replace the emoji and any immediately following whitespace
-          processedParagraph = processedParagraph.replace(
-            new RegExp(emoji + "\\s*", "u"),
-            ""
-          );
-        }
-        result.push(processedParagraph);
-      } else {
-        result.push(paragraph);
-      }
-    }
-
-    return result.join("\n\n");
-  }
-
-  // Function to open an email client with subject and body
-  function tryMailtoFallback(subject, body) {
-    EmailHandler.shareViaEmail();
-    showIconFeedback(shareOutputBtn);
-  }
-
   // Function to add paragraph breaks after emojis (except those at the very beginning) in text messages
   function formatEmojiBreaks(text) {
     // Don't process empty text
     if (!text || text.length === 0) return text;
 
-    // Find all emoji groups in the text
-    const emojiGroupRegex = /\p{Emoji}+/gu;
+    console.log("formatEmojiBreaks input:", text);
+
+    // Find all emoji groups in the text - using a more specific emoji pattern
+    const emojiGroupRegex =
+      /\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu;
     const emojiGroups = [...text.matchAll(emojiGroupRegex)];
 
-    // If no emojis found, return the original text
-    if (!emojiGroups.length) return text;
+    console.log(
+      "Detected emoji groups:",
+      emojiGroups.map((m) => ({ emoji: m[0], position: m.index }))
+    );
 
-    // Check if the very first character is an emoji
-    const hasEmojiAtBeginning = emojiGroups.some((match) => match.index === 0);
+    // If no emojis found, return the original text
+    if (!emojiGroups.length) {
+      console.log("No emojis found, returning original text");
+      return text;
+    }
+
+    // Create a map of emoji positions for quick lookup
+    const emojiPositions = new Set();
+    emojiGroups.forEach((match) => {
+      const start = match.index;
+      const end = start + match[0].length - 1;
+      for (let i = start; i <= end; i++) {
+        emojiPositions.add(i);
+      }
+    });
 
     // Create a working copy of the text
     let processedText = text;
@@ -1042,21 +1027,28 @@ ${cleanedBody}
       // Skip if:
       // 1. The emoji is the absolute first character of the text
       // 2. Or if the emoji is already at the end of a paragraph
+      // 3. Or if the next character is a digit (to avoid splitting numbers)
+      // 4. Or if the emoji is immediately followed by another emoji
       if (
         groupPos === 0 ||
         processedText.substring(
           groupPos + groupLength,
           groupPos + groupLength + 2
-        ) === "\n\n"
+        ) === "\n\n" ||
+        (processedText[groupPos + groupLength] &&
+          emojiPositions.has(groupPos + groupLength))
       ) {
         continue;
       }
 
       // Add double newline after the emoji group
-      processedText =
-        processedText.substring(0, groupPos + groupLength) +
-        "\n\n" +
-        processedText.substring(groupPos + groupLength).trim();
+      const nextChar = processedText[groupPos + groupLength];
+      if (nextChar && !/\d/.test(nextChar)) {
+        processedText =
+          processedText.substring(0, groupPos + groupLength) +
+          "\n\n" +
+          processedText.substring(groupPos + groupLength);
+      }
     }
 
     return processedText;
