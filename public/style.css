@@ -122,19 +122,21 @@ h3 {
   position: relative;
   max-width: none;
   flex-direction: row;
+  padding: 0.5rem 0;
 }
 
 .output-length-container h2 {
   margin-bottom: 0;
-  margin-right: 10px;
-  min-width: 60px;
+  margin-right: 20px;
+  min-width: 70px;
 }
 
 .output-length-container .output-length-buttons {
   margin-left: 0;
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 1.2rem;
 }
 
 /* Tone Settings Container - renamed from text-type-container */
@@ -223,18 +225,14 @@ h3 {
 .output-length-buttons {
   composes: button-group-base;
   margin-left: 0;
-  width: 100%; /* Make container fill available space */
+  width: 100%;
   display: flex;
-  justify-content: space-between; /* Distribute buttons evenly */
+  justify-content: flex-start;
   overflow-x: auto;
   white-space: nowrap;
   -webkit-overflow-scrolling: touch;
   flex: 1;
-}
-
-/* Tone Button Group */
-.tone-buttons {
-  composes: button-group-base;
+  gap: 1.2rem;
 }
 
 /* Icon Button Group */
@@ -276,7 +274,7 @@ h3 {
   justify-content: flex-start;
   display: flex;
   margin-left: 10px;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .text-type-options {
@@ -294,9 +292,10 @@ h3 {
 }
 
 .tone-options {
+  composes: button-group-base;
   flex: 0 1 auto;
   max-width: 75%;
-  margin-left: 8px;
+  margin-left: 20px;
   margin-right: 0px;
   overflow: visible;
 }
@@ -347,8 +346,8 @@ h3 {
 
 .tone-options .option-btn {
   justify-content: center;
-  min-width: 80px;
-  max-width: 120px;
+  min-width: 60px;
+  max-width: 160px;
   font-weight: 500;
   flex-shrink: 0;
   background-color: var(--card-bg);
@@ -747,6 +746,7 @@ body.tones-expanded .output-section {
 .output-length-container .bright-blue-title {
   display: inline-flex;
   align-items: center;
+  margin-right: 20px;
 }
 
 /* Stacked title for Output Length */
