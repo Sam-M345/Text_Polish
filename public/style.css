@@ -322,7 +322,7 @@ h3 {
 .tone-buttons {
   display: flex;
   align-items: center;
-  padding: 0.5rem 0.7rem;
+  padding: 0.5rem 0.8rem;
   border-radius: 50px;
   border: 2px solid var(--card-bg);
   background-color: var(--card-bg);
@@ -782,7 +782,7 @@ body.tones-expanded .output-section {
 }
 
 /* Specific tone button styling */
-[data-tone="inspirational"] {
+[data-tone="inspire"] {
   max-width: 130px;
   min-width: 70px;
 }

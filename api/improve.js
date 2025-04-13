@@ -346,25 +346,7 @@ function generatePrompt(
   `;
 }
 
-// Function to get an appropriate emoji for each tone
-function getToneEmoji(tone) {
-  const emojiMap = {
-    formal: "🧐",
-    friendly: "😊",
-    brutal: "😡",
-    persuasive: "🎯",
-    confident: "🦁",
-    cautionary: "⚠️",
-    inspirational: "💡",
-    thoughtful: "🤔",
-    joyful: "😃",
-    exciting: "🤩",
-    grieved: "😔",
-    loving: "♥️",
-    surprised: "😲",
-    informative: "🤓",
-    expert: "🔬",
-  };
+
 
   return emojiMap[tone] || "";
 }

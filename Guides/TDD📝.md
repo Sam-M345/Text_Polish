@@ -132,7 +132,7 @@ Text Polish follows a client-server architecture:
 
 1. **Positive & Engaging**
 
-   - Exciting, Friendly, Humorous, Inspirational, Loving
+   - Exciting, Friendly, Humorous, Inspire, Loving
 
 2. **Professional (Work)**
 
