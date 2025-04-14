@@ -54,7 +54,7 @@ h2 {
   margin-bottom: 0.8rem;
   margin-top: 1rem;
   font-weight: 400;
-  min-width: 80px;
+  min-width: 60px;
   white-space: nowrap;
   margin: 0;
 }
@@ -128,7 +128,11 @@ h3 {
   justify-content: flex-start;
   position: relative;
   max-width: none;
-  border: none;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding-left: 0.5rem;
+  padding-top: 0.4rem;
+  padding-bottom: 0.3rem;
 }
 
 /* Container layouts */
@@ -193,7 +197,7 @@ h3 {
   flex-wrap: nowrap;
   justify-content: flex-start;
   display: flex;
-  margin-left: 10px;
+
   gap: 1rem;
 }
 
@@ -209,15 +213,6 @@ h3 {
 .text-type-options .option-btn {
   padding: 0.5rem 0.8rem;
   min-width: auto;
-}
-
-.tone-options {
-  composes: button-group-base;
-  flex: 0 1 auto;
-  max-width: 75%;
-
-  margin-right: 0px;
-  overflow: visible;
 }
 
 /* Option buttons styling */
@@ -714,18 +709,21 @@ body.tones-expanded .output-section {
 
 /* Listening indicator for speech recognition */
 #listening-indicator {
-  position: static; /* Change from absolute to static */
-  font-size: 1.8rem; /* Increased from 1.5rem to 1.8rem (20% larger) */
+  position: static;
+  font-size: 1.8rem;
   color: #25a56a;
   opacity: 0.9;
   transition: opacity 0.3s ease;
-  margin-left: 0.5rem;
-  min-width: 80px; /* Reserve space for the animation */
+  /* margin-left: 0.5rem; */ /* Removed */
+  min-width: 80px; /* Reserve minimum space */
+  width: 80px; /* Force fixed width */
   text-align: left;
   display: flex;
   align-items: center;
-  margin-bottom: 8px; /* Add margin to raise the ear up slightly */
-  padding-top: 0px; /* Further adjustment to fine-tune vertical alignment */
+  /* margin-bottom: 8px; */ /* Removed */
+  padding-top: 0px;
+  overflow: hidden; /* Hide content exceeding the fixed width */
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
 .hidden {
@@ -785,10 +783,24 @@ body.tones-expanded .output-section {
 /* Speech controls container for ear animation and mic controls */
 .speech-controls-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start; /* Changed back to flex-start */
   align-items: center;
   width: 100%;
-  margin-top: -0.7rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0rem 0.7rem 0rem 0.5rem;
+}
+
+/* Added styles for the right side controls (Input label + buttons) */
+.input-controls-right {
+  display: flex;
+  align-items: center; /* Vertically align label and button group */
+  gap: 1rem; /* Space between label and button group */
+}
+
+/* Ensure h2 inside aligns well */
+.input-controls-right h2 {
+  margin: 0; /* Remove default h2 margins */
 }
 
 /* Ensure proper positioning of tone categories within its container */
@@ -835,12 +847,6 @@ body.tones-expanded .output-section {
   .tone-buttons {
     font-size: 1rem; /* Larger button text */
     height: 44px; /* Taller buttons */
-  }
-
-  /* Improve spacing between sections */
-  .text-type-container,
-  .tone-settings-container {
-    margin-bottom: 1.8rem;
   }
 
   /* Improve button container styling */

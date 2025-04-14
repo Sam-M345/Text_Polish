@@ -182,6 +182,10 @@ document.addEventListener("DOMContentLoaded", () => {
         listeningIndicator.classList.remove("hidden");
         listeningIndicator.style.display = "flex";
         startListeningAnimation();
+        // Hide other input buttons
+        clearInputBtn.style.display = "none";
+        copyInputBtn.style.display = "none";
+        pasteInputBtn.style.display = "none";
       };
 
       recognition.onresult = function (event) {
@@ -241,6 +245,10 @@ document.addEventListener("DOMContentLoaded", () => {
         listeningIndicator.classList.add("hidden");
         listeningIndicator.style.display = "none";
         stopListeningAnimation();
+        // Show other input buttons
+        clearInputBtn.style.display = ""; // Reset display to default (flex)
+        copyInputBtn.style.display = ""; // Reset display to default (flex)
+        pasteInputBtn.style.display = ""; // Reset display to default (flex)
       };
 
       recognition.onerror = function (event) {
@@ -252,6 +260,10 @@ document.addEventListener("DOMContentLoaded", () => {
         listeningIndicator.classList.add("hidden");
         listeningIndicator.style.display = "none";
         stopListeningAnimation();
+        // Show other input buttons
+        clearInputBtn.style.display = ""; // Reset display to default (flex)
+        copyInputBtn.style.display = ""; // Reset display to default (flex)
+        pasteInputBtn.style.display = ""; // Reset display to default (flex)
       };
 
       return true;
@@ -278,12 +290,20 @@ document.addEventListener("DOMContentLoaded", () => {
           listeningIndicator.classList.add("hidden");
           listeningIndicator.style.display = "none";
         }
+        // Manually show buttons when stopping via button click
+        clearInputBtn.style.display = "";
+        copyInputBtn.style.display = "";
+        pasteInputBtn.style.display = "";
       } else {
         // Start listening
         try {
           messageInputEl.focus(); // Focus the textarea
           recognition.start();
           showIconFeedback(micInputBtn);
+          // Manually hide buttons when starting via button click
+          clearInputBtn.style.display = "none";
+          copyInputBtn.style.display = "none";
+          pasteInputBtn.style.display = "none";
 
           // Explicitly show the listening indicator when microphone is activated
           if (listeningIndicator) {
@@ -300,6 +320,10 @@ document.addEventListener("DOMContentLoaded", () => {
               listeningIndicator.classList.add("hidden");
               listeningIndicator.style.display = "none";
             }
+            // Manually show buttons when stopping due to error/restart
+            clearInputBtn.style.display = "";
+            copyInputBtn.style.display = "";
+            pasteInputBtn.style.display = "";
 
             setTimeout(() => {
               recognition.start();
