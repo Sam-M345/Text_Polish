@@ -352,7 +352,7 @@ function getToneEmoji(tone) {
   const emojiMap = {
     exciting: "🤩",
     friendly: "😄",
-    humorous: "😆",
+    humor: "😆",
     congrats: "👏🏻",
     loving: "💖",
     thankful: "🙏🏻",
