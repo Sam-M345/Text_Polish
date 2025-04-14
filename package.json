@@ -5,7 +5,8 @@
   "main": "api/improve.js",
   "scripts": {
     "start": "node api/improve.js",
-    "dev": "nodemon api/improve.js"
+    "dev": "nodemon api/improve.js",
+    "dev:sync": "npx concurrently \"nodemon api/improve.js\" \"npx browser-sync start --proxy localhost:3000 --files public/style.css --port 3001 --no-open\""
   },
   "dependencies": {
     "@vercel/analytics": "^1.5.0",
@@ -15,6 +16,8 @@
     "express": "^4.18.2"
   },
   "devDependencies": {
+    "browser-sync": "^3.0.2",
+    "concurrently": "^8.2.2",
     "nodemon": "^3.0.1"
   }
 }
