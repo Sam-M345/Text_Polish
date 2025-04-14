@@ -300,6 +300,7 @@ function generatePrompt(
       - Responses without proper greeting and closing will be rejected
       - Fix grammar and spelling
       - Apply the "${tone}" tone.
+      - ${lengthGuidance}
 
       Example format:
       {
