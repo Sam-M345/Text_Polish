@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Get option buttons
-  const typeButtons = document.querySelectorAll(".option-btn[data-type]");
+  const typeButtons = document.querySelectorAll(
+    ".text-type-option-btn[data-type]"
+  );
   const lengthButtons = document.querySelectorAll(".option-btn[data-length]");
   const toneButtons = document.querySelectorAll(".tone-buttons[data-tone]");
 
@@ -25,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function setDefaultSelections() {
     // Default to Text Message (already selected in HTML)
     const defaultType = document.querySelector(
-      ".option-btn[data-type='messenger']"
+      ".text-type-option-btn[data-type='messenger']"
     );
     if (defaultType) handleButtonSelection(typeButtons, defaultType);
 
@@ -42,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to update default tone based on selected message type
   function updateDefaultTone() {
     const selectedType = document.querySelector(
-      ".option-btn[data-type].selected"
+      ".text-type-option-btn[data-type].selected"
     )?.dataset.type;
 
     // Different default tones based on message type
@@ -276,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
   typeButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const previousType = document.querySelector(
-        ".option-btn[data-type].selected"
+        ".text-type-option-btn[data-type].selected"
       )?.dataset.type;
       const newType = button.dataset.type;
 
@@ -600,7 +602,7 @@ ${cleanedBody}
   improveBtn.addEventListener("click", async () => {
     // Get selected options
     const selectedType = document.querySelector(
-      ".option-btn[data-type].selected"
+      ".text-type-option-btn[data-type].selected"
     ).dataset.type;
     const selectedLength = document.querySelector(
       ".option-btn[data-length].selected"

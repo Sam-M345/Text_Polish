@@ -354,7 +354,7 @@ function getToneEmoji(tone) {
     humorous: "😆",
     congrats: "👏🏻",
     loving: "💖",
-    supportive: "🤝",
+    thankful: "🙏🏻",
     formal: "",
     informative: "",
     motivational: "",
