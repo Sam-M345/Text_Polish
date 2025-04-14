@@ -178,6 +178,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Scroll textarea to keep cursor visible
         messageInputEl.scrollTop = messageInputEl.scrollHeight;
+
+        // Manually trigger resize and content check after speech input
+        autoResizeTextarea();
+        checkContentAndUpdateBody();
       };
 
       recognition.onend = function () {
