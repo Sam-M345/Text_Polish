@@ -45,7 +45,7 @@ async function improveHandler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { text, messageType, textLength, tone } = req.body;
+  const { text, messageType, tone } = req.body;
 
   // If text is missing, return an error
   if (!text) {
@@ -58,15 +58,13 @@ async function improveHandler(req, res) {
   // Log request for debugging
   console.log("Request received:", {
     messageType,
-    textLength,
     tone,
-    textLength: text.length,
     includeEmojis: shouldIncludeEmojis,
   });
 
   try {
     // Generate the prompt for OpenAI
-    const prompt = generatePrompt(text, messageType, textLength, tone);
+    const prompt = generatePrompt(text, messageType, tone);
     console.log("Generated prompt:", prompt);
 
     // Get emoji for the selected tone (only if we should include emojis)
@@ -235,31 +233,8 @@ if (require.main === module) {
 }
 
 // Helper function to generate prompts for the LLM
-function generatePrompt(
-  originalText,
-  messageType,
-  textLength,
-  tone,
-  returnFormat
-) {
-  // Define desired output length based on textLength parameter without strict limits
-  let lengthGuidance;
-
-  if (textLength === "auto" || textLength === "automatic") {
-    lengthGuidance =
-      "Determine the appropriate length for your response based on the context and complexity of the original message.";
-  } else if (textLength === "short") {
-    lengthGuidance = "Keep the response relatively short and brief.";
-  } else if (textLength === "medium") {
-    lengthGuidance = "Provide a moderate  medium-length response.";
-  } else if (textLength === "long") {
-    lengthGuidance =
-      "Create an extensive, long, comprehensive, and detailed response. Include multiple paragraphs with thorough explanation and elaboration. Do not be concerned about length - longer is better for this option.";
-  } else {
-    lengthGuidance = "Provide an appropriate length response.";
-  }
-
-  // Determine if this tone should include emojis
+function generatePrompt(originalText, messageType, tone) {
+  // Determine if this tone should include emojis (Moved inside)
   const shouldIncludeEmojis = !noEmojiTones.includes(tone);
 
   // Handle tone instructions
@@ -300,33 +275,12 @@ function generatePrompt(
       - Responses without proper greeting and closing will be rejected
       - Fix grammar and spelling
       - Apply the "${tone}" tone.
-      - ${lengthGuidance}
-
-      Example format:
-      {
-        "subject": "Meeting Request: Project Update",
-        "body": "Dear Marketing Team,
-
-          I am writing to provide an update on our current project status. We have made significant progress on the key deliverables.
-
-          The next phase will begin next week and we anticipate completion by the end of the month.
-
-          Best regards,
-          Marketing Director"
-      }
-
-      Output only valid JSON in this format:
-      {
-        "subject": "...",
-        "body": "..."
-      }
     `;
   }
 
   // Standard prompt for all messages
   return `
     ${toneInstruction}
-    ${lengthGuidance}
     ${
       shouldIncludeEmojis
         ? `Include appropriate emojis that match the ${

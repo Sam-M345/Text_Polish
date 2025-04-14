@@ -1,5 +1,7 @@
 # Text Polish
 
+To run this project>>>> npm run dev:sync
+
 A web application that enhances your text messages using AI. Text Polish transforms ordinary messages into polished, tone-specific communications.
 
 ![Text Polish Screenshot](https://via.placeholder.com/800x450.png?text=Text+Polish+Screenshot)

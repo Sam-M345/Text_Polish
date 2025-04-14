@@ -112,33 +112,6 @@ h3 {
   white-space: nowrap;
 }
 
-.output-length-container {
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  position: relative;
-  max-width: none;
-  flex-direction: row;
-  padding: 0.5rem 0;
-}
-
-.output-length-container h2 {
-  margin-bottom: 0;
-  margin-right: 20px;
-  min-width: 70px;
-}
-
-.output-length-container .output-length-buttons {
-  margin-left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  gap: 1.2rem;
-}
-
 /* Tone Settings Container - renamed from text-type-container */
 .tone-settings-container {
   margin-top: 0;
@@ -149,6 +122,7 @@ h3 {
   justify-content: flex-start;
   position: relative;
   max-width: none;
+  border: none;
 }
 
 /* Container layouts */
@@ -173,20 +147,6 @@ h3 {
   margin: 0;
   background: transparent;
   border: none;
-}
-
-/* Length Button Group */
-.output-length-buttons {
-  composes: button-group-base;
-  margin-left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  overflow-x: auto;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
-  flex: 1;
-  gap: 1.2rem;
 }
 
 /* Icon Button Group */
@@ -340,23 +300,31 @@ h3 {
   opacity: 1;
 }
 
-/* Button type variations */
-[data-length],
+/* Keep [data-tone] styles, remove [data-length] */
 [data-tone] {
   justify-content: center;
   font-weight: 500;
   flex-shrink: 0;
 }
 
-[data-type] {
+/* Keep [data-tone="auto"] styles */
+[data-tone="auto"] {
+  min-width: 35px;
+  padding: 0.4rem 0.5rem;
+  text-align: center;
   justify-content: center;
-  min-width: auto;
-  font-weight: 500;
-  flex-shrink: 0;
-  padding: 0.5rem 0.8rem;
+  border-radius: 50px;
+  background-color: #2a2a2a;
+  border: 2px solid var(--card-bg);
 }
 
-.tone-options .option-btn {
+[data-tone="auto"].selected {
+  border-color: var(--primary-color);
+  background-color: rgba(37, 165, 106, 0.2);
+}
+
+/* Tone options styling */
+.tone-options .tone-buttons {
   justify-content: center;
   min-width: 60px;
   max-width: 160px;
@@ -725,30 +693,6 @@ body.tones-expanded .output-section {
   width: 100%;
 }
 
-/* Make Auto button specifically narrower */
-[data-tone="auto"] {
-  min-width: 35px;
-  padding: 0.4rem 0.5rem;
-  text-align: center;
-  justify-content: center;
-}
-
-/* Make Auto button specifically narrower in both length and tone options */
-[data-length="auto"],
-[data-tone="auto"] {
-  min-width: 35px;
-  border-radius: 50px;
-  background-color: #2a2a2a;
-  border: 2px solid var(--card-bg);
-}
-
-/* Style for the selected Auto button */
-[data-length="auto"].selected,
-[data-tone="auto"].selected {
-  border-color: var(--primary-color);
-  background-color: rgba(37, 165, 106, 0.2);
-}
-
 /* Specific tone button styling */
 [data-tone="inspire"] {
   max-width: 130px;
@@ -760,42 +704,6 @@ body.tones-expanded .output-section {
   display: grid;
   flex-wrap: unset;
   overflow-x: visible;
-}
-
-/* Stacked title for Output Length */
-.stacked-title {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-  text-align: left;
-  margin-right: 10px;
-  min-width: 60px;
-}
-
-.stacked-title span {
-  display: block;
-}
-
-.stacked-title span:first-child {
-  margin-bottom: 4px; /* Increase this value to add more space between "Output" and "Length" */
-}
-
-/* Make sure auto button doesn't shrink too much */
-[data-length="auto"] {
-  min-width: 35px; /* Keep minimum width for auto button */
-}
-
-/* Button feedback animation */
-.button-feedback {
-  transform: scale(1.15);
-  box-shadow: 0 0 8px rgba(37, 165, 106, 0.8);
-  transition: all 0.2s ease;
-}
-
-/* Make sure icons have transitions for smoother effects */
-.icon-btn {
-  transition: background-color 0.3s ease, transform 0.2s ease,
-    box-shadow 0.2s ease;
 }
 
 /* Listening indicator for speech recognition */
@@ -883,11 +791,6 @@ body.tones-expanded .output-section {
   margin-top: 0.5rem;
 }
 
-/* Update max-width for output length container */
-.output-length-container {
-  max-width: none;
-}
-
 /* Desktop-specific styles */
 @media (min-width: 768px) {
   body {
@@ -936,14 +839,8 @@ body.tones-expanded .output-section {
 
   /* Improve spacing between sections */
   .text-type-container,
-  .output-length-container,
   .tone-settings-container {
     margin-bottom: 1.8rem;
-  }
-
-  /* Improve button spacing */
-  .output-length-buttons {
-    gap: 1.5rem;
   }
 
   /* Improve button container styling */

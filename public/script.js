@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const typeButtons = document.querySelectorAll(
     ".text-type-option-btn[data-type]"
   );
-  const lengthButtons = document.querySelectorAll(".option-btn[data-length]");
   const toneButtons = document.querySelectorAll(".tone-buttons[data-tone]");
 
   // Get other elements
@@ -32,12 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ".text-type-option-btn[data-type='messenger']"
     );
     if (defaultType) handleButtonSelection(typeButtons, defaultType);
-
-    // Default to Auto length (already selected in HTML)
-    const defaultLength = document.querySelector(
-      ".option-btn[data-length='auto']"
-    );
-    if (defaultLength) handleButtonSelection(lengthButtons, defaultLength);
 
     // Update default tone based on message type
     updateDefaultTone();
@@ -357,14 +350,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  lengthButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      handleButtonSelection(lengthButtons, button);
-
-      // Remove all placeholder customization to keep consistent message
-    });
-  });
-
   toneButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const selectedTone = button.dataset.tone;
@@ -656,9 +641,6 @@ ${cleanedBody}
     const selectedType = document.querySelector(
       ".text-type-option-btn[data-type].selected"
     ).dataset.type;
-    const selectedLength = document.querySelector(
-      ".option-btn[data-length].selected"
-    ).dataset.length;
     const selectedTone = document.querySelector(
       ".tone-buttons[data-tone].selected"
     ).dataset.tone;
@@ -666,7 +648,6 @@ ${cleanedBody}
 
     // Map "auto" values to "automatic" for API communication to avoid car emoji issues
     // This preserves the UI labels while using a safer term for backend processing
-    const apiLength = selectedLength === "auto" ? "automatic" : selectedLength;
     const apiTone = selectedTone === "auto" ? "automatic" : selectedTone;
 
     // Collapse the tone categories when improve button is pressed
@@ -716,7 +697,6 @@ ${cleanedBody}
           body: JSON.stringify({
             text: originalMessage,
             messageType: selectedType,
-            textLength: apiLength, // Use the mapped value
             tone: apiTone, // Use the mapped value
             returnFormat: returnFormat, // Add format parameter
           }),
