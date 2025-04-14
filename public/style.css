@@ -101,7 +101,7 @@ h3 {
   flex-wrap: wrap;
   justify-content: flex-start;
   position: relative;
-  max-width: 380px;
+  max-width: 400px;
   flex-direction: row;
 }
 
@@ -644,12 +644,12 @@ textarea p {
 #improve-btn {
   display: block;
   width: 100%;
-  padding: 0.75rem;
+  padding: 1.4rem;
   background-color: #146d43;
   color: white;
   border: none;
   border-radius: 50px;
-  font-size: 1.05rem;
+  font-size: 1.4rem;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -894,4 +894,100 @@ body.tones-expanded .output-section {
 /* Update max-width for output length container */
 .output-length-container {
   max-width: none;
+}
+
+/* Desktop-specific styles */
+@media (min-width: 768px) {
+  body {
+    /* Add some padding around the body on larger screens */
+    padding: 1.5rem;
+  }
+
+  .app-container {
+    /* Center the main container and give it a max width */
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 3rem; /* Increase padding inside the container */
+    margin-bottom: 4rem; /* Adjust bottom margin if needed */
+  }
+
+  /* Logo improvements */
+  .logo-container {
+    margin-bottom: 2.5rem;
+    width: 100%;
+  }
+
+  .site-logo {
+    max-width: 100%; /* Make logo fill the width for desktop */
+    height: auto;
+  }
+
+  /* Typography improvements */
+  h1 {
+    font-size: 2.2rem; /* Slightly larger heading */
+  }
+
+  .bright-blue-title {
+    font-size: 1.3rem; /* Larger title text for better visibility */
+  }
+
+  /* Input and output areas */
+  textarea,
+  #improved-message {
+    font-size: 1.1rem; /* Slightly larger text */
+    padding: 1.2rem; /* More padding inside text areas */
+    min-height: 180px; /* Taller text areas */
+  }
+
+  /* Button improvements */
+  .option-btn,
+  .tone-buttons {
+    font-size: 1rem; /* Larger button text */
+    height: 44px; /* Taller buttons */
+  }
+
+  /* Improve spacing between sections */
+  .text-type-container,
+  .output-length-container,
+  .tone-settings-container {
+    margin-bottom: 1.8rem;
+  }
+
+  /* Improve button spacing */
+  .text-type-buttons,
+  .output-length-buttons {
+    gap: 1.5rem;
+  }
+
+  /* Improve button container styling */
+  .option-buttons {
+    gap: 1rem;
+  }
+
+  /* Make main button more prominent */
+  #improve-btn {
+    max-width: 80%;
+    margin: 1.5rem auto;
+    padding: 0.9rem;
+    font-size: 1.2rem;
+  }
+
+  /* Adjust icon buttons size */
+  .icon-btn {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  /* Icon button sizing */
+  .icon-buttons-group {
+    gap: 2.5rem;
+  }
+
+  /* Output icons */
+  .output-icons {
+    width: 100%;
+    margin-top: 0.8rem;
+    justify-content: center;
+    gap: 2rem;
+  }
 }
