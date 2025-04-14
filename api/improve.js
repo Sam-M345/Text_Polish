@@ -278,7 +278,16 @@ function generatePrompt(originalText, messageType, tone) {
     `;
   }
 
-  // Standard prompt for all messages
+  // Standard prompt for non-email messages (including social posts)
+  let socialContext = "";
+  if (messageType === "social") {
+    socialContext = `
+      Consider the context: this could be a new post or a reply on platforms like Facebook, Instagram, LinkedIn, or group chats (e.g., WhatsApp).
+      Adapt the formality and style based on the likely platform and interaction (e.g., friendly/fun for Facebook, professional for LinkedIn, informative/engaging for group chats).
+      Keep social media best practices in mind, such as encouraging engagement and maintaining appropriate length for the platform.
+    `;
+  }
+
   return `
     ${toneInstruction}
     ${
@@ -290,9 +299,10 @@ function generatePrompt(originalText, messageType, tone) {
           } tone.`
         : `DO NOT include any emojis in your response.`
     }
-    
+    ${socialContext}
+
     Original message: "${originalText}"
-    
+
     Provide ONLY the improved message text without any additional explanation or formatting.
     IMPORTANT: Make significant changes to the original text to ensure it clearly reflects the ${
       tone === "auto" || tone === "automatic" ? "automatically selected" : tone

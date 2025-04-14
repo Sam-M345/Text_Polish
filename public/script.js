@@ -43,7 +43,12 @@ document.addEventListener("DOMContentLoaded", () => {
     )?.dataset.type;
 
     // Different default tones based on message type
-    const defaultTone = selectedType === "email" ? "formal" : "friendly";
+    let defaultTone = "friendly"; // Default to friendly
+    if (selectedType === "email") {
+      defaultTone = "formal";
+    } else if (selectedType === "social") {
+      defaultTone = "informative"; // Set default for social
+    }
 
     // Find and click the appropriate tone button
     const toneButton = document.querySelector(
@@ -339,6 +344,8 @@ document.addEventListener("DOMContentLoaded", () => {
       // Update placeholder based on selected type
       if (newType === "email") {
         messageInputEl.placeholder = "Type your email content here...";
+      } else if (newType === "social") {
+        messageInputEl.placeholder = "Type your social post or reply here...";
       } else {
         messageInputEl.placeholder = "Type your message here...";
       }
