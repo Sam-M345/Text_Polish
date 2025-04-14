@@ -11,6 +11,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const outputContainer = document.getElementById("output-container");
   const outputIcons = document.querySelector(".output-icons");
 
+  // Auto-resize textarea function
+  function autoResizeTextarea() {
+    // Temporarily reset height to calculate the correct scrollHeight
+    messageInputEl.style.height = "auto";
+    // Set height to the scrollHeight, ensuring it respects the min-height
+    const scrollHeight = messageInputEl.scrollHeight;
+    const minHeight = 150; // Match the CSS min-height
+    messageInputEl.style.height = Math.max(scrollHeight, minHeight) + "px";
+  }
+
   // Set default selections: Text Message, Auto length, and Friendly tone
   function setDefaultSelections() {
     // Default to Text Message (already selected in HTML)
@@ -55,6 +65,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Add event listeners to detect content changes
   messageInputEl.addEventListener("input", checkContentAndUpdateBody);
+  // Add event listener for auto-resizing
+  messageInputEl.addEventListener("input", autoResizeTextarea);
 
   // Function to check for content and update body class - only disable elastic scroll when absolutely no content
   function checkContentAndUpdateBody() {
@@ -367,6 +379,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Clear input text
   clearInputBtn.addEventListener("click", () => {
     messageInputEl.value = "";
+    // Reset height to default minimum
+    messageInputEl.style.height = "auto";
     messageInputEl.focus();
     showIconFeedback(clearInputBtn);
     checkContentAndUpdateBody();
@@ -394,6 +408,10 @@ document.addEventListener("DOMContentLoaded", () => {
         messageInputEl.value = text;
         messageInputEl.focus();
         showIconFeedback(pasteInputBtn);
+        // Trigger resize after pasting
+        autoResizeTextarea();
+        // Ensure content check runs after paste
+        checkContentAndUpdateBody();
       })
       .catch((err) => {
         console.error("Failed to copy text to clipboard:", err);
