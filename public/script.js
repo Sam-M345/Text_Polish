@@ -13,6 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const outputContainer = document.getElementById("output-container");
   const outputIcons = document.querySelector(".output-icons");
 
+  let userManuallySelectedTone = false; // Flag to track manual tone selection
+
   // Auto-resize textarea function
   function autoResizeTextarea() {
     // Temporarily reset height to calculate the correct scrollHeight
@@ -55,7 +57,54 @@ document.addEventListener("DOMContentLoaded", () => {
       `.tone-buttons[data-tone='${defaultTone}']`
     );
     if (toneButton) {
-      toneButton.click();
+      // Directly handle selection state and UI update without simulating a click
+      handleButtonSelection(toneButtons, toneButton);
+
+      // --- Manually update the tone button shown in the top options ---
+      const toneOptions = document.querySelector(".tone-options");
+      const autoButton = toneOptions.querySelector(
+        '.tone-buttons[data-tone="auto"]'
+      );
+      const toneText = toneButton.innerHTML; // Get the button content with emoji
+      const selectedTone = toneButton.dataset.tone;
+
+      // Ensure Auto is not selected
+      if (autoButton) autoButton.classList.remove("selected");
+
+      // Check if there's already a selected tone button in the top
+      const existingToneButton = toneOptions.querySelector(
+        '.tone-buttons:not([data-tone="auto"])'
+      );
+
+      if (existingToneButton) {
+        // Update the existing button
+        existingToneButton.innerHTML = toneText;
+        existingToneButton.dataset.tone = selectedTone;
+        existingToneButton.classList.add("selected");
+      } else {
+        // Create a new button for the selected tone if it doesn't exist
+        const newSelectedButton = document.createElement("button");
+        newSelectedButton.className = "tone-buttons selected";
+        newSelectedButton.dataset.tone = selectedTone;
+        newSelectedButton.innerHTML = toneText;
+
+        // Add a click handler to the new button (important for consistency)
+        newSelectedButton.addEventListener("click", function () {
+          // Find the original button in the categories and click it
+          const originalButton = document.querySelector(
+            `#tone-categories [data-tone="${selectedTone}"]`
+          );
+          if (originalButton) {
+            originalButton.click();
+          }
+        });
+
+        // Insert the new button after the Auto button
+        if (toneOptions) toneOptions.appendChild(newSelectedButton);
+      }
+      // --- End of manual update logic ---
+
+      // toneButton.click(); // REMOVED - prevents triggering listener prematurely
     }
   }
 
@@ -301,8 +350,10 @@ document.addEventListener("DOMContentLoaded", () => {
         messageInputEl.placeholder = "Type your message here...";
       }
 
-      // Update default tone whenever message type changes
-      updateDefaultTone();
+      // Update default tone whenever message type changes, ONLY if user hasn't manually selected one
+      if (!userManuallySelectedTone) {
+        updateDefaultTone();
+      }
     });
   });
 
@@ -321,6 +372,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Update all tone buttons selection state
       handleButtonSelection(toneButtons, button);
+      userManuallySelectedTone = true; // Mark that user has manually selected a tone
 
       // Find the top tone container and the tone options
       const toneContainer = document.querySelector(".tone-container");
@@ -637,10 +689,9 @@ ${cleanedBody}
     startHourglassAnimation(improveBtn);
     improveBtn.disabled = true;
 
-    // Show output container and icons when starting the process
-    outputContainer.style.display = "block";
-    outputIcons.style.display = "flex";
-    improvedMessageEl.textContent = "Processing...";
+    // Hide output container while processing, keep icons hidden until result
+    outputContainer.style.display = "none";
+    outputIcons.style.display = "none";
 
     // Add retry functionality
     const maxRetries = 2; // Maximum number of retry attempts
@@ -678,7 +729,7 @@ ${cleanedBody}
             console.log(
               `API returned 500 error. Retry attempt ${retryCount}...`
             );
-            improvedMessageEl.textContent = `Processing... (Retry ${retryCount}/${maxRetries})`;
+            // improvedMessageEl.textContent = `Processing... (Retry ${retryCount}/${maxRetries})`; // No need to show this if container is hidden
             // Wait a second before retrying
             await new Promise((resolve) => setTimeout(resolve, 1000));
             return callAPIWithRetry(); // Recursive retry
@@ -769,19 +820,19 @@ ${cleanedBody}
         // Set button text back to normal immediately
         stopHourglassAnimation(improveBtn, "Improve");
 
-        // Show output container and icons when there's content
+        // Show output container and icons now that we have a result
         outputContainer.style.display = "block";
         outputIcons.style.display = "flex";
       } catch (error) {
+        // Show output container and icons for error messages
+        outputContainer.style.display = "block";
+        outputIcons.style.display = "flex";
+
         improvedMessageEl.textContent = `Something went wrong: ${error.message}. Please try again.`;
         console.error("Error:", error);
 
         // Remove the response-generated class on error
         document.body.classList.remove("response-generated");
-
-        // Still show output container and icons for error messages
-        outputContainer.style.display = "block";
-        outputIcons.style.display = "flex";
 
         // Reset button state
         stopHourglassAnimation(improveBtn, "Improve");
