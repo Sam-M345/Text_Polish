@@ -564,32 +564,45 @@ ${cleanedBody}
       // Handle structured JSON response
       if (typeof data.improved === "object") {
         console.log("Received structured email response:", data.improved);
+
+        // Clean the body *before* saving and formatting
+        const rawBody = data.improved.body;
+        const cleanedBody = rawBody
+          .replace(/\[Your Name\]|\[NAME\]|\[Name\]|\[your name\]/g, "")
+          .trim(); // Clean and trim
+
         console.log("Subject:", data.improved.subject);
         console.log(
-          "Body preview:",
-          data.improved.body.substring(0, 50) + "..."
+          "Cleaned Body preview:",
+          cleanedBody.substring(0, 50) + "..."
         );
 
-        // Save for sharing
+        // Save cleaned data for sharing
         lastEmailData.subject = data.improved.subject;
-        lastEmailData.body = data.improved.body;
+        lastEmailData.body = cleanedBody; // Save the cleaned version
 
-        // Format using the subject and body from the response
-        displayText = this.format(data.improved.subject, data.improved.body);
+        // Format using the subject and the *cleaned* body for display
+        displayText = this.format(data.improved.subject, cleanedBody);
       }
-      // Handle string response
+      // Handle string response (fallback)
       else if (typeof data.improved === "string") {
         console.log("Received unstructured email response, formatting locally");
 
-        // Extract subject from the first sentence
-        const subjectText = this.extractSubject(data.improved);
+        // Clean the text *before* extracting subject or saving
+        const rawText = data.improved;
+        const cleanedText = rawText
+          .replace(/\[Your Name\]|\[NAME\]|\[Name\]|\[your name\]/g, "")
+          .trim(); // Clean and trim
 
-        // Save for sharing
+        // Extract subject from the *cleaned* text
+        const subjectText = this.extractSubject(cleanedText);
+
+        // Save cleaned data for sharing
         lastEmailData.subject = subjectText;
-        lastEmailData.body = data.improved;
+        lastEmailData.body = cleanedText; // Save the cleaned version
 
-        // Format the email
-        displayText = this.format(subjectText, data.improved);
+        // Format the email using the *cleaned* text
+        displayText = this.format(subjectText, cleanedText);
       }
 
       return displayText;
