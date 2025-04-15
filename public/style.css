@@ -97,19 +97,12 @@ h3 {
 .text-type-container {
   margin-bottom: 1rem;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  gap: 1rem;
-  position: relative;
-  max-width: 400px;
-}
-
-.text-type-row {
-  display: flex;
+  flex-direction: row;
   justify-content: center;
-  gap: 1rem;
+  align-items: flex-start;
   width: 100%;
+  gap: 0.8rem;
+  position: relative;
 }
 
 .text-type-container h2 {
@@ -225,19 +218,45 @@ h3 {
 /* New class for text type buttons */
 .text-type-option-btn {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  padding: 0.5rem 0.9rem;
-  border-radius: 50px;
+  justify-content: center;
+  padding: 0.5rem 0.8rem;
+  border-radius: 15px;
   border: 2px solid var(--card-bg);
   background-color: var(--card-bg);
   color: var(--text-color);
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  height: 40px;
+  height: 65px;
   box-sizing: border-box;
   touch-action: manipulation;
   -webkit-appearance: none;
+  text-align: left;
+  min-width: 100px;
+}
+
+/* Ensure emoji inherits font-size from button */
+.text-type-option-btn .emoji {
+  font-size: inherit; /* Explicitly inherit size */
+  margin-right: 0.4rem; /* Keep space */
+  line-height: 1; /* Keep vertical alignment tight */
+  display: inline-block; /* Ensure it behaves like text */
+  vertical-align: middle; /* Align with text block */
+}
+
+.button-text-stacked {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+  margin-left: 0.4rem;
+}
+
+.button-text-stacked span {
+  display: block;
+  font-size: inherit; /* Explicitly inherit size */
 }
 
 /* Specific class for tone buttons */
@@ -343,12 +362,6 @@ h3 {
   margin-right: 0.4rem;
   display: inline-block;
   vertical-align: middle;
-}
-
-.text-type-options .emoji {
-  display: inline-block;
-  font-size: 1.2rem;
-  margin-right: 0.5rem;
 }
 
 /* Toggle tones button */
@@ -594,7 +607,7 @@ textarea p {
 #improve-btn {
   display: block;
   width: 100%;
-  padding: 0.9rem;
+  padding: 0.5rem;
   background-color: #146d43;
   color: white;
   border: none;
@@ -604,20 +617,15 @@ textarea p {
   cursor: pointer;
   transition: background-color 0.2s;
   position: relative;
-  margin-top: 0.8rem;
+  margin-top: 1rem;
   margin-bottom: 0rem;
   z-index: 1;
   touch-action: manipulation;
   -webkit-appearance: none;
 }
 
-#improve-btn:active {
-  background-color: #1d8a54;
-  transform: scale(0.98);
-}
-
 /* Improve button state when tones are expanded */
-body.tones-expanded #improve-btn {
+body.tones-expanded {
   position: relative;
   z-index: 3;
   box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
@@ -826,14 +834,6 @@ body.tones-expanded .output-section {
   /* Improve button container styling */
   .option-buttons {
     gap: 1rem;
-  }
-
-  /* Make main button more prominent */
-  #improve-btn {
-    max-width: 80%;
-    margin: 1.5rem auto;
-    padding: 0.9rem;
-    font-size: 1.2rem;
   }
 
   /* Output icons */
