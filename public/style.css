@@ -496,8 +496,18 @@ h3 {
   line-height: 1;
 }
 
-#share-output .icon {
-  font-size: 3rem;
+/* Removed font-size rule for #share-output .icon as size is handled by SVG now */
+
+/* SVG share icon */
+#share-output .icon svg {
+  width: 3.8rem;
+  height: 3.8rem;
+}
+
+/* Circular Container */
+#share-output {
+  width: 4.5rem;
+  height: 4.5rem;
 }
 
 .clipboard-icon {
