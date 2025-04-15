@@ -730,7 +730,7 @@ body.tones-expanded .output-section {
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 0.3rem 0.7rem 0.3rem 0.5rem;
-  gap: 1.1rem; /* Slightly increase default gap */
+  gap: 0.8rem; /* Slightly increase default gap */
   transition: justify-content 0.2s ease, gap 0.2s ease;
 }
 
