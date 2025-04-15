@@ -493,13 +493,6 @@ h3 {
   line-height: 1;
 }
 
-/* Add default sizing for SVGs within .icon */
-.icon svg {
-  width: 2.5rem;
-  height: 2.5rem;
-  vertical-align: middle; /* Ensure consistent vertical alignment */
-}
-
 .clipboard-icon {
   /* Keep specific overrides if needed, but base size is now handled above */
   /* width: 1.43rem; */ /* Can be removed if same as default */
@@ -737,8 +730,8 @@ body.tones-expanded .output-section {
   width: 100%;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 0.3rem 0.7rem 0.3rem 0.5rem;
-  gap: 0.8rem; /* Slightly increase default gap */
+  padding: 0.3rem 0.6rem 0.3rem 0.5rem;
+  gap: 0.9rem; /* Slightly increase default gap */
   transition: justify-content 0.2s ease, gap 0.2s ease;
 }
 
@@ -850,4 +843,20 @@ body.tones-expanded .output-section {
 /* Make the microphone button slightly larger */
 .input-area-buttons.listening #mic-input {
   margin-right: 0.1rem; /* Reduce space after mic */
+}
+
+#mic-input .icon {
+  font-size: 2.35rem; /* Increase this value as needed */
+}
+
+/* Adjust default spacing for mic button */
+#mic-input {
+  margin-left: -0.4rem; /* Pull closer to the title */
+}
+
+/* Specific size for the Share SVG */
+.SVG-Share {
+  width: 3rem; /* Set desired width */
+  height: 3rem; /* Set desired height */
+  vertical-align: middle; /* Keep vertical alignment */
 }
