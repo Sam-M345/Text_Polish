@@ -37,12 +37,11 @@
           placeholder="Type your Message / Email here..."
         ></textarea>
 
-        <div class="speech-controls-container">
+        <div class="input-area-buttons">
           <h2 class="bright-blue-title">Input</h2>
           <button class="icon-btn" id="mic-input" title="Speech to text">
             <span class="icon">🎙️</span>
           </button>
-          <span id="dot-animation-placeholder" class="hidden"></span>
           <div id="listening-indicator" class="hidden" style="display: none">
             👂🏻
           </div>
@@ -50,7 +49,29 @@
             <span class="icon">✕</span>
           </button>
           <button class="icon-btn" id="copy-input" title="Copy text">
-            <span class="icon">📑</span>
+            <span class="icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style="width: 1em; height: 1em; vertical-align: middle"
+              >
+                <path
+                  d="M16 3H5C3.89543 3 3 3.89543 3 5V16"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M9 7H19C20.1046 7 21 7.89543 21 9V19C21 20.1046 20.1046 21 19 21H9C7.89543 21 7 20.1046 7 19V9C7 7.89543 7.89543 7 9 7Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
           </button>
           <button class="icon-btn" id="paste-input" title="Paste text">
             <span class="icon">📋</span>
@@ -136,10 +157,32 @@
             <span class="icon">✕</span>
           </button>
           <button class="icon-btn" id="copy-output" title="Copy output">
-            <span class="icon">C</span>
+            <span class="icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style="width: 1em; height: 1em; vertical-align: middle"
+              >
+                <path
+                  d="M16 3H5C3.89543 3 3 3.89543 3 5V16"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M9 7H19C20.1046 7 21 7.89543 21 9V19C21 20.1046 20.1046 21 19 21H9C7.89543 21 7 20.1046 7 19V9C7 7.89543 7.89543 7 9 7Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
           </button>
           <button class="icon-btn" id="paste-output" title="Paste to input">
-            <span class="icon">📝</span>
+            <span class="icon">📋</span>
           </button>
           <button class="icon-btn" id="share-output" title="Share output">
             <span class="icon">

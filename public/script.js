@@ -11,9 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const improvedMessageEl = document.getElementById("improved-message");
   const outputContainer = document.getElementById("output-container");
   const outputIcons = document.querySelector(".output-icons");
-  const dotPlaceholder = document.getElementById("dot-animation-placeholder");
-  const speechControlsContainer = document.querySelector(
-    ".speech-controls-container"
+  const inputAreaButtonsContainer = document.querySelector(
+    ".input-area-buttons"
   );
 
   let userManuallySelectedTone = false; // Flag to track manual tone selection
@@ -152,12 +151,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const pasteOutputBtn = document.getElementById("paste-output");
   const listeningIndicator = document.getElementById("listening-indicator");
 
-  // Ensure listening indicator and dot placeholder are hidden initially
+  // Ensure listening indicator is hidden initially
   if (listeningIndicator) {
     listeningIndicator.classList.add("hidden");
-  }
-  if (dotPlaceholder) {
-    dotPlaceholder.classList.add("hidden");
   }
 
   // Speech recognition setup
@@ -178,24 +174,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Initialize with the indicators hidden
       if (listeningIndicator) listeningIndicator.classList.add("hidden");
-      if (dotPlaceholder) dotPlaceholder.classList.add("hidden");
 
       recognition.onstart = function () {
         isRecognizing = true;
         micInputBtn.style.backgroundColor = "#25a56a";
         micInputBtn.style.borderColor = "#25a56a";
-        speechControlsContainer.classList.add("is-listening");
+        inputAreaButtonsContainer.classList.add("listening");
         // Show the listening indicator (ear)
         listeningIndicator.classList.remove("hidden");
         listeningIndicator.style.display = "flex";
-        // Show and animate the dot placeholder
-        dotPlaceholder.classList.remove("hidden");
-        dotPlaceholder.style.display = "flex";
-        startListeningAnimation();
-        // Hide other input buttons
-        clearInputBtn.style.display = "none";
-        copyInputBtn.style.display = "none";
-        pasteInputBtn.style.display = "none";
       };
 
       recognition.onresult = function (event) {
@@ -251,13 +238,10 @@ document.addEventListener("DOMContentLoaded", () => {
         isRecognizing = false;
         micInputBtn.style.backgroundColor = "";
         micInputBtn.style.borderColor = "";
-        speechControlsContainer.classList.remove("is-listening");
-        // Hide the listening indicator (ear) and dots
+        inputAreaButtonsContainer.classList.remove("listening");
+        // Hide the listening indicator (ear)
         listeningIndicator.classList.add("hidden");
         listeningIndicator.style.display = "none";
-        dotPlaceholder.classList.add("hidden");
-        dotPlaceholder.style.display = "none";
-        stopListeningAnimation();
         // Show other input buttons
         clearInputBtn.style.display = ""; // Reset display to default (flex)
         copyInputBtn.style.display = ""; // Reset display to default (flex)
@@ -269,13 +253,10 @@ document.addEventListener("DOMContentLoaded", () => {
         isRecognizing = false;
         micInputBtn.style.backgroundColor = "";
         micInputBtn.style.borderColor = "";
-        speechControlsContainer.classList.remove("is-listening");
-        // Hide the listening indicator (ear) and dots
+        inputAreaButtonsContainer.classList.remove("listening");
+        // Hide the listening indicator (ear)
         listeningIndicator.classList.add("hidden");
         listeningIndicator.style.display = "none";
-        dotPlaceholder.classList.add("hidden");
-        dotPlaceholder.style.display = "none";
-        stopListeningAnimation();
         // Show other input buttons
         clearInputBtn.style.display = ""; // Reset display to default (flex)
         copyInputBtn.style.display = ""; // Reset display to default (flex)
@@ -301,14 +282,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (isRecognizing) {
         // Stop listening
         recognition.stop();
-        // Explicitly hide the listening indicator (ear) and dots
+        // Explicitly hide the listening indicator (ear)
         if (listeningIndicator) {
           listeningIndicator.classList.add("hidden");
           listeningIndicator.style.display = "none";
-        }
-        if (dotPlaceholder) {
-          dotPlaceholder.classList.add("hidden");
-          dotPlaceholder.style.display = "none";
         }
         // Manually show buttons when stopping via button click
         clearInputBtn.style.display = "";
@@ -325,14 +302,10 @@ document.addEventListener("DOMContentLoaded", () => {
           copyInputBtn.style.display = "none";
           pasteInputBtn.style.display = "none";
 
-          // Explicitly show the listening indicator (ear) and dots
+          // Explicitly show the listening indicator (ear)
           if (listeningIndicator) {
             listeningIndicator.classList.remove("hidden");
             listeningIndicator.style.display = "flex";
-          }
-          if (dotPlaceholder) {
-            dotPlaceholder.classList.remove("hidden");
-            dotPlaceholder.style.display = "flex";
           }
         } catch (error) {
           console.error("Speech recognition error:", error);
@@ -343,10 +316,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (listeningIndicator) {
               listeningIndicator.classList.add("hidden");
               listeningIndicator.style.display = "none";
-            }
-            if (dotPlaceholder) {
-              dotPlaceholder.classList.add("hidden");
-              dotPlaceholder.style.display = "none";
             }
             // Manually show buttons when stopping due to error/restart
             clearInputBtn.style.display = "";
@@ -359,10 +328,6 @@ document.addEventListener("DOMContentLoaded", () => {
               if (listeningIndicator) {
                 listeningIndicator.classList.remove("hidden");
                 listeningIndicator.style.display = "flex";
-              }
-              if (dotPlaceholder) {
-                dotPlaceholder.classList.remove("hidden");
-                dotPlaceholder.style.display = "flex";
               }
             }, 200);
           }
@@ -1000,50 +965,6 @@ ${cleanedBody}
         behavior: "smooth",
       });
     });
-  }
-
-  // Functions for listening animation
-  let listeningAnimationInterval;
-  const dotStates = [
-    "",
-    ".",
-    "..",
-    "...",
-    "....",
-    ".....",
-    "......",
-    ".......",
-    "......",
-    ".....",
-    "....",
-    "...",
-    "..",
-    ".",
-  ];
-
-  function startListeningAnimation() {
-    if (listeningAnimationInterval) {
-      clearInterval(listeningAnimationInterval);
-    }
-
-    let dotIndex = 0;
-    // const ear = "👂🏻"; // Ear is now static
-
-    listeningAnimationInterval = setInterval(() => {
-      if (dotPlaceholder) {
-        // Target the dot placeholder
-        dotPlaceholder.textContent = dotStates[dotIndex]; // Only show dots
-        dotIndex = (dotIndex + 1) % dotStates.length;
-      }
-    }, 250); // Update every 250ms for smooth animation
-  }
-
-  function stopListeningAnimation() {
-    if (listeningAnimationInterval) {
-      clearInterval(listeningAnimationInterval);
-      listeningAnimationInterval = null;
-    }
-    if (dotPlaceholder) dotPlaceholder.textContent = ""; // Clear dots
   }
 
   // Share output text

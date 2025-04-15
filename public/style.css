@@ -454,24 +454,20 @@ h3 {
 }
 
 .icon-btn {
-  display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.6rem;
-  height: 2.6rem;
-  border-radius: 50%;
+
+  border-radius: 30%;
   border: 2px solid var(--card-bg);
   background-color: var(--card-bg);
   color: var(--text-color);
-  font-size: 1rem;
-  cursor: pointer;
+
   transition: all 0.2s ease;
   touch-action: manipulation;
 }
 
 .icon-btn:active {
   background-color: #3a3a3a;
-  transform: scale(0.95);
 }
 
 .icon {
@@ -484,23 +480,17 @@ h3 {
   line-height: 1;
 }
 
-/* Removed font-size rule for #share-output .icon as size is handled by SVG now */
-
-/* SVG share icon */
-#share-output .icon svg {
-  width: 3.8rem;
-  height: 3.8rem;
-}
-
-/* Circular Container */
-#share-output {
-  width: 4.5rem;
-  height: 4.5rem;
+/* Add default sizing for SVGs within .icon */
+.icon svg {
+  width: 2.5rem;
+  height: 2.5rem;
+  vertical-align: middle; /* Ensure consistent vertical alignment */
 }
 
 .clipboard-icon {
-  width: 1.43rem;
-  height: 1.43rem;
+  /* Keep specific overrides if needed, but base size is now handled above */
+  /* width: 1.43rem; */ /* Can be removed if same as default */
+  /* height: 1.43rem; */ /* Can be removed if same as default */
   color: var(--text-color);
 }
 
@@ -720,67 +710,71 @@ body.tones-expanded .output-section {
   display: none !important;
 }
 
-/* Animation for the listening dots */
-@keyframes listeningDots {
-  0% {
-    content: "👂🏻";
-  }
-  8% {
-    content: "👂🏻.";
-  }
-  16% {
-    content: "👂🏻..";
-  }
-  24% {
-    content: "👂🏻...";
-  }
-  32% {
-    content: "👂🏻....";
-  }
-  40% {
-    content: "👂🏻.....";
-  }
-  48% {
-    content: "👂🏻......";
-  }
-  56% {
-    content: "👂🏻.......";
-  }
-  64% {
-    content: "👂🏻......";
-  }
-  72% {
-    content: "👂🏻.....";
-  }
-  80% {
-    content: "👂🏻....";
-  }
-  84% {
-    content: "👂🏻...";
-  }
-  88% {
-    content: "👂🏻..";
-  }
-  92% {
-    content: "👂🏻.";
-  }
-  96%,
+/* Animation for the listening indicator (blinking ear) */
+@keyframes listeningBlink {
+  0%,
   100% {
-    content: "👂🏻";
-  }
+    opacity: 1;
+  } /* Visible */
+  50% {
+    opacity: 0.2;
+  } /* Dim/Invisible */
 }
 
-/* Speech controls container */
-.speech-controls-container {
+/* Input Area Buttons container */
+.input-area-buttons {
   display: flex;
-  justify-content: space-between; /* Default: space-between */
+  justify-content: flex-start; /* Group items to the left */
   align-items: center;
   width: 100%;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 0.1rem 0.7rem 0.1rem 0.5rem;
-  gap: 0.5rem;
-  /* transition: justify-content 0.2s ease; Optional */
+  padding: 0.3rem 0.7rem 0.3rem 0.5rem;
+  gap: 1.1rem; /* Slightly increase default gap */
+  transition: justify-content 0.2s ease, gap 0.2s ease;
+}
+
+/* Styles for the listening state */
+.input-area-buttons.listening {
+  gap: 0.4rem; /* Reduce gap in listening state */
+}
+
+.input-area-buttons.listening .bright-blue-title {
+  margin-right: 0.4rem; /* Space after Input title */
+}
+
+.input-area-buttons.listening #mic-input {
+  margin-right: 0.1rem; /* Reduce space after mic */
+}
+
+/* Hide non-essential buttons during listening */
+.input-area-buttons.listening #clear-input,
+.input-area-buttons.listening #copy-input,
+.input-area-buttons.listening #paste-input {
+  display: none;
+}
+
+/* Show and style animation/indicator during listening */
+/* Remove placeholder styles */
+
+.input-area-buttons.listening #listening-indicator {
+  display: flex; /* Show ear element */
+  margin-left: 0;
+  /* Apply the blinking animation */
+  animation: listeningBlink 1s infinite ease-in-out;
+  /* Ensure original ear styles are maintained */
+  font-size: 1.8rem; /* Original font size */
+  color: #25a56a; /* Original color */
+  /* Remove potential transition interference */
+  transition: none;
+  /* Remove properties specific to dot animation */
+  /* min-width: 90px; */
+  /* width: auto; */
+  /* content: ''; */
+  /* text-align: left; */
+  /* padding-top: 0; */
+  /* overflow: hidden; */
+  /* white-space: nowrap; */
 }
 
 /* Ensure proper positioning of tone categories within its container */
@@ -842,12 +836,6 @@ body.tones-expanded .output-section {
     font-size: 1.2rem;
   }
 
-  /* Adjust icon buttons size */
-  .icon-btn {
-    width: 3rem;
-    height: 3rem;
-  }
-
   /* Output icons */
   .output-icons {
     width: 100%;
@@ -857,21 +845,9 @@ body.tones-expanded .output-section {
   }
 }
 
-/* Style for the new dot animation placeholder */
-#dot-animation-placeholder {
-  font-size: 1.8rem;
-  color: #25a56a;
-  min-width: 44px;
-  width: 60px;
-  text-align: left;
-  display: none;
-  align-items: center;
-  overflow: hidden;
-  white-space: nowrap;
-}
+/* Remove default style for the placeholder */
 
 /* Make the microphone button slightly larger */
-#mic-input {
-  width: 3.5rem;
-  height: 3.5rem;
+.input-area-buttons.listening #mic-input {
+  margin-right: 0.1rem; /* Reduce space after mic */
 }

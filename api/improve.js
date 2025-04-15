@@ -208,8 +208,16 @@ if (require.main === module) {
   app.use(cors());
   app.use(express.json());
 
+  // Add simple request logging middleware
+  app.use((req, res, next) => {
+    console.log(`Incoming Request: ${req.method} ${req.url}`);
+    next();
+  });
+
   // Serve static files from the 'public' directory
-  app.use(express.static(path.join(__dirname, "../public")));
+  const staticPath = path.join(__dirname, "../public");
+  console.log(`Serving static files from: ${staticPath}`); // Log the static path
+  app.use(express.static(staticPath));
 
   // API endpoint
   app.post("/api/improve", improveHandler);
