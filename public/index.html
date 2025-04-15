@@ -17,16 +17,16 @@
 
       <div class="text-type-container">
         <div class="text-type-row">
+          <button class="text-type-option-btn selected" data-type="messenger">
+            <span class="emoji">💬</span> Text Message
+          </button>
+        </div>
+        <div class="text-type-row">
           <button class="text-type-option-btn" data-type="email">
             <span class="emoji">📧</span> Email
           </button>
           <button class="text-type-option-btn" data-type="social">
             <span class="emoji">🌐</span> Social Post
-          </button>
-        </div>
-        <div class="text-type-row">
-          <button class="text-type-option-btn selected" data-type="messenger">
-            <span class="emoji">💬</span> Text Message
           </button>
         </div>
       </div>
@@ -38,26 +38,23 @@
         ></textarea>
 
         <div class="speech-controls-container">
-          <div class="input-controls-right">
-            <h2 class="bright-blue-title">Input</h2>
-            <div id="listening-indicator" class="hidden" style="display: none">
-              👂🏻
-            </div>
-            <div class="icon-buttons-group">
-              <button class="icon-btn" id="mic-input" title="Speech to text">
-                <span class="icon">🎙️</span>
-              </button>
-              <button class="icon-btn" id="clear-input" title="Clear text">
-                <span class="icon">✕</span>
-              </button>
-              <button class="icon-btn" id="copy-input" title="Copy text">
-                <span class="icon">C</span>
-              </button>
-              <button class="icon-btn" id="paste-input" title="Paste text">
-                <span class="icon">📝</span>
-              </button>
-            </div>
+          <h2 class="bright-blue-title">Input</h2>
+          <button class="icon-btn" id="mic-input" title="Speech to text">
+            <span class="icon">🎙️</span>
+          </button>
+          <span id="dot-animation-placeholder" class="hidden"></span>
+          <div id="listening-indicator" class="hidden" style="display: none">
+            👂🏻
           </div>
+          <button class="icon-btn" id="clear-input" title="Clear text">
+            <span class="icon">✕</span>
+          </button>
+          <button class="icon-btn" id="copy-input" title="Copy text">
+            <span class="icon">C</span>
+          </button>
+          <button class="icon-btn" id="paste-input" title="Paste text">
+            <span class="icon">📝</span>
+          </button>
         </div>
       </div>
 

@@ -11,6 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const improvedMessageEl = document.getElementById("improved-message");
   const outputContainer = document.getElementById("output-container");
   const outputIcons = document.querySelector(".output-icons");
+  const dotPlaceholder = document.getElementById("dot-animation-placeholder");
+  const speechControlsContainer = document.querySelector(
+    ".speech-controls-container"
+  );
 
   let userManuallySelectedTone = false; // Flag to track manual tone selection
 
@@ -148,9 +152,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const pasteOutputBtn = document.getElementById("paste-output");
   const listeningIndicator = document.getElementById("listening-indicator");
 
-  // Ensure listening indicator is hidden initially
+  // Ensure listening indicator and dot placeholder are hidden initially
   if (listeningIndicator) {
     listeningIndicator.classList.add("hidden");
+  }
+  if (dotPlaceholder) {
+    dotPlaceholder.classList.add("hidden");
   }
 
   // Speech recognition setup
@@ -169,18 +176,21 @@ document.addEventListener("DOMContentLoaded", () => {
       recognition.interimResults = false; // Only get final results to avoid changing previous words
       recognition.lang = "en-US"; // Default to English
 
-      // Initialize with the indicator hidden
-      if (listeningIndicator) {
-        listeningIndicator.classList.add("hidden");
-      }
+      // Initialize with the indicators hidden
+      if (listeningIndicator) listeningIndicator.classList.add("hidden");
+      if (dotPlaceholder) dotPlaceholder.classList.add("hidden");
 
       recognition.onstart = function () {
         isRecognizing = true;
-        micInputBtn.style.backgroundColor = "#25a56a"; // Green to indicate active
+        micInputBtn.style.backgroundColor = "#25a56a";
         micInputBtn.style.borderColor = "#25a56a";
-        // Show the listening indicator
+        speechControlsContainer.classList.add("is-listening");
+        // Show the listening indicator (ear)
         listeningIndicator.classList.remove("hidden");
         listeningIndicator.style.display = "flex";
+        // Show and animate the dot placeholder
+        dotPlaceholder.classList.remove("hidden");
+        dotPlaceholder.style.display = "flex";
         startListeningAnimation();
         // Hide other input buttons
         clearInputBtn.style.display = "none";
@@ -239,11 +249,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       recognition.onend = function () {
         isRecognizing = false;
-        micInputBtn.style.backgroundColor = ""; // Reset color
+        micInputBtn.style.backgroundColor = "";
         micInputBtn.style.borderColor = "";
-        // Hide the listening indicator
+        speechControlsContainer.classList.remove("is-listening");
+        // Hide the listening indicator (ear) and dots
         listeningIndicator.classList.add("hidden");
         listeningIndicator.style.display = "none";
+        dotPlaceholder.classList.add("hidden");
+        dotPlaceholder.style.display = "none";
         stopListeningAnimation();
         // Show other input buttons
         clearInputBtn.style.display = ""; // Reset display to default (flex)
@@ -254,11 +267,14 @@ document.addEventListener("DOMContentLoaded", () => {
       recognition.onerror = function (event) {
         console.error("Speech recognition error:", event.error);
         isRecognizing = false;
-        micInputBtn.style.backgroundColor = ""; // Reset color
+        micInputBtn.style.backgroundColor = "";
         micInputBtn.style.borderColor = "";
-        // Hide the listening indicator
+        speechControlsContainer.classList.remove("is-listening");
+        // Hide the listening indicator (ear) and dots
         listeningIndicator.classList.add("hidden");
         listeningIndicator.style.display = "none";
+        dotPlaceholder.classList.add("hidden");
+        dotPlaceholder.style.display = "none";
         stopListeningAnimation();
         // Show other input buttons
         clearInputBtn.style.display = ""; // Reset display to default (flex)
@@ -285,10 +301,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (isRecognizing) {
         // Stop listening
         recognition.stop();
-        // Explicitly hide the listening indicator when microphone is manually stopped
+        // Explicitly hide the listening indicator (ear) and dots
         if (listeningIndicator) {
           listeningIndicator.classList.add("hidden");
           listeningIndicator.style.display = "none";
+        }
+        if (dotPlaceholder) {
+          dotPlaceholder.classList.add("hidden");
+          dotPlaceholder.style.display = "none";
         }
         // Manually show buttons when stopping via button click
         clearInputBtn.style.display = "";
@@ -298,27 +318,35 @@ document.addEventListener("DOMContentLoaded", () => {
         // Start listening
         try {
           messageInputEl.focus(); // Focus the textarea
-          recognition.start();
+          recognition.start(); // This triggers onstart where visibility is handled
           showIconFeedback(micInputBtn);
           // Manually hide buttons when starting via button click
           clearInputBtn.style.display = "none";
           copyInputBtn.style.display = "none";
           pasteInputBtn.style.display = "none";
 
-          // Explicitly show the listening indicator when microphone is activated
+          // Explicitly show the listening indicator (ear) and dots
           if (listeningIndicator) {
             listeningIndicator.classList.remove("hidden");
             listeningIndicator.style.display = "flex";
+          }
+          if (dotPlaceholder) {
+            dotPlaceholder.classList.remove("hidden");
+            dotPlaceholder.style.display = "flex";
           }
         } catch (error) {
           console.error("Speech recognition error:", error);
           // If the recognition is already started, stop and restart
           if (error.name === "InvalidStateError") {
             recognition.stop();
-            // Make sure the indicator is hidden when stopping
+            // Make sure the indicators are hidden when stopping
             if (listeningIndicator) {
               listeningIndicator.classList.add("hidden");
               listeningIndicator.style.display = "none";
+            }
+            if (dotPlaceholder) {
+              dotPlaceholder.classList.add("hidden");
+              dotPlaceholder.style.display = "none";
             }
             // Manually show buttons when stopping due to error/restart
             clearInputBtn.style.display = "";
@@ -327,10 +355,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             setTimeout(() => {
               recognition.start();
-              // Show the indicator when restarting
+              // Show the indicators when restarting
               if (listeningIndicator) {
                 listeningIndicator.classList.remove("hidden");
                 listeningIndicator.style.display = "flex";
+              }
+              if (dotPlaceholder) {
+                dotPlaceholder.classList.remove("hidden");
+                dotPlaceholder.style.display = "flex";
               }
             }, 200);
           }
@@ -995,11 +1027,12 @@ ${cleanedBody}
     }
 
     let dotIndex = 0;
-    const ear = "👂🏻";
+    // const ear = "👂🏻"; // Ear is now static
 
     listeningAnimationInterval = setInterval(() => {
-      if (listeningIndicator) {
-        listeningIndicator.textContent = ear + dotStates[dotIndex];
+      if (dotPlaceholder) {
+        // Target the dot placeholder
+        dotPlaceholder.textContent = dotStates[dotIndex]; // Only show dots
         dotIndex = (dotIndex + 1) % dotStates.length;
       }
     }, 250); // Update every 250ms for smooth animation
@@ -1010,6 +1043,7 @@ ${cleanedBody}
       clearInterval(listeningAnimationInterval);
       listeningAnimationInterval = null;
     }
+    if (dotPlaceholder) dotPlaceholder.textContent = ""; // Clear dots
   }
 
   // Share output text
