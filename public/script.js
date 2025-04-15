@@ -653,23 +653,71 @@ ${cleanedBody}
 
     // Share email via mailto
     shareViaEmail: function () {
-      console.log("Opening email client with mailto link");
+      console.log("Attempting to share email via mailto");
 
-      // Create and click a mailto link
+      // 1. Get the current displayed text from the output element
+      const improvedMessageEl = document.getElementById("improved-message");
+      const currentFullText =
+        improvedMessageEl.innerText || improvedMessageEl.textContent;
+
+      // 2. Try to parse subject and body based on the known separator
+      const separator = "\n\n***\n\n"; // Separator used in EmailHandler.format
+      const separatorIndex = currentFullText.indexOf(separator);
+
+      let subjectToShare = "Polished Email"; // Default subject
+      let bodyToShare = currentFullText; // Default to full text if parsing fails
+
+      if (separatorIndex !== -1) {
+        subjectToShare = currentFullText.substring(0, separatorIndex).trim();
+        bodyToShare = currentFullText
+          .substring(separatorIndex + separator.length)
+          .trim();
+        console.log("Parsed current text for sharing:", {
+          subject: subjectToShare,
+        });
+      } else {
+        // If separator is missing (likely due to edits), use the whole text as body
+        console.warn(
+          "Could not find '***' separator in edited text. Sharing full content as body."
+        );
+        // Optionally, could try falling back to lastEmailData.subject here if desired
+        // subjectToShare = lastEmailData.subject || "Polished Email";
+      }
+
+      // 3. Construct the mailto URL
+      const mailtoHref = `mailto:?subject=${encodeURIComponent(
+        subjectToShare
+      )}&body=${encodeURIComponent(bodyToShare)}`;
+
+      // 4. Try to open the mailto link in a new tab/window
+      const mailWindow = window.open(mailtoHref);
+
+      // Check if the window was blocked (popup blockers)
+      if (
+        !mailWindow ||
+        mailWindow.closed ||
+        typeof mailWindow.closed == "undefined"
+      ) {
+        // Fallback or alert user if window.open failed (optional)
+        console.warn(
+          "Could not open mailto link automatically (popup blocker?)."
+        );
+        // You could potentially fall back to the old link-click method here, or just alert.
+        alert(
+          "Could not open email client automatically. Please check popup blockers."
+        );
+      }
+
+      /* // Old method: Create and click a mailto link using the potentially edited data
       const mailtoLink = document.createElement("a");
-      mailtoLink.href = `mailto:?subject=${encodeURIComponent(
-        lastEmailData.subject
-      )}&body=${encodeURIComponent(lastEmailData.body)}`;
+      mailtoLink.href = mailtoHref;
       mailtoLink.style.display = "none";
       document.body.appendChild(mailtoLink);
-
-      // Click the link to open the email client
       mailtoLink.click();
-
-      // Remove the link from the DOM
       setTimeout(() => {
         document.body.removeChild(mailtoLink);
       }, 100);
+      */
     },
 
     // Clear email data
