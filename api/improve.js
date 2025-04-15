@@ -56,16 +56,18 @@ async function improveHandler(req, res) {
   const shouldIncludeEmojis = !noEmojiTones.includes(tone);
 
   // Log request for debugging
+  /* // Removed for cleaner logs
   console.log("Request received:", {
     messageType,
     tone,
     includeEmojis: shouldIncludeEmojis,
   });
+  */
 
   try {
     // Generate the prompt for OpenAI
     const prompt = generatePrompt(text, messageType, tone);
-    console.log("Generated prompt:", prompt);
+    // console.log("Generated prompt:", prompt); // Removed for cleaner logs
 
     // Get emoji for the selected tone (only if we should include emojis)
     const toneEmoji = shouldIncludeEmojis ? getToneEmoji(tone) : "";
@@ -99,14 +101,14 @@ async function improveHandler(req, res) {
       temperature: 0.7,
     };
 
-    console.log(
-      "Using API Key:",
-      process.env.OPENAI_API_KEY
-        ? "Found (starts with " +
-            process.env.OPENAI_API_KEY.substring(0, 3) +
-            ")"
-        : "Not found"
-    );
+    // console.log( // Removed for cleaner logs
+    //   "Using API Key:",
+    //   process.env.OPENAI_API_KEY
+    //     ? "Found (starts with " +
+    //         process.env.OPENAI_API_KEY.substring(0, 3) +
+    //         ")"
+    //     : "Not found"
+    // );
 
     const apiResponse = await axios.post(
       "https://api.openai.com/v1/chat/completions",
@@ -120,35 +122,41 @@ async function improveHandler(req, res) {
       }
     );
 
-    console.log("OpenAI response status:", apiResponse.status);
+    // console.log("OpenAI response status:", apiResponse.status); // Removed for cleaner logs
 
     // Extract the improved message from the OpenAI response
     const rawApiResponseContent = apiResponse.data.choices[0].message.content;
+    /* // Removed debug logs
     console.log(
       ">>> BACKEND LOG: Raw content from OpenAI API:",
       JSON.stringify(rawApiResponseContent)
-    ); // Log raw response
+    ); 
+    */
 
     let improved = rawApiResponseContent.trim();
+    /* // Removed debug logs
     console.log(
       ">>> BACKEND LOG: Content after initial trim:",
       JSON.stringify(improved)
-    ); // Log after trim
+    );
+    */
 
     // If we're expecting JSON for an email, parse it
     if (messageType === "email") {
       try {
-        console.log("Received response for email, parsing JSON:", improved);
+        // console.log("Received response for email, parsing JSON:", improved); // Removed for cleaner logs
         // Try to parse as JSON
         const parsed = JSON.parse(improved);
 
         // Validate shape
         if (parsed.subject && parsed.body) {
+          /* // Removed for cleaner logs
           console.log(
             "Successfully parsed email response with subject and body"
           );
           console.log("Subject:", parsed.subject);
           console.log("Body preview:", parsed.body.substring(0, 50) + "...");
+          */
           // Replace `improved` with your structured object
           improved = parsed;
         } else {
@@ -166,10 +174,12 @@ async function improveHandler(req, res) {
       }
     } else {
       // Strip surrounding quotation marks if present - apply multiple times to handle nested quotes
+      /* // Removed debug logs
       console.log(
         ">>> BACKEND LOG: Before quote stripping:",
         JSON.stringify(improved)
       );
+      */
       // First attempt with multiline support
       improved = improved.replace(/^["'](.*)["']$/s, "$1").trim();
       // Second attempt to catch any remaining quotes
@@ -181,10 +191,12 @@ async function improveHandler(req, res) {
       ) {
         improved = improved.substring(1, improved.length - 1).trim();
       }
+      /* // Removed debug logs
       console.log(
         ">>> BACKEND LOG: After quote stripping and final trim:",
         JSON.stringify(improved)
       );
+      */
 
       // Check if the improved message is empty or the same as original
       if (!improved || improved === text) {
@@ -202,17 +214,21 @@ async function improveHandler(req, res) {
         // Remove any emojis if this tone shouldn't have them
         improved = removeEmojis(improved);
       }
+      /* // Removed debug logs
       console.log(
         ">>> BACKEND LOG: After potential emoji processing:",
         JSON.stringify(improved)
       );
+      */
     }
 
     // Send the improved message back to the client
+    /* // Removed debug logs
     console.log(
       ">>> BACKEND LOG: Final 'improved' value being sent to client:",
       JSON.stringify(improved)
-    ); // Log final value
+    );
+    */
     return res.status(200).json({ improved });
   } catch (error) {
     console.error("Error improving message:", error);
@@ -282,9 +298,11 @@ function generatePrompt(originalText, messageType, tone) {
 
   // If message type is email, always return JSON with separate subject and body
   if (messageType === "email") {
+    /* // Removed for cleaner logs
     console.log(
       "Generating email prompt with separate subject and body response"
     );
+    */
     // Return a simplified prompt that instructs GPT to create subject + body without emojis
     return `
       You are rewriting the following text as a polished email.
