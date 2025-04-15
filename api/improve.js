@@ -264,10 +264,24 @@ if (require.main === module) {
   // API endpoint
   app.post("/api/improve", improveHandler);
 
-  // Catch-all route to serve the main HTML page for client-side routing
+  // Explicit routes for core static files (before catch-all)
+  app.get("/", (req, res) => {
+    res.sendFile(path.join(staticPath, "index.html"));
+  });
+  app.get("/style.css", (req, res) => {
+    res.sendFile(path.join(staticPath, "style.css"));
+  });
+  app.get("/script.js", (req, res) => {
+    res.sendFile(path.join(staticPath, "script.js"));
+  });
+
+  /* // Commenting out catch-all again as it seems to interfere
+  // Catch-all route MUST BE LAST to serve the main HTML page for client-side routing
+  // Handles any other GET request not matched above or by express.static
   app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "../public/index.html"));
   });
+  */
 
   // Start the server
   const PORT = process.env.PORT || 3000;
