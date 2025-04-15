@@ -843,6 +843,11 @@ ${cleanedBody}
             EmailHandler.clearData();
           }
 
+          console.log(
+            ">>> FRONTEND LOG: displayText received from backend (before splitting):",
+            JSON.stringify(displayText)
+          ); // Log before split
+
           // For text messages, format paragraphs with emoji breaks
           if (selectedType === "messenger") {
             displayText = formatEmojiBreaks(displayText);
@@ -853,11 +858,14 @@ ${cleanedBody}
           const paragraphs = displayText.split(/\n\n+/).flatMap((block) => {
             // Further split by single newlines but preserve as separate paragraphs
             const result = block.split(/\n/).filter((p) => p.trim());
-            console.log("Paragraphs after splitting:", result);
+            // console.log("Paragraphs after splitting:", result); // Keep original log
             return result;
           });
 
-          console.log("All paragraphs after processing:", paragraphs);
+          console.log(
+            ">>> FRONTEND LOG: Paragraphs array after splitting:",
+            paragraphs
+          ); // Log the result of splitting
 
           // Create paragraph elements for each section
           paragraphs.forEach((paragraph, index) => {

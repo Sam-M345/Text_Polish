@@ -123,7 +123,17 @@ async function improveHandler(req, res) {
     console.log("OpenAI response status:", apiResponse.status);
 
     // Extract the improved message from the OpenAI response
-    let improved = apiResponse.data.choices[0].message.content.trim();
+    const rawApiResponseContent = apiResponse.data.choices[0].message.content;
+    console.log(
+      ">>> BACKEND LOG: Raw content from OpenAI API:",
+      JSON.stringify(rawApiResponseContent)
+    ); // Log raw response
+
+    let improved = rawApiResponseContent.trim();
+    console.log(
+      ">>> BACKEND LOG: Content after initial trim:",
+      JSON.stringify(improved)
+    ); // Log after trim
 
     // If we're expecting JSON for an email, parse it
     if (messageType === "email") {
@@ -156,6 +166,10 @@ async function improveHandler(req, res) {
       }
     } else {
       // Strip surrounding quotation marks if present - apply multiple times to handle nested quotes
+      console.log(
+        ">>> BACKEND LOG: Before quote stripping:",
+        JSON.stringify(improved)
+      );
       // First attempt with multiline support
       improved = improved.replace(/^["'](.*)["']$/s, "$1").trim();
       // Second attempt to catch any remaining quotes
@@ -167,6 +181,10 @@ async function improveHandler(req, res) {
       ) {
         improved = improved.substring(1, improved.length - 1).trim();
       }
+      console.log(
+        ">>> BACKEND LOG: After quote stripping and final trim:",
+        JSON.stringify(improved)
+      );
 
       // Check if the improved message is empty or the same as original
       if (!improved || improved === text) {
@@ -184,9 +202,17 @@ async function improveHandler(req, res) {
         // Remove any emojis if this tone shouldn't have them
         improved = removeEmojis(improved);
       }
+      console.log(
+        ">>> BACKEND LOG: After potential emoji processing:",
+        JSON.stringify(improved)
+      );
     }
 
     // Send the improved message back to the client
+    console.log(
+      ">>> BACKEND LOG: Final 'improved' value being sent to client:",
+      JSON.stringify(improved)
+    ); // Log final value
     return res.status(200).json({ improved });
   } catch (error) {
     console.error("Error improving message:", error);
@@ -316,6 +342,7 @@ function generatePrompt(originalText, messageType, tone) {
       tone === "auto" || tone === "automatic" ? "automatically selected" : tone
     } tone.
     Fix any spelling or grammar errors in the original text.
+    Structure the response into logical paragraphs separated by double newlines (\n\n) where appropriate for clarity and readability, especially if the response is long.
   `;
 }
 
@@ -370,11 +397,14 @@ function addEmojiToText(text, emoji, tone) {
 
 // Function to remove emojis from text
 function removeEmojis(text) {
-  return text
-    .replace(
-      /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,
-      ""
-    )
-    .replace(/\s+/g, " ")
-    .trim();
+  return (
+    text
+      .replace(
+        /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,
+        ""
+      )
+      // Only replace multiple spaces with a single space, preserve newlines
+      .replace(/ +/g, " ")
+      .trim()
+  );
 }
