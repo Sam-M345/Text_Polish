@@ -725,15 +725,23 @@ ${cleanedBody}
     },
   };
 
-  // Update the improveBtn event listener to handle text formatting
+  // Update the improveBtn event listener
   improveBtn.addEventListener("click", async () => {
-    // --- START: Stop Mic if Active ---
+    // --- Stop Mic if Active ---
     if (isRecognizing) {
       console.log("Improve button clicked, stopping microphone...");
       manualStop = true; // Prevent auto-restart
       recognition.stop();
     }
-    // --- END: Stop Mic if Active ---
+
+    // --- START: Remove Undo Button ---
+    const undoButton = document.getElementById("undo-button");
+    if (undoButton) {
+      console.log("Improve button clicked, removing undo button...");
+      undoButton.remove();
+    }
+    // --- END: Remove Undo Button ---
+
     // Get selected options
     const selectedType = document.querySelector(
       ".text-type-option-btn[data-type].selected"
@@ -1327,13 +1335,7 @@ ${cleanedBody}
       console.error("Improve button not found, appending undo button to body.");
       document.body.appendChild(undoButton);
     }
-    // --- END: Insert After Improve Button ---
-
-    // Optional: Auto-remove button after a delay if not clicked
-    setTimeout(() => {
-      const btn = document.getElementById("undo-button");
-      if (btn) btn.remove();
-    }, 15000); // Remove after 15 seconds
+    // --- END: Append to Logo Container ---
   }
 
   // Add listener to save state before unloading the page
