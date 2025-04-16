@@ -1285,7 +1285,7 @@ ${cleanedBody}
 
     const undoButton = document.createElement("button");
     undoButton.id = "undo-button";
-    undoButton.textContent = "↩️"; // Undo emoji
+    undoButton.textContent = "<<<"; // Changed from emoji
     undoButton.title = "Undo last state (before refresh)";
 
     undoButton.addEventListener("click", () => {
@@ -1293,7 +1293,16 @@ ${cleanedBody}
       undoButton.remove(); // Remove button after clicking
     });
 
-    document.body.appendChild(undoButton);
+    // --- START: Insert After Improve Button ---
+    if (improveBtn && improveBtn.parentNode) {
+      // Insert the undo button right after the improve button in the DOM
+      improveBtn.parentNode.insertBefore(undoButton, improveBtn.nextSibling);
+    } else {
+      // Fallback: append to body if improve button not found (shouldn't happen)
+      console.error("Improve button not found, appending undo button to body.");
+      document.body.appendChild(undoButton);
+    }
+    // --- END: Insert After Improve Button ---
 
     // Optional: Auto-remove button after a delay if not clicked
     setTimeout(() => {
