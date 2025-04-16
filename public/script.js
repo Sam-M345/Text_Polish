@@ -15,7 +15,14 @@ document.addEventListener("DOMContentLoaded", () => {
     ".input-area-buttons"
   );
 
-  let userManuallySelectedTone = false; // Flag to track manual tone selection
+  // Undo functionality constants
+  const UNDO_STORAGE_KEY = "textPolishUndoState";
+
+  // --- Tone Selection State ---
+  // 'initial': No user interaction with tones yet.
+  // 'auto': User explicitly selected Auto.
+  // 'specific': User explicitly selected a specific tone.
+  let toneSelectionMode = "initial";
 
   // Auto-resize textarea function
   function autoResizeTextarea() {
@@ -27,86 +34,44 @@ document.addEventListener("DOMContentLoaded", () => {
     messageInputEl.style.height = Math.max(scrollHeight, minHeight) + "px";
   }
 
-  // Set default selections: Text Message, Auto length, and Friendly tone
+  // Set default selections: Messenger type, Friendly tone
   function setDefaultSelections() {
-    // Default to Text Message (already selected in HTML)
-    const defaultType = document.querySelector(
+    // 1. Set default type
+    const defaultTypeButton = document.querySelector(
       ".text-type-option-btn[data-type='messenger']"
     );
-    if (defaultType) handleButtonSelection(typeButtons, defaultType);
-
-    // Update default tone based on message type
-    updateDefaultTone();
-  }
-
-  // Function to update default tone based on selected message type
-  function updateDefaultTone() {
-    const selectedType = document.querySelector(
-      ".text-type-option-btn[data-type].selected"
-    )?.dataset.type;
-
-    // Different default tones based on message type
-    let defaultTone = "friendly"; // Default to friendly
-    if (selectedType === "email") {
-      defaultTone = "formal";
-    } else if (selectedType === "social") {
-      defaultTone = "informative"; // Set default for social
+    if (defaultTypeButton) {
+      typeButtons.forEach((btn) => btn.classList.remove("selected"));
+      defaultTypeButton.classList.add("selected");
+      updatePlaceholder("messenger"); // Directly update placeholder
     }
 
-    // Find and click the appropriate tone button
-    const toneButton = document.querySelector(
-      `.tone-buttons[data-tone='${defaultTone}']`
+    // 2. Set default tone ('friendly') specifically in categories
+    const defaultToneValue = "friendly";
+    const defaultToneCategoryButton = document.querySelector(
+      `#tone-categories .tone-buttons[data-tone='${defaultToneValue}']`
     );
-    if (toneButton) {
-      // Directly handle selection state and UI update without simulating a click
-      handleButtonSelection(toneButtons, toneButton);
+    const allToneButtons = document.querySelectorAll(
+      ".tone-buttons[data-tone]"
+    ); // Get all tone buttons
+    allToneButtons.forEach((btn) => btn.classList.remove("selected")); // Deselect all
 
-      // --- Manually update the tone button shown in the top options ---
-      const toneOptions = document.querySelector(".tone-options");
-      const autoButton = toneOptions.querySelector(
+    if (defaultToneCategoryButton) {
+      defaultToneCategoryButton.classList.add("selected"); // Select category button
+      updateMainToneDisplay(defaultToneCategoryButton); // Update header based on the category button
+    } else {
+      // Fallback to selecting Auto if friendly category button not found
+      const autoButton = document.querySelector(
         '.tone-buttons[data-tone="auto"]'
       );
-      const toneText = toneButton.innerHTML; // Get the button content with emoji
-      const selectedTone = toneButton.dataset.tone;
-
-      // Ensure Auto is not selected
-      if (autoButton) autoButton.classList.remove("selected");
-
-      // Check if there's already a selected tone button in the top
-      const existingToneButton = toneOptions.querySelector(
-        '.tone-buttons:not([data-tone="auto"])'
-      );
-
-      if (existingToneButton) {
-        // Update the existing button
-        existingToneButton.innerHTML = toneText;
-        existingToneButton.dataset.tone = selectedTone;
-        existingToneButton.classList.add("selected");
-      } else {
-        // Create a new button for the selected tone if it doesn't exist
-        const newSelectedButton = document.createElement("button");
-        newSelectedButton.className = "tone-buttons selected";
-        newSelectedButton.dataset.tone = selectedTone;
-        newSelectedButton.innerHTML = toneText;
-
-        // Add a click handler to the new button (important for consistency)
-        newSelectedButton.addEventListener("click", function () {
-          // Find the original button in the categories and click it
-          const originalButton = document.querySelector(
-            `#tone-categories [data-tone="${selectedTone}"]`
-          );
-          if (originalButton) {
-            originalButton.click();
-          }
-        });
-
-        // Insert the new button after the Auto button
-        if (toneOptions) toneOptions.appendChild(newSelectedButton);
+      if (autoButton) {
+        autoButton.classList.add("selected");
+        updateMainToneDisplay(autoButton);
       }
-      // --- End of manual update logic ---
-
-      // toneButton.click(); // REMOVED - prevents triggering listener prematurely
     }
+
+    // Ensure mode is initial on load
+    toneSelectionMode = "initial";
   }
 
   // Call the function after all other initialization
@@ -336,113 +301,132 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Button selection handlers
+  // Function to handle selection state update for button groups
   function handleButtonSelection(buttons, clickedButton) {
-    buttons.forEach((button) => button.classList.remove("selected"));
+    // --- START: Strict Already Selected Check ---
+    if (clickedButton.classList.contains("selected")) {
+      console.log(
+        "handleButtonSelection: Button already selected, preventing visual changes.",
+        clickedButton
+      );
+      // DON'T return here if it's the Auto button, needs to proceed to deselect others
+      // DO return if it's a specific category tone button already selected
+      if (clickedButton.dataset.tone !== "auto") {
+        return;
+      }
+    }
+    // --- END: Strict Already Selected Check ---
+    // Deselect all buttons in the provided group *before* adding class to the clicked one
+    // Exception: If 'Auto' was clicked and was already selected, don't deselect others
+    if (
+      !(
+        clickedButton.dataset.tone === "auto" &&
+        clickedButton.classList.contains("selected")
+      )
+    ) {
+      buttons.forEach((btn) => btn.classList.remove("selected"));
+    }
+    // Ensure the clicked one is selected (might have been deselected above if it wasn't Auto)
     clickedButton.classList.add("selected");
+
+    const buttonIsTone = clickedButton.classList.contains("tone-buttons");
+    const buttonIsType = clickedButton.classList.contains(
+      "text-type-option-btn"
+    );
+
+    // --- START: Refined Tone Button Logic ---
+    if (buttonIsTone) {
+      // Tone button was clicked (could be initial, category, or Auto header)
+      // Set the mode based on the actual button clicked (important for initial load/category clicks)
+      // Note: Header specific clicks set the mode in the direct listener above
+      if (
+        toneSelectionMode === "initial" ||
+        clickedButton.closest("#tone-categories") ||
+        clickedButton.dataset.tone === "auto"
+      ) {
+        toneSelectionMode =
+          clickedButton.dataset.tone === "auto" ? "auto" : "specific";
+        console.log(
+          `handleButtonSelection (Tone): toneSelectionMode set to '${toneSelectionMode}'`
+        );
+      }
+
+      updateMainToneDisplay(clickedButton); // Update header display
+    } else if (buttonIsType) {
+      // --- START: Type Button Logic ---
+      const selectedType = clickedButton.dataset.type;
+      updatePlaceholder(selectedType);
+
+      // Simplified previous type tracking
+      let previousType = null;
+      typeButtons.forEach((btn) => {
+        if (btn !== clickedButton && btn.classList.contains("selected")) {
+          previousType = btn.dataset.type;
+        }
+      });
+      // Deselect others and select clicked one
+      typeButtons.forEach((btn) => btn.classList.remove("selected"));
+      clickedButton.classList.add("selected");
+
+      if (previousType === "email" && selectedType !== "email") {
+        EmailHandler.clearData();
+      }
+
+      // Check if we should update the default tone (ONLY if mode is 'initial')
+      if (toneSelectionMode === "initial") {
+        console.log(
+          "Type changed and tone mode is 'initial', updating default tone..."
+        );
+        let defaultToneValue = "friendly";
+        if (selectedType === "email") {
+          defaultToneValue = "formal";
+        } else if (selectedType === "social") {
+          defaultToneValue = "informative";
+        }
+
+        const defaultToneCategoryButton = document.querySelector(
+          `#tone-categories .tone-buttons[data-tone='${defaultToneValue}']`
+        );
+
+        if (defaultToneCategoryButton) {
+          const allToneButtons = document.querySelectorAll(
+            ".tone-buttons[data-tone]"
+          );
+          allToneButtons.forEach((btn) => btn.classList.remove("selected"));
+          defaultToneCategoryButton.classList.add("selected");
+          updateMainToneDisplay(defaultToneCategoryButton);
+          // IMPORTANT: Keep mode as 'initial' here, as this was not a user tone click
+        } else {
+          // Fallback needed?
+        }
+      } else {
+        console.log(
+          `Type changed but tone mode is '${toneSelectionMode}', keeping existing tone.`
+        );
+      }
+      // --- END: Type Button Logic ---
+    }
   }
 
   // Add click event listeners to all option buttons
   typeButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      const previousType = document.querySelector(
-        ".text-type-option-btn[data-type].selected"
-      )?.dataset.type;
-      const newType = button.dataset.type;
-
-      // Skip processing if the same button is clicked again
-      if (previousType === newType) {
-        return;
-      }
-
-      // Clear email data when switching away from email type
-      if (previousType === "email" && newType !== "email") {
-        EmailHandler.clearData();
-      }
-
       handleButtonSelection(typeButtons, button);
-
-      // Update placeholder based on selected type
-      if (newType === "email") {
-        messageInputEl.placeholder = "Type your email content here...";
-      } else if (newType === "social") {
-        messageInputEl.placeholder = "Type your social post or reply here...";
-      } else {
-        messageInputEl.placeholder = "Type your message here...";
-      }
-
-      // Update default tone whenever message type changes, ONLY if user hasn't manually selected one
-      if (!userManuallySelectedTone) {
-        updateDefaultTone();
-      }
     });
   });
 
-  toneButtons.forEach((button) => {
+  // Tone category buttons listener
+  const categoryToneButtons = document.querySelectorAll(
+    "#tone-categories .tone-buttons[data-tone]"
+  );
+  categoryToneButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      const selectedTone = button.dataset.tone;
-      const toneText = button.innerHTML; // Get the button content with emoji
-
-      // Update all tone buttons selection state
-      handleButtonSelection(toneButtons, button);
-      userManuallySelectedTone = true; // Mark that user has manually selected a tone
-
-      // Find the top tone container and the tone options
-      const toneContainer = document.querySelector(".tone-container");
-      const toneOptions = document.querySelector(".tone-options");
-      const autoButton = toneOptions.querySelector(
-        '.tone-buttons[data-tone="auto"]'
+      // Set the mode when a category button is explicitly clicked
+      toneSelectionMode = button.dataset.tone === "auto" ? "auto" : "specific";
+      console.log(
+        `Category button ${button.dataset.tone} clicked. toneSelectionMode = '${toneSelectionMode}'`
       );
-
-      if (selectedTone === "auto") {
-        // If Auto is selected:
-        // 1. Make sure Auto is selected with green highlight
-        autoButton.classList.add("selected");
-
-        // 2. If there's an existing secondary tone button, keep it but remove selected class
-        const existingToneButton = toneOptions.querySelector(
-          '.tone-buttons:not([data-tone="auto"])'
-        );
-        if (existingToneButton) {
-          existingToneButton.classList.remove("selected");
-        }
-      } else {
-        // If another tone is selected:
-        // 1. Make sure Auto is there but not selected
-        autoButton.classList.remove("selected");
-
-        // 2. Check if there's already a selected tone button in the top
-        const existingToneButton = toneOptions.querySelector(
-          '.tone-buttons:not([data-tone="auto"])'
-        );
-
-        if (existingToneButton) {
-          // Update the existing button
-          existingToneButton.innerHTML = toneText;
-          existingToneButton.dataset.tone = selectedTone;
-          existingToneButton.classList.add("selected");
-        } else {
-          // Create a new button for the selected tone
-          const newSelectedButton = document.createElement("button");
-          newSelectedButton.className = "tone-buttons selected";
-          newSelectedButton.dataset.tone = selectedTone;
-          newSelectedButton.innerHTML = toneText;
-
-          // Add a click handler to the new button
-          newSelectedButton.addEventListener("click", function () {
-            // Find the original button in the categories and click it
-            const originalButton = document.querySelector(
-              `#tone-categories [data-tone="${selectedTone}"]`
-            );
-            if (originalButton) {
-              originalButton.click();
-            }
-          });
-
-          // Insert the new button after the Auto button
-          toneOptions.appendChild(newSelectedButton);
-        }
-      }
+      handleButtonSelection(toneButtons, button); // Use allToneButtons for deselection logic inside
     });
   });
 
@@ -796,7 +780,7 @@ ${cleanedBody}
           if (response.status === 500 && retryCount < maxRetries) {
             retryCount++;
             console.log(
-              `API returned 500 error. Retry attempt ${retryCount}...`
+              `API returned 500 error. Retry attempt ${retryCount}/${maxRetries}`
             );
             // improvedMessageEl.textContent = `Processing... (Retry ${retryCount}/${maxRetries})`; // No need to show this if container is hidden
             // Wait a second before retrying
@@ -1182,4 +1166,264 @@ ${cleanedBody}
     }
   });
   // --- End Page Visibility API Listener ---
+
+  // --- UNDO FUNCTIONALITY --- START ---
+
+  // Function to save state to sessionStorage
+  function saveStateForUndo() {
+    const state = {
+      inputText: messageInputEl.value,
+      outputHTML: improvedMessageEl.innerHTML,
+      selectedType: document.querySelector(".text-type-option-btn.selected")
+        ?.dataset.type,
+      selectedTone: document.querySelector(".tone-buttons.selected")?.dataset
+        .tone,
+      tonesVisible: !document
+        .getElementById("tone-categories")
+        .classList.contains("collapsed-tones"),
+    };
+    // Only save if there's something to save
+    if (
+      state.inputText ||
+      (state.outputHTML && state.outputHTML.trim() !== "")
+    ) {
+      try {
+        sessionStorage.setItem(UNDO_STORAGE_KEY, JSON.stringify(state));
+        console.log("State saved for undo");
+      } catch (e) {
+        console.error("Failed to save state to sessionStorage:", e);
+      }
+    } else {
+      // If nothing to save, ensure any previous state is cleared
+      sessionStorage.removeItem(UNDO_STORAGE_KEY);
+      console.log("Nothing to save, cleared undo state.");
+    }
+  }
+
+  // Function to restore state from sessionStorage
+  function restoreState() {
+    try {
+      const savedStateJSON = sessionStorage.getItem(UNDO_STORAGE_KEY);
+      if (!savedStateJSON) return; // No state saved
+
+      const savedState = JSON.parse(savedStateJSON);
+
+      // Restore input
+      messageInputEl.value = savedState.inputText || "";
+
+      // Restore output
+      improvedMessageEl.innerHTML = savedState.outputHTML || "";
+      if (improvedMessageEl.innerHTML.trim()) {
+        outputContainer.style.display = "block";
+        outputIcons.style.display = "flex";
+        improvedMessageEl.contentEditable = "false"; // Ensure it's not editable initially
+        editOutputBtn.classList.remove("active");
+        editOutputBtn.querySelector(".icon").textContent = "✏️";
+      } else {
+        outputContainer.style.display = "none";
+        outputIcons.style.display = "none";
+      }
+
+      // Restore type selection
+      if (savedState.selectedType) {
+        const typeButton = document.querySelector(
+          `.text-type-option-btn[data-type="${savedState.selectedType}"]`
+        );
+        if (typeButton) handleButtonSelection(typeButtons, typeButton);
+      }
+
+      // Restore tone selection
+      if (savedState.selectedTone) {
+        const toneButton = document.querySelector(
+          `.tone-buttons[data-tone="${savedState.selectedTone}"]`
+        );
+        if (toneButton) {
+          // Check if it's a category button or the header button
+          if (toneButton.closest("#tone-categories")) {
+            handleButtonSelection(toneButtons, toneButton); // Selects in category
+          } else {
+            // If it was the header button (e.g., Auto), select it directly
+            handleButtonSelection(toneButtons, toneButton);
+          }
+        }
+      }
+
+      // Restore tone category visibility
+      const toneCategories = document.getElementById("tone-categories");
+      const toggleTonesBtn = document.getElementById("toggle-tones");
+      if (savedState.tonesVisible) {
+        toneCategories.classList.remove("collapsed-tones");
+        toneCategories.classList.add("expanded-tones");
+        toggleTonesBtn.textContent = "🔼";
+        document.body.classList.add("tones-expanded");
+      } else {
+        toneCategories.classList.add("collapsed-tones");
+        toneCategories.classList.remove("expanded-tones");
+        toggleTonesBtn.textContent = "⏬";
+        document.body.classList.remove("tones-expanded");
+      }
+
+      // Clean up storage
+      sessionStorage.removeItem(UNDO_STORAGE_KEY);
+
+      // Trigger UI updates
+      autoResizeTextarea();
+      checkContentAndUpdateBody();
+
+      console.log("State restored");
+    } catch (e) {
+      console.error("Failed to restore state from sessionStorage:", e);
+      // Clear potentially corrupted state
+      sessionStorage.removeItem(UNDO_STORAGE_KEY);
+    }
+  }
+
+  // Function to create and show the Undo button
+  function createUndoButton() {
+    // Check if button already exists
+    if (document.getElementById("undo-button")) return;
+
+    const undoButton = document.createElement("button");
+    undoButton.id = "undo-button";
+    undoButton.textContent = "↩️"; // Undo emoji
+    undoButton.title = "Undo last state (before refresh)";
+
+    undoButton.addEventListener("click", () => {
+      restoreState();
+      undoButton.remove(); // Remove button after clicking
+    });
+
+    document.body.appendChild(undoButton);
+
+    // Optional: Auto-remove button after a delay if not clicked
+    setTimeout(() => {
+      const btn = document.getElementById("undo-button");
+      if (btn) btn.remove();
+    }, 15000); // Remove after 15 seconds
+  }
+
+  // Add listener to save state before unloading the page
+  window.addEventListener("beforeunload", saveStateForUndo);
+
+  // Check for saved state on page load
+  if (sessionStorage.getItem(UNDO_STORAGE_KEY)) {
+    createUndoButton();
+  }
+
+  // --- UNDO FUNCTIONALITY --- END ---
+
+  // Function to update placeholder text dynamically
+  function updatePlaceholder(type) {
+    switch (type) {
+      case "email":
+        messageInputEl.placeholder = "Type your Email content here...";
+        break;
+      case "social":
+        messageInputEl.placeholder = "Type your Social Post here...";
+        break;
+      case "messenger":
+      default:
+        messageInputEl.placeholder = "Type your Message here...";
+        break;
+    }
+  }
+
+  // --- START: New Function to Update Header Tone Display ---
+  function updateMainToneDisplay(selectedToneButton) {
+    const toneOptions = document.querySelector(".tone-options");
+    if (!toneOptions) return; // Exit if container not found
+
+    const autoButton = toneOptions.querySelector(
+      '.tone-buttons[data-tone="auto"]'
+    );
+    const selectedTone = selectedToneButton.dataset.tone;
+    const toneText = selectedToneButton.innerHTML; // Includes emoji if present
+
+    // Find existing specific tone button in header, if it exists
+    const existingHeaderToneButton = toneOptions.querySelector(
+      '.tone-buttons:not([data-tone="auto"])'
+    );
+
+    if (selectedTone === "auto") {
+      // If AUTO is selected
+      if (autoButton) autoButton.classList.add("selected");
+      // Just DESELECT the specific tone button in header if it exists, DO NOT remove
+      if (existingHeaderToneButton) {
+        existingHeaderToneButton.classList.remove("selected");
+      }
+    } else {
+      // If a SPECIFIC tone is selected
+      if (autoButton) autoButton.classList.remove("selected");
+
+      // Remove the OLD specific header button before adding the NEW one
+      if (existingHeaderToneButton) {
+        existingHeaderToneButton.remove();
+      }
+
+      // Create a brand new header button for the specific tone
+      const newHeaderToneButton = document.createElement("button");
+      newHeaderToneButton.className = "tone-buttons selected"; // Start selected
+      newHeaderToneButton.dataset.tone = selectedTone;
+      newHeaderToneButton.innerHTML = toneText;
+
+      // Add the single, correct event listener to the NEW button
+      newHeaderToneButton.addEventListener("click", () => {
+        console.log(
+          "Header button clicked, finding original category button...",
+          selectedTone
+        );
+        const originalButton = document.querySelector(
+          `#tone-categories .tone-buttons[data-tone="${selectedTone}"]`
+        );
+        if (originalButton) {
+          console.log(
+            "Found original button, simulating click:",
+            originalButton
+          );
+          originalButton.click(); // Simulate click on the original button in the category
+        } else {
+          console.warn(
+            "Could not find original category button for tone:",
+            selectedTone
+          );
+        }
+      });
+
+      // Append the new button
+      toneOptions.appendChild(newHeaderToneButton);
+    }
+  }
+  // --- END: Function to Update Header Tone Display ---\
+
+  // --- START: Listener for Header Tone Buttons (.tone-options) ---
+  const toneOptionsContainer = document.querySelector(".tone-options");
+  if (toneOptionsContainer) {
+    toneOptionsContainer.addEventListener("click", (event) => {
+      const clickedButton = event.target.closest(".tone-buttons[data-tone]");
+      if (!clickedButton) return; // Ignore clicks not on a tone button
+
+      const clickedTone = clickedButton.dataset.tone;
+      console.log(
+        `Direct click captured on header button: ${clickedTone}. Setting TONE MODE.`
+      );
+
+      // Set the TONE MODE based on which header button was clicked
+      if (clickedTone === "auto") {
+        toneSelectionMode = "auto";
+        console.log("toneSelectionMode set to 'auto' (Auto header clicked)");
+        // We still need handleButtonSelection to run for Auto to deselect others
+        handleButtonSelection(toneButtons, clickedButton);
+      } else {
+        toneSelectionMode = "specific";
+        console.log(
+          "toneSelectionMode set to 'specific' (Specific header clicked)"
+        );
+        // The existing listener on the button itself (added in updateMainToneDisplay)
+        // will simulate the click on the category button. handleButtonSelection
+        // will correctly ignore the simulated click due to the 'selected' check,
+        // but the mode is now correctly set.
+      }
+    });
+  }
+  // --- END: Listener for Header Tone Buttons (.tone-options) ---
 });

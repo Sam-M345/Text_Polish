@@ -856,7 +856,27 @@ body.tones-expanded .output-section {
 
 /* Specific size for the Share SVG */
 .SVG-Share {
-  width: 3rem; /* Set desired width */
-  height: 3rem; /* Set desired height */
-  vertical-align: middle; /* Keep vertical alignment */
+  width: 1.1em;
+  height: 1.1em;
 }
+
+/* --- UNDO BUTTON --- */
+#undo-button {
+  position: fixed; /* Position relative to the viewport */
+  top: 10px; /* Distance from the top */
+  right: 10px; /* Distance from the right */
+  z-index: 1000; /* Ensure it's above most other elements */
+  background: none; /* No background */
+  border: none; /* No border */
+  padding: 0; /* No padding */
+  font-size: 2rem; /* Make emoji reasonably large */
+  line-height: 1; /* Adjust line height for better vertical centering */
+  cursor: pointer; /* Indicate it's clickable */
+  opacity: 0.8; /* Slightly transparent */
+  transition: opacity 0.2s ease; /* Smooth hover effect */
+}
+
+#undo-button:hover {
+  opacity: 1; /* Fully opaque on hover */
+}
+/* --- END UNDO BUTTON --- */
