@@ -508,6 +508,47 @@ h3 {
   position: relative;
 }
 
+/* START: Styles for textarea wrapper and inner icons */
+.textarea-wrapper {
+  position: relative; /* Positioning context for inner icons */
+}
+
+.textarea-icons {
+  position: absolute;
+  bottom: 8px; /* Adjust as needed */
+  right: 8px; /* Adjust as needed */
+  display: flex;
+  align-items: center;
+  gap: 30px; /* Space between icons */
+  z-index: 10; /* Above textarea content/scrollbar */
+}
+
+.textarea-icons button {
+  background: none;
+  border: none;
+  padding: 2px; /* Small padding for click area */
+  margin: 0;
+  cursor: pointer;
+  color: var(--secondary-text); /* Dimmed color */
+  font-size: 1.2rem; /* Adjust icon size */
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.textarea-icons button:hover {
+  color: var(--text-color);
+  opacity: 1;
+}
+
+/* Style SVG within the copy button */
+.textarea-icons button#copy-input svg {
+  width: 1.2em; /* Match font size */
+  height: 1.2em;
+  vertical-align: middle; /* Align with text/emoji icons */
+}
+/* END: Styles for textarea wrapper and inner icons */
+
 /* Unified text style for input and output */
 .unified-text-style,
 textarea,
@@ -527,13 +568,15 @@ textarea,
 }
 
 /* Additional styles for textarea */
-textarea {
+textarea#text-input-area {
+  /* Added ID for specificity */
   width: 100%;
   min-height: 224px;
   border: none;
-  margin-bottom: 0;
+  margin-bottom: 0; /* Handled by wrapper/improve btn now */
   font-family: inherit;
   transition: box-shadow 0.3s ease;
+  padding-bottom: 35px; /* Add padding to prevent text overlap */
 }
 
 /* Additional styles for improved message */
@@ -715,68 +758,6 @@ body.tones-expanded .output-section {
   50% {
     opacity: 0.2;
   } /* Dim/Invisible */
-}
-
-/* Input Area Buttons container */
-.input-area-buttons {
-  display: flex;
-  justify-content: space-between; /* Changed from flex-start */
-  align-items: center;
-  width: 100%;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 0.3rem 0.6rem 0.3rem 0.5rem;
-  gap: 0.9rem; /* Existing gap, space-between will add more space */
-  transition: justify-content 0.2s ease, gap 0.2s ease;
-}
-
-/* Styles for the listening state */
-.input-area-buttons.listening {
-  gap: 0.4rem; /* Reduce gap in listening state */
-}
-
-.input-area-buttons.listening .bright-blue-title {
-  margin-right: 0.4rem; /* Space after Input title */
-}
-
-.input-area-buttons.listening #mic-input {
-  margin-right: 0.1rem; /* Reduce space after mic */
-}
-
-/* Hide non-essential buttons during listening */
-.input-area-buttons.listening #clear-input,
-.input-area-buttons.listening #copy-input,
-.input-area-buttons.listening #paste-input {
-  display: none;
-}
-
-/* Show and style animation/indicator during listening */
-/* Remove placeholder styles */
-
-.input-area-buttons.listening #listening-indicator {
-  display: flex; /* Show ear element */
-  margin-left: 0;
-  /* Apply the blinking animation */
-  animation: listeningBlink 1s infinite ease-in-out;
-  /* Ensure original ear styles are maintained */
-  font-size: 1.8rem; /* Original font size */
-  color: #25a56a; /* Original color */
-  /* Remove potential transition interference */
-  transition: none;
-  /* Remove properties specific to dot animation */
-  /* min-width: 90px; */
-  /* width: auto; */
-  /* content: ''; */
-  /* text-align: left; */
-  /* padding-top: 0; */
-  /* overflow: hidden; */
-  /* white-space: nowrap; */
-}
-
-/* Ensure proper positioning of tone categories within its container */
-#tone-categories {
-  width: 100%;
-  margin-top: 0.5rem;
 }
 
 /* Desktop-specific styles */

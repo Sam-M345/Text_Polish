@@ -40,31 +40,18 @@
       </div>
 
       <div class="text-section">
-        <textarea
-          id="text-input-area"
-          placeholder="Type your Message / Email here..."
-        ></textarea>
-
-        <button id="improve-btn">Improve</button>
-
-        <div class="input-area-buttons">
-          <h2 class="bright-blue-title">Input</h2>
-          <button class="icon-btn" id="mic-input" title="Speech to text">
-            <span class="icon">🎙️</span>
-          </button>
-          <div id="listening-indicator" class="hidden" style="display: none">
-            👂🏻
-          </div>
-          <button class="icon-btn" id="clear-input" title="Clear text">
-            <span class="icon">✕</span>
-          </button>
-          <button class="icon-btn" id="copy-input" title="Copy text">
-            <span class="icon">
+        <div class="textarea-wrapper">
+          <textarea
+            id="text-input-area"
+            placeholder="Type your Message / Email here..."
+          ></textarea>
+          <div class="textarea-icons">
+            <button id="clear-input" title="Clear text">✕</button>
+            <button id="copy-input" title="Copy text">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                style="width: 1em; height: 1em; vertical-align: middle"
               >
                 <path
                   d="M16 3H5C3.89543 3 3 3.89543 3 5V16"
@@ -72,21 +59,21 @@
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                />
+                ></path>
                 <path
                   d="M9 7H19C20.1046 7 21 7.89543 21 9V19C21 20.1046 20.1046 21 19 21H9C7.89543 21 7 20.1046 7 19V9C7 7.89543 7.89543 7 9 7Z"
                   stroke="currentColor"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                />
+                ></path>
               </svg>
-            </span>
-          </button>
-          <button class="icon-btn" id="paste-input" title="Paste text">
-            <span class="icon">📋</span>
-          </button>
+            </button>
+            <button id="paste-input" title="Paste text">📋</button>
+          </div>
         </div>
+
+        <button id="improve-btn">Improve</button>
       </div>
 
       <div class="tone-settings-container">
