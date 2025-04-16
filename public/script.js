@@ -77,6 +77,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // Call the function after all other initialization
   setTimeout(setDefaultSelections, 100);
 
+  // --- START: Auto-focus on input area ---
+  if (messageInputEl) {
+    messageInputEl.focus();
+    console.log("Text input area focused on load.");
+  }
+  // --- END: Auto-focus on input area ---
+
   // Check for content on page load to handle scrolling
   checkContentAndUpdateBody();
 

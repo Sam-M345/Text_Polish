@@ -923,4 +923,24 @@ body.tones-expanded .output-section {
   display: inline; /* Keep it inline with text */
   margin: 0;
 }
+
+/* Add margin below the first span in the Text Message button */
+.text-type-option-btn[data-type="text-message"]
+  .button-text-stacked
+  span:first-child {
+  margin-bottom: 3px;
+}
+
+/* Add margin below the first span in the Email button */
+.text-type-option-btn[data-type="email"] .button-text-stacked span:first-child {
+  margin-bottom: 3px;
+}
+
+/* Add margin below the first span in the Social Post button */
+.text-type-option-btn[data-type="social"]
+  .button-text-stacked
+  span:first-child {
+  margin-bottom: 3px;
+}
+
 /* --- END: Specific styles for Text Message & Social Buttons --- */
