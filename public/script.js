@@ -1312,9 +1312,11 @@ ${cleanedBody}
   }
 
   // Add listener to save state before unloading the page
-  window.addEventListener("beforeunload", saveStateForUndo);
+  // window.addEventListener(\"beforeunload\", saveStateForUndo); // Less reliable on mobile
+  // Use pagehide instead
+  window.addEventListener("pagehide", saveStateForUndo); // More reliable for bfcache/mobile
 
-  // Check for saved state on page load
+  // Check for saved state on page load (initial load)
   if (sessionStorage.getItem(UNDO_STORAGE_KEY)) {
     createUndoButton();
   }
@@ -1435,4 +1437,14 @@ ${cleanedBody}
     });
   }
   // --- END: Listener for Header Tone Buttons (.tone-options) ---
+
+  // Add listener to check state when page is shown (including bfcache restores)
+  window.addEventListener("pageshow", (event) => {
+    console.log("pageshow event fired. Persisted:", event.persisted);
+    // Check for state again, especially if restored from bfcache
+    if (sessionStorage.getItem(UNDO_STORAGE_KEY)) {
+      // createUndoButton already checks if the button exists, so it's safe to call again
+      createUndoButton();
+    }
+  });
 });
