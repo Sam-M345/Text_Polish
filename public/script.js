@@ -1163,4 +1163,23 @@ ${cleanedBody}
 
     return processedText;
   }
+
+  // --- Page Visibility API Listener ---
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      // Page is hidden (user switched tabs/apps)
+      console.log("Page hidden");
+      // Optional: Add code here to pause things if needed
+    } else {
+      // Page is visible again (user returned)
+      console.log("Page visible again - checking state...");
+      // TODO: Add logic here to re-activate/re-check UI elements if necessary
+      // For example, ensure buttons are enabled:
+      if (improveBtn) improveBtn.disabled = false;
+      // Re-check content in case state was lost/reset
+      checkContentAndUpdateBody();
+      // Maybe re-attach critical listeners if they prove unreliable (less common)
+    }
+  });
+  // --- End Page Visibility API Listener ---
 });
