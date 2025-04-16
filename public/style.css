@@ -96,13 +96,13 @@ h3 {
 
 /* Option Sections */
 .text-type-container {
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.7rem;
   display: flex;
   flex-direction: row;
-  justify-content: center;
+
   align-items: flex-start;
   width: 100%;
-  gap: 0.8rem;
+  gap: 1.6rem;
   position: relative;
 }
 
@@ -529,7 +529,7 @@ textarea,
 /* Additional styles for textarea */
 textarea {
   width: 100%;
-  min-height: 210px;
+  min-height: 224px;
   border: none;
   margin-bottom: 0;
   font-family: inherit;
@@ -539,6 +539,7 @@ textarea {
 /* Additional styles for improved message */
 #improved-message {
   max-height: none;
+  min-height: 120px;
   overflow: visible;
   word-break: break-word;
   font-family: inherit;
@@ -719,13 +720,13 @@ body.tones-expanded .output-section {
 /* Input Area Buttons container */
 .input-area-buttons {
   display: flex;
-  justify-content: flex-start; /* Group items to the left */
+  justify-content: space-between; /* Changed from flex-start */
   align-items: center;
   width: 100%;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 0.3rem 0.6rem 0.3rem 0.5rem;
-  gap: 0.9rem; /* Slightly increase default gap */
+  gap: 0.9rem; /* Existing gap, space-between will add more space */
   transition: justify-content 0.2s ease, gap 0.2s ease;
 }
 
@@ -875,3 +876,51 @@ body.tones-expanded .output-section {
   opacity: 1;
 }
 /* --- END UNDO BUTTON --- */
+
+/* Media Query to hide Mic button on smaller screens (iOS/Mobile) */
+@media (max-width: 767px) {
+  #mic-input {
+    display: none;
+  }
+}
+
+/* --- START: Specific styles for Email Button --- */
+.text-type-option-btn[data-type="email"] {
+  flex-direction: column; /* Stack items vertically */
+  justify-content: center; /* Vertically center content */
+  align-items: center; /* Horizontally center content */
+  height: 65px; /* Keep existing height */
+}
+
+/* Target the text container span inside the Email button */
+.text-type-option-btn[data-type="email"] .button-text-stacked {
+  order: -1; /* Ensure text is visually first (top) */
+  margin-left: 0; /* Remove inherited margin */
+  line-height: 1.1;
+}
+
+/* Target the emoji span inside the Email button */
+.text-type-option-btn[data-type="email"] .emoji {
+  margin-right: 0; /* Remove inherited margin */
+  margin-top: 2px; /* Add small space below text */
+  display: block; /* Ensure it takes its own line */
+  font-size: 1.1em; /* Adjust emoji size if needed */
+  line-height: 1;
+}
+/* --- END: Specific styles for Email Button --- */
+
+/* --- START: Specific styles for Text Message & Social Buttons --- */
+.text-type-option-btn[data-type="text-message"],
+.text-type-option-btn[data-type="social"] {
+  font-size: 1.1rem; /* Keep reduced font size */
+}
+
+/* Adjust emoji alignment within the new structure if needed */
+.text-type-option-btn[data-type="text-message"] .button-text-stacked .emoji,
+.text-type-option-btn[data-type="social"] .button-text-stacked .emoji {
+  font-size: 0.9em; /* Slightly smaller emoji */
+  vertical-align: baseline; /* Align with text */
+  display: inline; /* Keep it inline with text */
+  margin: 0;
+}
+/* --- END: Specific styles for Text Message & Social Buttons --- */

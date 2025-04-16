@@ -34,16 +34,16 @@ document.addEventListener("DOMContentLoaded", () => {
     messageInputEl.style.height = Math.max(scrollHeight, minHeight) + "px";
   }
 
-  // Set default selections: Messenger type, Friendly tone
+  // Set default selections: Text Message type, Friendly tone
   function setDefaultSelections() {
     // 1. Set default type
     const defaultTypeButton = document.querySelector(
-      ".text-type-option-btn[data-type='messenger']"
+      ".text-type-option-btn[data-type='text-message']"
     );
     if (defaultTypeButton) {
       typeButtons.forEach((btn) => btn.classList.remove("selected"));
       defaultTypeButton.classList.add("selected");
-      updatePlaceholder("messenger"); // Directly update placeholder
+      updatePlaceholder("text-message");
     }
 
     // 2. Set default tone ('friendly') specifically in categories
@@ -842,7 +842,7 @@ ${cleanedBody}
           ); // Log before split
 
           // For text messages, format paragraphs with emoji breaks
-          if (selectedType === "messenger") {
+          if (selectedType === "text-message") {
             displayText = formatEmojiBreaks(displayText);
             console.log("After emoji breaks formatting:", displayText);
           }
@@ -1345,7 +1345,7 @@ ${cleanedBody}
       case "social":
         messageInputEl.placeholder = "Type your Social Post here...";
         break;
-      case "messenger":
+      case "text-message":
       default:
         messageInputEl.placeholder = "Type your Message here...";
         break;
