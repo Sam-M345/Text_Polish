@@ -124,6 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Speech recognition setup
   let recognition = null;
   let isRecognizing = false;
+  let manualStop = false; // Flag to track if stop was initiated by user click
 
   // Initialize speech recognition if available
   function initSpeechRecognition() {
@@ -141,11 +142,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (listeningIndicator) listeningIndicator.classList.add("hidden");
 
       recognition.onstart = function () {
+        console.log("Speech recognition started.");
         isRecognizing = true;
+        manualStop = false; // Reset flag on successful start
         micInputBtn.style.backgroundColor = "#25a56a";
         micInputBtn.style.borderColor = "#25a56a";
         inputAreaButtonsContainer.classList.add("listening");
-        // Show the listening indicator (ear)
         listeningIndicator.classList.remove("hidden");
         listeningIndicator.style.display = "flex";
       };
@@ -200,32 +202,50 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       recognition.onend = function () {
+        console.log("Speech recognition ended.");
         isRecognizing = false;
         micInputBtn.style.backgroundColor = "";
         micInputBtn.style.borderColor = "";
         inputAreaButtonsContainer.classList.remove("listening");
-        // Hide the listening indicator (ear)
         listeningIndicator.classList.add("hidden");
         listeningIndicator.style.display = "none";
-        // Show other input buttons
-        clearInputBtn.style.display = ""; // Reset display to default (flex)
-        copyInputBtn.style.display = ""; // Reset display to default (flex)
-        pasteInputBtn.style.display = ""; // Reset display to default (flex)
+        clearInputBtn.style.display = "";
+        copyInputBtn.style.display = "";
+        pasteInputBtn.style.display = "";
+
+        // --- START: Auto-restart logic ---
+        if (!manualStop) {
+          console.log("Recognition ended automatically, restarting...");
+          try {
+            recognition.start(); // Attempt to restart immediately
+          } catch (error) {
+            console.error(
+              "Error restarting recognition after automatic end:",
+              error
+            );
+            // Ensure UI is fully reset if restart fails
+            manualStop = true; // Prevent potential loops if start fails repeatedly
+          }
+        } else {
+          console.log("Recognition ended due to manual stop.");
+          // Reset flag for the next session
+          manualStop = false;
+        }
+        // --- END: Auto-restart logic ---
       };
 
       recognition.onerror = function (event) {
         console.error("Speech recognition error:", event.error);
         isRecognizing = false;
+        manualStop = true; // Treat errors as a reason to stop trying to auto-restart
         micInputBtn.style.backgroundColor = "";
         micInputBtn.style.borderColor = "";
         inputAreaButtonsContainer.classList.remove("listening");
-        // Hide the listening indicator (ear)
         listeningIndicator.classList.add("hidden");
         listeningIndicator.style.display = "none";
-        // Show other input buttons
-        clearInputBtn.style.display = ""; // Reset display to default (flex)
-        copyInputBtn.style.display = ""; // Reset display to default (flex)
-        pasteInputBtn.style.display = ""; // Reset display to default (flex)
+        clearInputBtn.style.display = "";
+        copyInputBtn.style.display = "";
+        pasteInputBtn.style.display = "";
       };
 
       return true;
@@ -246,18 +266,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (isRecognizing) {
         // Stop listening
+        console.log("Manual stop initiated.");
+        manualStop = true; // Set flag BEFORE stopping
         recognition.stop();
-        // Explicitly hide the listening indicator (ear)
-        if (listeningIndicator) {
-          listeningIndicator.classList.add("hidden");
-          listeningIndicator.style.display = "none";
-        }
-        // Manually show buttons when stopping via button click
-        clearInputBtn.style.display = "";
-        copyInputBtn.style.display = "";
-        pasteInputBtn.style.display = "";
+        // UI updates now handled primarily by onend event
       } else {
         // Start listening
+        // Reset flag just in case it was left true from an error
+        manualStop = false;
         try {
           messageInputEl.focus(); // Focus the textarea
           recognition.start(); // This triggers onstart where visibility is handled
@@ -296,6 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
               }
             }, 200);
           }
+          manualStop = true; // Ensure flag is set if start fails critically
         }
       }
     });
@@ -710,6 +727,13 @@ ${cleanedBody}
 
   // Update the improveBtn event listener to handle text formatting
   improveBtn.addEventListener("click", async () => {
+    // --- START: Stop Mic if Active ---
+    if (isRecognizing) {
+      console.log("Improve button clicked, stopping microphone...");
+      manualStop = true; // Prevent auto-restart
+      recognition.stop();
+    }
+    // --- END: Stop Mic if Active ---
     // Get selected options
     const selectedType = document.querySelector(
       ".text-type-option-btn[data-type].selected"

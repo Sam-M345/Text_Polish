@@ -565,7 +565,7 @@ textarea {
 
 /* Output container */
 #output-container {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   margin-bottom: 0rem;
   overflow: visible;
   max-height: none;
