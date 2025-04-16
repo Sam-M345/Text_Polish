@@ -105,12 +105,11 @@ document.addEventListener("DOMContentLoaded", () => {
     outputIcons.style.display = "none";
   }
 
-  // Get icon buttons
+  // Get icon buttons (excluding edit)
   const micInputBtn = document.getElementById("mic-input");
   const clearInputBtn = document.getElementById("clear-input");
   const copyInputBtn = document.getElementById("copy-input");
   const pasteInputBtn = document.getElementById("paste-input");
-  const editOutputBtn = document.getElementById("edit-output");
   const clearOutputBtn = document.getElementById("clear-output");
   const copyOutputBtn = document.getElementById("copy-output");
   const pasteOutputBtn = document.getElementById("paste-output");
@@ -450,12 +449,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Icon button functionality
   // Clear input text
   clearInputBtn.addEventListener("click", () => {
+    saveStateForUndo(); // Save state BEFORE clearing
     messageInputEl.value = "";
     // Reset height to default minimum
     messageInputEl.style.height = "auto";
     messageInputEl.focus();
     showIconFeedback(clearInputBtn);
     checkContentAndUpdateBody();
+    createUndoButton(); // Show undo button AFTER clearing
   });
 
   // Copy input text
@@ -490,34 +491,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   });
 
-  // Edit output text
-  if (editOutputBtn) {
-    editOutputBtn.addEventListener("click", () => {
-      // Check if we're already in edit mode
-      const isEditing =
-        improvedMessageEl.getAttribute("contenteditable") === "true";
-
-      if (isEditing) {
-        // Save changes and exit edit mode
-        improvedMessageEl.setAttribute("contenteditable", "false");
-        // Change button appearance to indicate editing is complete
-        editOutputBtn.classList.remove("active");
-        editOutputBtn.title = "Edit output";
-        showIconFeedback(editOutputBtn);
-      } else {
-        // Enter edit mode
-        improvedMessageEl.setAttribute("contenteditable", "true");
-        // Focus the element for immediate editing
-        improvedMessageEl.focus();
-        // Change button appearance to indicate we're in edit mode
-        editOutputBtn.classList.add("active");
-        editOutputBtn.title = "Save edits";
-      }
-    });
-  }
-
   // Clear output text
   clearOutputBtn.addEventListener("click", () => {
+    saveStateForUndo(); // Save state BEFORE clearing
     improvedMessageEl.textContent = "";
     document.body.classList.remove("response-generated");
     showIconFeedback(clearOutputBtn);
@@ -526,6 +502,7 @@ document.addEventListener("DOMContentLoaded", () => {
     outputContainer.style.display = "none";
     outputIcons.style.display = "none";
     checkContentAndUpdateBody();
+    createUndoButton(); // Show undo button AFTER clearing
   });
 
   // Copy output text
@@ -1189,12 +1166,21 @@ ${cleanedBody}
     } else {
       // Page is visible again (user returned)
       console.log("Page visible again - checking state...");
-      // TODO: Add logic here to re-activate/re-check UI elements if necessary
-      // For example, ensure buttons are enabled:
+      // Re-enable improve button if it was disabled
       if (improveBtn) improveBtn.disabled = false;
       // Re-check content in case state was lost/reset
       checkContentAndUpdateBody();
-      // Maybe re-attach critical listeners if they prove unreliable (less common)
+
+      // --- START: Reset potentially inconsistent Mic state ---
+      if (isRecognizing && recognition) {
+        console.log(
+          "Page became visible while recognition was active. Resetting mic state for consistency."
+        );
+        manualStop = true; // Prevent auto-restart from the onend event this might trigger
+        recognition.stop(); // Explicitly stop recognition
+        // The onend event handler will reset isRecognizing and UI elements.
+      }
+      // --- END: Reset potentially inconsistent Mic state ---
     }
   });
   // --- End Page Visibility API Listener ---
@@ -1474,4 +1460,43 @@ ${cleanedBody}
       createUndoButton();
     }
   });
+
+  // --- START: Click to Edit Output Box ---
+  if (improvedMessageEl) {
+    improvedMessageEl.addEventListener("click", (event) => {
+      // Add logging to see if listener fires
+      console.log("#improved-message click listener fired!", event.target);
+
+      // Only make editable if it's not already
+      if (improvedMessageEl.getAttribute("contenteditable") !== "true") {
+        console.log("Output box clicked, enabling edit mode.");
+        improvedMessageEl.setAttribute("contenteditable", "true");
+        improvedMessageEl.focus(); // Focus for immediate editing
+        // Add a class for visual feedback during editing
+        improvedMessageEl.classList.add("editing-output");
+      }
+    });
+  }
+  // --- END: Click to Edit Output Box ---
+
+  // --- START: Click Outside Output Box to Save ---
+  document.addEventListener("click", (event) => {
+    // Check if the output box exists and is currently editable
+    if (
+      improvedMessageEl &&
+      improvedMessageEl.getAttribute("contenteditable") === "true"
+    ) {
+      // Check if the click was outside the output box
+      if (!improvedMessageEl.contains(event.target)) {
+        console.log(
+          "Clicked outside editable output box, saving/disabling edit mode."
+        );
+        improvedMessageEl.setAttribute("contenteditable", "false");
+        // Remove the editing class
+        improvedMessageEl.classList.remove("editing-output");
+        checkContentAndUpdateBody();
+      }
+    }
+  });
+  // --- END: Click Outside Output Box to Save ---
 });

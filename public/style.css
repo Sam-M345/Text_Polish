@@ -81,7 +81,7 @@ h3 {
 /* Logo */
 .logo-container {
   text-align: center;
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.2rem;
   width: 100%;
   position: relative;
 }
@@ -96,7 +96,7 @@ h3 {
 
 /* Option Sections */
 .text-type-container {
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -529,15 +529,11 @@ textarea,
 /* Additional styles for textarea */
 textarea {
   width: 100%;
-  min-height: 150px;
+  min-height: 200px;
   border: none;
   margin-bottom: 0;
   font-family: inherit;
   transition: box-shadow 0.3s ease;
-}
-
-.response-generated textarea {
-  min-height: 150px;
 }
 
 /* Additional styles for improved message */
@@ -551,16 +547,11 @@ textarea {
 
 /* Improved message when editable */
 #improved-message[contenteditable="true"] {
-  border: 1px dashed #25a56a;
-  padding: 10px;
-  border-radius: 5px;
-  background-color: rgba(37, 165, 106, 0.05);
-  outline: none;
+  outline: none; /* Keep outline none to rely on box-shadow for focus */
 }
 
 #improved-message[contenteditable="true"]:focus {
-  border-color: #25a56a;
-  box-shadow: 0 0 0 2px rgba(37, 165, 106, 0.2);
+  /* This rule might be redundant now, focus handled by the shared rule */
 }
 
 /* Output container */
