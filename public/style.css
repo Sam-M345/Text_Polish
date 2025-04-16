@@ -503,7 +503,7 @@ h3 {
 
 /* Text input and output */
 .text-section {
-  margin-bottom: 1.2rem;
+  margin-bottom: 0.8rem;
   margin-top: 0;
   position: relative;
 }
@@ -529,7 +529,7 @@ textarea,
 /* Additional styles for textarea */
 textarea {
   width: 100%;
-  min-height: 200px;
+  min-height: 210px;
   border: none;
   margin-bottom: 0;
   font-family: inherit;
@@ -591,8 +591,12 @@ textarea p {
 /* Improve button - all styles consolidated */
 #improve-btn {
   display: block;
-  width: 100%;
-  padding: 0.5rem;
+  width: 60%;
+  margin-top: 0.6rem;
+  margin-bottom: 0.9rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0.9rem;
   background-color: #146d43;
   color: white;
   border: none;
@@ -602,8 +606,6 @@ textarea p {
   cursor: pointer;
   transition: background-color 0.2s;
   position: relative;
-  margin-top: 1rem;
-  margin-bottom: 0rem;
   z-index: 1;
   touch-action: manipulation;
   -webkit-appearance: none;
