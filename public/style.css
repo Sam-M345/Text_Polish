@@ -83,6 +83,7 @@ h3 {
   text-align: center;
   margin-bottom: 0.7rem;
   width: 100%;
+  position: relative;
 }
 
 .site-logo {
@@ -862,10 +863,10 @@ body.tones-expanded .output-section {
 
 /* --- UNDO BUTTON --- */
 #undo-button {
-  display: block;
-  text-align: center;
-  margin: 1rem auto 0;
-  width: fit-content;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
   color: white;
   background: none;
   border: none;
