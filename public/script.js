@@ -646,7 +646,7 @@ ${cleanedBody}
       const separator = "\n\n***\n\n"; // Separator used in EmailHandler.format
       const separatorIndex = currentFullText.indexOf(separator);
 
-      let subjectToShare = "Polished Email"; // Default subject
+      let subjectToShare = "Hi There 🙂"; // Default subject
       let bodyToShare = currentFullText; // Default to full text if parsing fails
 
       if (separatorIndex !== -1) {
