@@ -584,9 +584,7 @@ textarea#text-input-area {
   margin-bottom: 0; /* Handled by wrapper/improve btn now */
   font-family: inherit;
   transition: box-shadow 0.3s ease;
-  font-size: 1.1rem; /* Set base font size */
-  padding: 0.8rem; /* Set base padding */
-  /* REMOVED explicit padding-bottom, now handled by JS height adjustment */
+  padding-bottom: 35px; /* Add padding to prevent text overlap */
 }
 
 /* Additional styles for improved message */
@@ -596,9 +594,7 @@ textarea#text-input-area {
   word-break: break-word;
   font-family: inherit;
   border: none;
-  font-size: 1.1rem; /* Set base font size */
-  padding: 0.8rem; /* Set base padding */
-  padding-bottom: 35px; /* Keep padding for its icons */
+  padding-bottom: 35px; /* Keep padding for icons */
 }
 
 /* Improved message when editable */
