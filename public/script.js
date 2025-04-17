@@ -31,7 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Set height to the scrollHeight, ensuring it respects the min-height
     const scrollHeight = messageInputEl.scrollHeight;
     const minHeight = 150; // Match the CSS min-height
-    messageInputEl.style.height = Math.max(scrollHeight, minHeight) + "px";
+    const buffer = 40; // Extra space for icons at the bottom
+
+    // Calculate desired height including buffer, then compare with minHeight
+    const desiredHeight = scrollHeight + buffer;
+    messageInputEl.style.height = Math.max(desiredHeight, minHeight) + "px";
   }
 
   // Set default selections: Text Message type, Friendly tone
