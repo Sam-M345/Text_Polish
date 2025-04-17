@@ -86,14 +86,6 @@ h3 {
   position: relative;
 }
 
-.site-logo {
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-  margin: 0 auto;
-}
-
 /* Option Sections */
 .text-type-container {
   margin-bottom: 0.7rem;
@@ -139,6 +131,14 @@ h3 {
   height: auto;
   min-height: 40px;
   margin-bottom: 0;
+}
+
+/* Base style for the title/options group */
+.tone-title-options-group {
+  display: flex; /* Keep title and options inline */
+  align-items: center;
+  gap: 1rem; /* Space between title and options */
+  /* No justify-content needed, will align left by default */
 }
 
 /* Button groups - Base Styles */
@@ -781,8 +781,12 @@ body.tones-expanded .output-section {
   .site-logo {
     max-width: 100%;
     height: auto;
-    max-height: 90px; /* Added max-height for desktop */
+    max-height: 90px;
     margin-bottom: 0.8rem; /* Reduced margin below logo */
+    border-radius: 45px; /* Added for rounded corners */
+    display: block; /* Ensure it behaves as a block for margin/radius */
+    margin-left: auto; /* Ensure centered */
+    margin-right: auto; /* Ensure centered */
   }
 
   /* --- START: Desktop Alignment & Spacing Improvements --- */
@@ -911,7 +915,7 @@ body.tones-expanded .output-section {
   font-size: 2rem;
   line-height: 1;
   cursor: pointer;
-  opacity: 0.8;
+  opacity: 0.9;
   transition: opacity 0.2s ease;
 }
 

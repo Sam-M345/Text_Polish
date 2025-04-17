@@ -1051,7 +1051,7 @@ ${cleanedBody}
       button.style.backgroundColor = originalBg;
       button.classList.remove("button-feedback");
       console.log("Visual feedback completed");
-    }, 500); // Increased to 500ms for more noticeable effect
+    }, 50); // Increased to 500ms for more noticeable effect
   }
 
   // Create a spinning animation for the hourglass
