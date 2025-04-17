@@ -112,9 +112,10 @@ h3 {
   justify-content: flex-start;
   position: relative;
   max-width: none;
-  border: 1px solid var(--border-color);
+  border: 1px solid rgb(110, 110, 133);
   border-radius: 8px;
-  padding-left: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
@@ -373,7 +374,7 @@ h3 {
   font-size: 2.4rem;
   padding: 0;
   margin-left: 1px;
-  margin-right: 10px;
+  margin-right: 1px;
   display: flex;
   align-items: center;
   position: absolute;
@@ -398,10 +399,12 @@ h3 {
 .expanded-tones {
   max-height: 500px;
   transition: max-height 0.3s ease-in;
-
   position: relative;
   z-index: 2;
   width: 100%;
+  margin-top: 1rem;
+  border-top: 1px dotted var(--primary-color);
+  padding-top: 0.5rem;
 }
 
 .tone-category {
@@ -891,53 +894,44 @@ body.tones-expanded .output-section {
 
   /* Adjust Tone Settings container for alignment & spacing */
   .tone-settings-container {
-    border: none;
-    padding: 0.5rem 0;
-    margin-bottom: 2rem; /* Increased margin below tone section */
+    border-radius: 8px;
+    margin-bottom: 1rem;
   }
 
   /* Spread out items in the Tone header row */
   .tone-container {
-    display: flex; /* Use flexbox */
-    justify-content: space-between; /* Distribute items evenly */
-    align-items: center; /* Vertically align items */
-    width: 100%; /* Ensure it takes full width */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
   }
 
   /* Ensure the .tone-options div (Auto + Selected) still displays correctly */
   .tone-container .tone-options {
     display: flex;
-    gap: 10rem; /* Keep gap between Auto and selected */
-    /* No flex-grow needed, let space-between handle positioning */
+    gap: 10rem;
   }
 
   /* Reset positioning for toggle button in desktop view */
   .tone-container .toggle-tones {
-    position: static; /* Remove absolute positioning */
-    transform: none; /* Remove vertical centering transform */
-    margin: 0; /* Reset margins */
-    /* Keep existing styles like font-size, color, background etc. */
+    position: static;
+    transform: none;
+    margin: 0;
   }
-
-  /* Remove styles for the now-deleted group */
-  /* .tone-title-options-group { ... } */ /* <- This can be deleted if present */
 
   /* Make text type container use grid and add space below */
   .text-type-container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 1rem;
+    gap: 3rem;
     justify-content: center;
-    margin-bottom: 1rem; /* Increased margin below type buttons */
+    margin-bottom: 1rem;
   }
 
   /* Reset individual button widths for desktop grid layout */
   .text-type-option-btn {
-    width: auto; /* Let grid control width */
-    min-width: auto; /* Remove minimum width */
-    /* Optionally adjust font size or padding if they look too small */
-    /* font-size: 1.2rem; */
-    /* padding: 0.7rem 1rem; */
+    width: auto;
+    min-width: auto;
   }
 
   /* Add more space around Improve button */
@@ -945,16 +939,15 @@ body.tones-expanded .output-section {
     width: 100%;
     margin-left: 0;
     margin-right: 0;
-    margin-top: 0.5rem; /* Increased top margin */
-
-    padding: 1rem; /* Slightly increased padding */
+    margin-top: 0.5rem;
+    padding: 1rem;
   }
 
   /* Style the new group containing title and options */
   .tone-title-options-group {
     display: flex;
     align-items: center;
-    gap: 1rem; /* Adjust gap between Title and Auto/Friendly buttons */
+    gap: 1rem;
   }
 
   /* Typography improvements */
@@ -963,19 +956,16 @@ body.tones-expanded .output-section {
   }
 
   /* Input and output areas */
-  textarea#text-input-area, /* Use ID selector */
+  textarea#text-input-area,
   #improved-message {
     font-size: 1.1rem;
     padding: 1.2rem;
-    min-height: 250px; /* Increased min-height for desktop */
+    min-height: 250px;
   }
 
   /* Button improvements (general) */
   .option-btn,
   .tone-buttons {
-    /* Base desktop button styles */
-    /* font-size: 1rem; - Handled above for text-type, keep for others */
-    /* height: 44px; */
   }
 
   /* Improve button container styling */
@@ -993,6 +983,6 @@ body.tones-expanded .output-section {
 
   /* Make sure mic button is visible on desktop */
   #mic-input {
-    display: flex; /* Or inline-flex, depending on its nature */
+    display: flex;
   }
 }
