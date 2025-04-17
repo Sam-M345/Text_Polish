@@ -104,7 +104,6 @@ h3 {
   white-space: nowrap;
 }
 
-/* Tone Settings Container - renamed from text-type-container */
 .tone-settings-container {
   display: flex;
   align-items: flex-start;
@@ -501,13 +500,6 @@ h3 {
   color: var(--text-color);
 }
 
-/* Text input and output */
-.text-section {
-  margin-bottom: 0.8rem;
-  margin-top: 0;
-  position: relative;
-}
-
 /* START: Styles for textarea wrapper and inner icons */
 .textarea-wrapper {
   position: relative; /* Positioning context for inner icons */
@@ -599,8 +591,21 @@ textarea#text-input-area {
   outline: none; /* Keep outline none to rely on box-shadow for focus */
 }
 
-#improved-message[contenteditable="true"]:focus {
-  /* This rule might be redundant now, focus handled by the shared rule */
+textarea:focus,
+#improved-message:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+#improved-message p,
+textarea p {
+  margin-top: 0;
+  margin-bottom: 0.7rem;
+  line-height: 1.4;
+}
+
+#improved-message p:last-child {
+  margin-bottom: 0;
 }
 
 /* Output container */
@@ -620,28 +625,11 @@ textarea#text-input-area {
   background-color: #25a56a;
 }
 
-textarea:focus,
-#improved-message:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--primary-color);
-}
-
-#improved-message p,
-textarea p {
-  margin-top: 0;
-  margin-bottom: 0.7rem;
-  line-height: 1.4;
-}
-
-#improved-message p:last-child {
-  margin-bottom: 0;
-}
-
 /* Improve button - all styles consolidated */
 #improve-btn {
   display: block;
   width: 60%;
-  margin-top: 0.1rem;
+  margin-top: 0.35rem;
   margin-bottom: 0.9rem;
   margin-left: auto;
   margin-right: auto;
@@ -765,123 +753,6 @@ body.tones-expanded .output-section {
   } /* Dim/Invisible */
 }
 
-/* Desktop-specific styles */
-@media (min-width: 768px) {
-  body {
-    padding: 1.5rem;
-  }
-
-  .app-container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 1rem 3rem; /* Reduced vertical padding */
-    margin-bottom: 4rem;
-  }
-
-  .site-logo {
-    max-width: 100%;
-    height: auto;
-    max-height: 90px;
-    margin-bottom: 0.8rem; /* Reduced margin below logo */
-    border-radius: 45px; /* Added for rounded corners */
-    display: block; /* Ensure it behaves as a block for margin/radius */
-    margin-left: auto; /* Ensure centered */
-    margin-right: auto; /* Ensure centered */
-  }
-
-  /* --- START: Desktop Alignment & Spacing Improvements --- */
-
-  /* Make text type container use grid and add space below */
-  .text-type-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1rem;
-    justify-content: center;
-    margin-bottom: 2rem; /* Increased margin below type buttons */
-  }
-
-  /* Reset individual button widths for desktop grid layout */
-  .text-type-option-btn {
-    width: auto; /* Let grid control width */
-    min-width: auto; /* Remove minimum width */
-    /* Optionally adjust font size or padding if they look too small */
-    /* font-size: 1.2rem; */
-    /* padding: 0.7rem 1rem; */
-  }
-
-  /* Add more space around Improve button */
-  #improve-btn {
-    width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 1.5rem; /* Increased top margin */
-    margin-bottom: 1.5rem; /* Increased bottom margin */
-    padding: 1rem; /* Slightly increased padding */
-  }
-
-  /* Adjust Tone Settings container for alignment & spacing */
-  .tone-settings-container {
-    border: none;
-    padding: 0.5rem 0;
-    margin-bottom: 2rem; /* Increased margin below tone section */
-  }
-
-  /* Spread out items in the Tone header row */
-  .tone-container {
-    justify-content: space-between; /* Spread items horizontally */
-  }
-
-  /* Style the new group containing title and options */
-  .tone-title-options-group {
-    display: flex;
-    align-items: center;
-    gap: 1rem; /* Adjust gap between Title and Auto/Friendly buttons */
-  }
-
-  /* Add space above output container */
-  #output-container {
-    margin-top: 2rem; /* Increased margin above output */
-  }
-
-  /* --- END: Desktop Alignment & Spacing Improvements --- */
-
-  /* Typography improvements */
-  h1 {
-    font-size: 2.2rem;
-  }
-
-  /* Input and output areas */
-  textarea#text-input-area, /* Use ID selector */
-  #improved-message {
-    font-size: 1.1rem;
-    padding: 1.2rem;
-    min-height: 250px; /* Increased min-height for desktop */
-  }
-
-  /* Button improvements (general) */
-  .option-btn,
-  .tone-buttons {
-    /* Base desktop button styles */
-    /* font-size: 1rem; - Handled above for text-type, keep for others */
-    /* height: 44px; */
-  }
-
-  /* Improve button container styling */
-  .option-buttons {
-    gap: 1rem;
-  }
-
-  /* Output icons */
-  .output-icons {
-    width: 100%;
-    margin-top: 0.8rem;
-    justify-content: center;
-    gap: 2rem;
-  }
-}
-
-/* Remove default style for the placeholder */
-
 /* Make the microphone button slightly larger */
 .input-area-buttons.listening #mic-input {
   margin-right: 0.1rem; /* Reduce space after mic */
@@ -923,13 +794,6 @@ body.tones-expanded .output-section {
   opacity: 1;
 }
 /* --- END UNDO BUTTON --- */
-
-/* Media Query to hide Mic button on smaller screens (iOS/Mobile) */
-@media (max-width: 767px) {
-  #mic-input {
-    display: none;
-  }
-}
 
 /* --- START: Specific styles for Email Button --- */
 .text-type-option-btn[data-type="email"] {
@@ -989,5 +853,117 @@ body.tones-expanded .output-section {
   span:first-child {
   margin-bottom: 3px;
 }
-
 /* --- END: Specific styles for Text Message & Social Buttons --- */
+
+/* Media Query to hide Mic button on smaller screens (iOS/Mobile) */
+@media (max-width: 767px) {
+  #mic-input {
+    display: none;
+  }
+}
+
+/* ======================================== */
+/*        Desktop-specific styles           */
+/*        Desktop-specific styles           */
+/*        Desktop-specific styles           */
+/* ======================================== */
+
+@media (min-width: 768px) {
+  body {
+    padding: 0rem;
+  }
+
+  .app-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1rem 3rem; /* Reduced vertical padding */
+    margin-bottom: 4rem;
+  }
+
+  .site-logo {
+    max-width: 100%;
+    height: auto;
+    max-height: 90px;
+    margin-bottom: 0.8rem; /* Reduced margin below logo */
+    border-radius: 45px; /* Added for rounded corners */
+    display: block; /* Ensure it behaves as a block for margin/radius */
+    margin-left: auto; /* Ensure centered */
+    margin-right: auto; /* Ensure centered */
+  }
+
+  /* --- START: Desktop Alignment & Spacing Improvements --- */
+
+  /* Make text type container use grid and add space below */
+  .text-type-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1rem; /* Increased margin below type buttons */
+  }
+
+  /* Reset individual button widths for desktop grid layout */
+  .text-type-option-btn {
+    width: auto; /* Let grid control width */
+    min-width: auto; /* Remove minimum width */
+    /* Optionally adjust font size or padding if they look too small */
+    /* font-size: 1.2rem; */
+    /* padding: 0.7rem 1rem; */
+  }
+
+  /* Add more space around Improve button */
+  #improve-btn {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0.5rem; /* Increased top margin */
+
+    padding: 1rem; /* Slightly increased padding */
+  }
+
+  /* Style the new group containing title and options */
+  .tone-title-options-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Adjust gap between Title and Auto/Friendly buttons */
+  }
+
+  /* Typography improvements */
+  h1 {
+    font-size: 2.2rem;
+  }
+
+  /* Input and output areas */
+  textarea#text-input-area, /* Use ID selector */
+  #improved-message {
+    font-size: 1.1rem;
+    padding: 1.2rem;
+    min-height: 250px; /* Increased min-height for desktop */
+  }
+
+  /* Button improvements (general) */
+  .option-btn,
+  .tone-buttons {
+    /* Base desktop button styles */
+    /* font-size: 1rem; - Handled above for text-type, keep for others */
+    /* height: 44px; */
+  }
+
+  /* Improve button container styling */
+  .option-buttons {
+    gap: 1rem;
+  }
+
+  /* Output icons */
+  .output-icons {
+    width: 100%;
+    margin-top: 0.8rem;
+    justify-content: center;
+    gap: 2rem;
+  }
+
+  /* Make sure mic button is visible on desktop */
+  #mic-input {
+    display: flex; /* Or inline-flex, depending on its nature */
+  }
+}
