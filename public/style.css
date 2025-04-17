@@ -864,8 +864,6 @@ body.tones-expanded .output-section {
 
 /* ======================================== */
 /*        Desktop-specific styles           */
-/*        Desktop-specific styles           */
-/*        Desktop-specific styles           */
 /* ======================================== */
 
 @media (min-width: 768px) {
@@ -891,7 +889,38 @@ body.tones-expanded .output-section {
     margin-right: auto; /* Ensure centered */
   }
 
-  /* --- START: Desktop Alignment & Spacing Improvements --- */
+  /* Adjust Tone Settings container for alignment & spacing */
+  .tone-settings-container {
+    border: none;
+    padding: 0.5rem 0;
+    margin-bottom: 2rem; /* Increased margin below tone section */
+  }
+
+  /* Spread out items in the Tone header row */
+  .tone-container {
+    display: flex; /* Use flexbox */
+    justify-content: space-between; /* Distribute items evenly */
+    align-items: center; /* Vertically align items */
+    width: 100%; /* Ensure it takes full width */
+  }
+
+  /* Ensure the .tone-options div (Auto + Selected) still displays correctly */
+  .tone-container .tone-options {
+    display: flex;
+    gap: 10rem; /* Keep gap between Auto and selected */
+    /* No flex-grow needed, let space-between handle positioning */
+  }
+
+  /* Reset positioning for toggle button in desktop view */
+  .tone-container .toggle-tones {
+    position: static; /* Remove absolute positioning */
+    transform: none; /* Remove vertical centering transform */
+    margin: 0; /* Reset margins */
+    /* Keep existing styles like font-size, color, background etc. */
+  }
+
+  /* Remove styles for the now-deleted group */
+  /* .tone-title-options-group { ... } */ /* <- This can be deleted if present */
 
   /* Make text type container use grid and add space below */
   .text-type-container {
