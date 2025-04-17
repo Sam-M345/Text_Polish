@@ -518,7 +518,7 @@ h3 {
 
 .textarea-icons {
   position: absolute;
-  bottom: 8px; /* Adjust as needed */
+  bottom: 5px; /* Adjust as needed */
   right: 8px; /* Adjust as needed */
   display: flex;
   align-items: center;
@@ -553,7 +553,7 @@ h3 {
 
 /* Specific size for the Clear (X) button */
 .textarea-icons button#clear-input {
-  font-size: 2rem; /* Make X slightly larger */
+  font-size: 2.2rem; /* Make X slightly larger */
 }
 /* END: Styles for textarea wrapper and inner icons */
 
