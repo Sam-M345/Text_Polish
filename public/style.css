@@ -118,7 +118,13 @@ h3 {
   padding-left: 1rem;
   padding-right: 1rem;
   padding-top: 0.5rem;
-  padding-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Reduce margin when categories are collapsed */
+.tone-settings-container:has(#tone-categories.collapsed-tones) {
+  margin-bottom: 0.5rem;
 }
 
 /* Container layouts */
@@ -409,8 +415,8 @@ h3 {
 }
 
 .tone-category {
-  margin-top: 1rem;
-  margin-bottom: 3rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 /* Mobile grid layout for tone categories */
