@@ -60,9 +60,9 @@ h2 {
 }
 
 h3 {
-  font-size: 1.1rem;
-  margin-bottom: 0.8rem;
-  margin-top: 1.2rem;
+  font-size: 1.5rem;
+  margin-bottom: 0.1rem;
+  margin-top: 0rem;
   font-weight: 400;
   color: #cccccc;
 }
@@ -76,6 +76,7 @@ h3 {
   font-weight: 700;
   color: #92c8db;
   text-shadow: 0px 0px 1px rgba(0, 187, 255, 0.3);
+  text-align: center;
 }
 
 /* Logo */
@@ -117,7 +118,7 @@ h3 {
   padding-left: 1rem;
   padding-right: 1rem;
   padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
+  padding-bottom: 1.5rem;
 }
 
 /* Container layouts */
@@ -408,7 +409,8 @@ h3 {
 }
 
 .tone-category {
-  margin-bottom: 0.7rem;
+  margin-top: 1rem;
+  margin-bottom: 3rem;
 }
 
 /* Mobile grid layout for tone categories */
@@ -416,17 +418,17 @@ h3 {
 .tone-category:nth-of-type(2) .option-buttons,
 .tone-category:nth-of-type(3) .option-buttons {
   display: grid;
-  grid-template-columns: 48% 48%;
+  grid-template-columns: 48% 48%; /* Keep column widths */
   width: 100%;
-  gap: 0.6rem 8%;
+  gap: 0.6rem 4%; /* REDUCED horizontal gap */
   padding: 0;
-  justify-content: start;
+  justify-content: center; /* Keep grid centered */
 }
 
 .tone-category:first-of-type .tone-buttons:nth-child(odd),
 .tone-category:nth-of-type(2) .tone-buttons:nth-child(odd),
 .tone-category:nth-of-type(3) .tone-buttons:nth-child(odd) {
-  justify-self: flex-end;
+  justify-self: flex-end; /* Align left column to the RIGHT */
   width: auto;
   min-width: 0;
   margin-right: 0;
@@ -435,7 +437,7 @@ h3 {
 .tone-category:first-of-type .tone-buttons:nth-child(even),
 .tone-category:nth-of-type(2) .tone-buttons:nth-child(even),
 .tone-category:nth-of-type(3) .tone-buttons:nth-child(even) {
-  justify-self: flex-start;
+  justify-self: flex-start; /* Keep right column left-aligned */
   margin-left: 0;
   width: auto;
   min-width: 0;
@@ -903,7 +905,6 @@ textarea#text-input-area,
   /* Adjust Tone Settings container for alignment & spacing */
   .tone-settings-container {
     border-radius: 8px;
-    margin-bottom: 1rem;
   }
 
   /* Spread out items in the Tone header row */
