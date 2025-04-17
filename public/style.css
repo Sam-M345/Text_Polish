@@ -768,41 +768,98 @@ body.tones-expanded .output-section {
 /* Desktop-specific styles */
 @media (min-width: 768px) {
   body {
-    /* Add some padding around the body on larger screens */
     padding: 1.5rem;
   }
 
   .app-container {
-    /* Center the main container and give it a max width */
     max-width: 900px;
     margin: 0 auto;
-    padding: 2rem 3rem; /* Increase padding inside the container */
-    margin-bottom: 4rem; /* Adjust bottom margin if needed */
+    padding: 1rem 3rem; /* Reduced vertical padding */
+    margin-bottom: 4rem;
   }
 
   .site-logo {
-    max-width: 100%; /* Make logo fill the width for desktop */
+    max-width: 100%;
     height: auto;
+    max-height: 90px; /* Added max-height for desktop */
+    margin-bottom: 0.8rem; /* Reduced margin below logo */
   }
+
+  /* --- START: Desktop Alignment & Spacing Improvements --- */
+
+  /* Make text type container use grid and add space below */
+  .text-type-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem; /* Increased margin below type buttons */
+  }
+
+  /* Reset individual button widths for desktop grid layout */
+  .text-type-option-btn {
+    width: auto; /* Let grid control width */
+    min-width: auto; /* Remove minimum width */
+    /* Optionally adjust font size or padding if they look too small */
+    /* font-size: 1.2rem; */
+    /* padding: 0.7rem 1rem; */
+  }
+
+  /* Add more space around Improve button */
+  #improve-btn {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 1.5rem; /* Increased top margin */
+    margin-bottom: 1.5rem; /* Increased bottom margin */
+    padding: 1rem; /* Slightly increased padding */
+  }
+
+  /* Adjust Tone Settings container for alignment & spacing */
+  .tone-settings-container {
+    border: none;
+    padding: 0.5rem 0;
+    margin-bottom: 2rem; /* Increased margin below tone section */
+  }
+
+  /* Spread out items in the Tone header row */
+  .tone-container {
+    justify-content: space-between; /* Spread items horizontally */
+  }
+
+  /* Style the new group containing title and options */
+  .tone-title-options-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Adjust gap between Title and Auto/Friendly buttons */
+  }
+
+  /* Add space above output container */
+  #output-container {
+    margin-top: 2rem; /* Increased margin above output */
+  }
+
+  /* --- END: Desktop Alignment & Spacing Improvements --- */
 
   /* Typography improvements */
   h1 {
-    font-size: 2.2rem; /* Slightly larger heading */
+    font-size: 2.2rem;
   }
 
   /* Input and output areas */
-  textarea,
+  textarea#text-input-area, /* Use ID selector */
   #improved-message {
-    font-size: 1.1rem; /* Slightly larger text */
-    padding: 1.2rem; /* More padding inside text areas */
-    min-height: 180px; /* Taller text areas */
+    font-size: 1.1rem;
+    padding: 1.2rem;
+    min-height: 250px; /* Increased min-height for desktop */
   }
 
-  /* Button improvements */
+  /* Button improvements (general) */
   .option-btn,
   .tone-buttons {
-    font-size: 1rem; /* Larger button text */
-    height: 44px; /* Taller buttons */
+    /* Base desktop button styles */
+    /* font-size: 1rem; - Handled above for text-type, keep for others */
+    /* height: 44px; */
   }
 
   /* Improve button container styling */
