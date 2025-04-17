@@ -979,11 +979,58 @@ ${cleanedBody}
   const shareOutputBtn = document.getElementById("share-output");
   if (shareOutputBtn) {
     shareOutputBtn.addEventListener("click", () => {
-      if (improvedMessageEl.innerText || improvedMessageEl.textContent) {
-        const textToShare =
-          improvedMessageEl.innerText || improvedMessageEl.textContent;
-        console.log("Share button clicked, text length:", textToShare.length);
+      const outputElement = improvedMessageEl; // Use the main output element
+      if (outputElement.innerText || outputElement.textContent) {
+        // --- START: Check CURRENTLY selected type ---
+        const currentSelectedTypeButton = document.querySelector(
+          ".text-type-option-btn.selected"
+        );
+        const currentSelectedType = currentSelectedTypeButton?.dataset.type;
+        console.log(
+          "Share clicked. Currently selected type:",
+          currentSelectedType
+        );
+        // --- END: Check CURRENTLY selected type ---
 
+        const textToShare =
+          outputElement.innerText || outputElement.textContent;
+        console.log("Text to share content length:", textToShare.length);
+
+        // --- START: Conditional Sharing Logic ---
+        if (currentSelectedType === "email") {
+          // If Email is currently selected, attempt mailto sharing
+          console.log("Sharing as email based on current selection.");
+          EmailHandler.shareViaEmail(); // This function already gets current text
+          showIconFeedback(shareOutputBtn);
+        } else {
+          // For Text Message or Social Post, use Web Share API / Fallback
+          console.log("Sharing as text/social based on current selection.");
+          if (navigator.share) {
+            console.log("Web Share API available, sharing content");
+            navigator
+              .share({
+                title: "Text Polish",
+                text: textToShare,
+              })
+              .then(() => {
+                console.log("Share successful via Web Share API");
+                showIconFeedback(shareOutputBtn);
+              })
+              .catch((error) => {
+                console.error("Error sharing via Web Share API:", error);
+                tryClipboardFallback(textToShare);
+              });
+          } else {
+            console.log(
+              "Web Share API not available, using clipboard fallback"
+            );
+            tryClipboardFallback(textToShare);
+          }
+        }
+        // --- END: Conditional Sharing Logic ---
+
+        // REMOVED: Old logic based on lastEmailData
+        /*
         // Check if we have email data to share
         if (lastEmailData.subject && lastEmailData.body) {
           console.log("Sharing as email");
@@ -993,28 +1040,8 @@ ${cleanedBody}
         }
 
         // Regular sharing for non-email content
-        if (navigator.share) {
-          console.log("Web Share API available, sharing content");
-
-          // Simple share with just title and text for all content types
-          navigator
-            .share({
-              title: "Text Polish",
-              text: textToShare,
-            })
-            .then(() => {
-              console.log("Share successful via Web Share API");
-              showIconFeedback(shareOutputBtn);
-            })
-            .catch((error) => {
-              console.error("Error sharing via Web Share API:", error);
-              // Fall back to clipboard
-              tryClipboardFallback(textToShare);
-            });
-        } else {
-          console.log("Web Share API not available, using clipboard fallback");
-          tryClipboardFallback(textToShare);
-        }
+        if (navigator.share) { ... }
+        */
       } else {
         console.warn("Nothing to share - no text in output");
         alert("Nothing to share - please polish some text first");
