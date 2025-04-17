@@ -81,7 +81,7 @@ h3 {
 /* Logo */
 .logo-container {
   text-align: center;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.4rem;
   width: 100%;
   position: relative;
 }
@@ -114,7 +114,6 @@ h3 {
 
 /* Tone Settings Container - renamed from text-type-container */
 .tone-settings-container {
-  margin-top: 0;
   display: flex;
   align-items: flex-start;
   width: 100%;
@@ -126,6 +125,7 @@ h3 {
   border-radius: 8px;
   padding-left: 0.5rem;
   padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 /* Container layouts */
@@ -547,6 +547,11 @@ h3 {
   height: 1.2em;
   vertical-align: middle; /* Align with text/emoji icons */
 }
+
+/* Specific size for the Clear (X) button */
+.textarea-icons button#clear-input {
+  font-size: 2rem; /* Make X slightly larger */
+}
 /* END: Styles for textarea wrapper and inner icons */
 
 /* Unified text style for input and output */
@@ -571,7 +576,7 @@ textarea,
 textarea#text-input-area {
   /* Added ID for specificity */
   width: 100%;
-  min-height: 224px;
+  min-height: 240px;
   border: none;
   margin-bottom: 0; /* Handled by wrapper/improve btn now */
   font-family: inherit;
@@ -636,7 +641,7 @@ textarea p {
 #improve-btn {
   display: block;
   width: 60%;
-  margin-top: 0.6rem;
+  margin-top: 0.1rem;
   margin-bottom: 0.9rem;
   margin-left: auto;
   margin-right: auto;
