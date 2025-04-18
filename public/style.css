@@ -811,6 +811,12 @@ body.tones-expanded .output-section {
 }
 /* --- END UNDO BUTTON --- */
 
+/* --- START: Tone Header Mic Indicator Base Style --- */
+#tone-header-mic-indicator {
+  display: none; /* Hide by default for mobile */
+}
+/* --- END: Tone Header Mic Indicator Base Style --- */
+
 /* --- START: Specific styles for Email Button --- */
 .text-type-option-btn[data-type="email"] {
   flex-direction: column; /* Stack items vertically */
@@ -1004,4 +1010,17 @@ textarea#text-input-area,
 
     line-height: 1;
   }
+
+  /* --- START: Desktop Tone Header Mic Indicator Style --- */
+  #tone-header-mic-indicator {
+    display: flex; /* Show on desktop, use flex for alignment */
+    align-items: center; /* Vertically align with text */
+    font-size: 1.5rem; /* Adjust size as needed */
+    margin-right: 0.5rem; /* Space before 'Tone' label */
+  }
+  /* Ensure Tone label aligns */
+  .tone-container h2 {
+    vertical-align: middle;
+  }
+  /* --- END: Desktop Tone Header Mic Indicator Style --- */
 }
