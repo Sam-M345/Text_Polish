@@ -553,7 +553,7 @@ h3 {
 
 /* Specific size for the Clear (X) button */
 .textarea-icons button#clear-input {
-  font-size: 2.2rem; /* Make X slightly larger */
+  font-size: 2.5rem; /* Make X slightly larger */
 }
 /* END: Styles for textarea wrapper and inner icons */
 
@@ -996,5 +996,12 @@ textarea#text-input-area,
   /* Make sure mic button is visible on desktop */
   #mic-input {
     display: flex;
+  }
+
+  /* Reduce size of Clear (X) button on desktop */
+  .textarea-icons button#clear-input {
+    font-size: 1.6rem; /* Adjust this value as needed */
+
+    line-height: 1;
   }
 }
