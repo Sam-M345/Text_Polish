@@ -24,16 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // 'specific': User explicitly selected a specific tone.
   let toneSelectionMode = "initial";
 
-  // Auto-resize textarea function
-  function autoResizeTextarea() {
-    // Temporarily reset height to calculate the correct scrollHeight
-    messageInputEl.style.height = "auto";
-    // Set height to the scrollHeight, ensuring it respects the min-height
-    const scrollHeight = messageInputEl.scrollHeight;
-    const minHeight = 150; // Match the CSS min-height
-    messageInputEl.style.height = Math.max(scrollHeight, minHeight) + "px";
-  }
-
   // Set default selections: Text Message type, Friendly tone
   function setDefaultSelections() {
     // 1. Set default type
@@ -89,8 +79,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Add event listeners to detect content changes
   messageInputEl.addEventListener("input", checkContentAndUpdateBody);
-  // Add event listener for auto-resizing
-  messageInputEl.addEventListener("input", autoResizeTextarea);
 
   // Function to check for content and update body class - only disable elastic scroll when absolutely no content
   function checkContentAndUpdateBody() {
@@ -121,11 +109,150 @@ document.addEventListener("DOMContentLoaded", () => {
   const copyOutputBtn = document.getElementById("copy-output");
   const pasteOutputBtn = document.getElementById("paste-output");
   const listeningIndicator = document.getElementById("listening-indicator");
+  const distanceValueEl = document.getElementById("distance-value"); // Get the display element
 
   // Ensure listening indicator is hidden initially
   if (listeningIndicator) {
     listeningIndicator.classList.add("hidden");
   }
+
+  // --- START: Cursor Distance Calculation ---
+  const mirrorDivId = "input-mirror-div";
+
+  function getCaretPixelPosition(element) {
+    const position = element.selectionStart;
+    const text = element.value;
+    const textBeforeCaret = text.substring(0, position);
+
+    let mirrorDiv = document.getElementById(mirrorDivId);
+    if (!mirrorDiv) {
+      mirrorDiv = document.createElement("div");
+      mirrorDiv.id = mirrorDivId;
+      document.body.appendChild(mirrorDiv);
+    }
+
+    // Apply relevant styles from textarea to mirror div
+    const style = window.getComputedStyle(element);
+    [
+      "fontFamily",
+      "fontSize",
+      "fontWeight",
+      "fontStyle",
+      "letterSpacing",
+      "lineHeight",
+      "textTransform",
+      "wordSpacing",
+      "textIndent",
+      "paddingTop",
+      "paddingRight",
+      "paddingBottom",
+      "paddingLeft",
+      "borderTopWidth",
+      "borderRightWidth",
+      "borderBottomWidth",
+      "borderLeftWidth",
+      "width",
+      "boxSizing",
+    ].forEach((prop) => {
+      mirrorDiv.style[prop] = style[prop];
+    });
+
+    // Make the mirror div behave like the textarea for wrapping
+    mirrorDiv.style.whiteSpace = "pre-wrap";
+    mirrorDiv.style.wordWrap = "break-word";
+
+    // Hide the mirror div but keep its layout dimensions
+    mirrorDiv.style.position = "absolute";
+    mirrorDiv.style.visibility = "hidden";
+    mirrorDiv.style.top = "-9999px";
+    mirrorDiv.style.left = "-9999px";
+    mirrorDiv.style.height = "auto"; // Allow height to adjust to content
+
+    // Use textContent to handle newlines correctly
+    mirrorDiv.textContent = textBeforeCaret;
+
+    // Create a span to mark the caret position
+    const span = document.createElement("span");
+    // Use a zero-width space or similar to avoid affecting layout
+    span.innerHTML = "&#x200B;";
+    mirrorDiv.appendChild(span);
+
+    // Calculate position relative to the mirror div's content area
+    const caretY = span.offsetTop;
+    console.log(
+      `Mirror Div Scroll Height: ${mirrorDiv.scrollHeight}, Caret Span OffsetTop: ${caretY}`
+    );
+
+    // Clean up the temporary span
+    mirrorDiv.removeChild(span);
+
+    // Return the calculated Y position relative to the start of the text content
+    return caretY;
+  }
+
+  function updateCursorDistance() {
+    if (!messageInputEl || !distanceValueEl) return; // Ensure elements exist
+
+    try {
+      const caretY = getCaretPixelPosition(messageInputEl); // Y position relative to text start
+      const scrollTop = messageInputEl.scrollTop; // How much the textarea is scrolled
+      const clientHeight = messageInputEl.clientHeight; // Visible height including padding, excluding borders/scrollbar
+      const scrollHeight = messageInputEl.scrollHeight; // Total height of content
+      const computedStyle = window.getComputedStyle(messageInputEl);
+      const lineHeight = parseFloat(computedStyle.lineHeight);
+      const minHeightCSS = parseFloat(computedStyle.minHeight);
+
+      // Calculate the caret's visible position from the *top* of the visible area
+      const visibleCaretY = caretY - scrollTop;
+
+      // Calculate distance from the caret's visible position to the bottom of the *visible* area
+      // Subtract approx 1 line height for better trigger timing
+      const distance = Math.max(0, clientHeight - visibleCaretY - lineHeight);
+
+      console.log(
+        `CaretY: ${caretY}, ScrollTop: ${scrollTop}, ClientHeight: ${clientHeight}, ScrollHeight: ${scrollHeight}, VisibleCaretY: ${visibleCaretY}, Distance: ${distance}`
+      );
+
+      distanceValueEl.textContent = Math.round(distance);
+
+      // --- NEW Height Adjustment Logic ---
+      if (distance <= 35) {
+        // Calculate potential new height (current + one line)
+        // Using scrollHeight ensures we account for content that might already need more space
+        const potentialNewHeight = messageInputEl.scrollHeight + lineHeight;
+        // Ensure new height is at least the CSS min-height
+        const newHeight = Math.max(potentialNewHeight, minHeightCSS);
+
+        console.log(
+          `Cursor close to bottom (<=35px). Adjusting height. Current scrollHeight: ${messageInputEl.scrollHeight}, New height target: ${newHeight}`
+        );
+        messageInputEl.style.height = newHeight + "px";
+
+        // Optional: Re-run distance calculation immediately after height change?
+        // This might help if the height change itself affects the calculation significantly.
+        // requestAnimationFrame(updateCursorDistance); // Avoid infinite loop if possible
+      }
+      // --- END NEW Height Adjustment Logic ---
+    } catch (error) {
+      console.error(
+        "Error calculating cursor distance or adjusting height:",
+        error
+      );
+      distanceValueEl.textContent = "Err"; // Indicate an error occurred
+    }
+  }
+
+  // Add event listeners to update distance
+  if (messageInputEl) {
+    messageInputEl.addEventListener("input", updateCursorDistance);
+    messageInputEl.addEventListener("keyup", updateCursorDistance); // Catch arrow key movements
+    messageInputEl.addEventListener("mouseup", updateCursorDistance); // Catch mouse clicks
+    messageInputEl.addEventListener("focus", updateCursorDistance); // Update on focus
+    messageInputEl.addEventListener("scroll", updateCursorDistance); // Update on scroll
+    // Initial calculation
+    setTimeout(updateCursorDistance, 100); // Small delay to ensure layout is stable
+  }
+  // --- END: Cursor Distance Calculation ---
 
   // Speech recognition setup
   let recognition = null;
@@ -203,7 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageInputEl.scrollTop = messageInputEl.scrollHeight;
 
         // Manually trigger resize and content check after speech input
-        autoResizeTextarea();
+        updateCursorDistance();
         checkContentAndUpdateBody();
       };
 
@@ -458,12 +585,14 @@ document.addEventListener("DOMContentLoaded", () => {
   clearInputBtn.addEventListener("click", () => {
     saveStateForUndo(); // Save state BEFORE clearing
     messageInputEl.value = "";
-    // Reset height to default minimum
-    messageInputEl.style.height = "auto";
+    // Reset height to minimum defined in CSS
+    const computedStyle = window.getComputedStyle(messageInputEl);
+    messageInputEl.style.height = computedStyle.minHeight;
     messageInputEl.focus();
     showIconFeedback(clearInputBtn);
     checkContentAndUpdateBody();
     createUndoButton(); // Show undo button AFTER clearing
+    updateCursorDistance(); // Update distance display after clearing
   });
 
   // Copy input text
@@ -489,7 +618,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageInputEl.focus();
         showIconFeedback(pasteInputBtn);
         // Trigger resize after pasting
-        autoResizeTextarea();
+        updateCursorDistance();
         // Ensure content check runs after paste
         checkContentAndUpdateBody();
       })
@@ -1319,7 +1448,7 @@ ${cleanedBody}
       sessionStorage.removeItem(UNDO_STORAGE_KEY);
 
       // Trigger UI updates
-      autoResizeTextarea();
+      updateCursorDistance(); // Recalculate distance/height
       checkContentAndUpdateBody();
 
       console.log("State restored");
