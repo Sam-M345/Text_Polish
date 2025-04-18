@@ -700,6 +700,11 @@ body.tones-expanded .output-section {
   transform: scale(0.95);
 }
 
+/* Hide cursor distance display visually */
+#cursor-distance-display {
+  display: none;
+}
+
 /* Response generated state */
 .response-generated .icon-buttons,
 .response-generated .icon-buttons .icon-btn,
