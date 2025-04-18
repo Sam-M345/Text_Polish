@@ -46,6 +46,8 @@ Text Polish follows a client-server architecture:
   - Implementing helper functions for copy/paste, clear, share, speech input, etc.
   - Handling email-specific formatting and sharing (`EmailHandler`).
   - Implementing API call retry logic.
+  - Calculating cursor distance from the bottom of the textarea (`updateCursorDistance`) and dynamically increasing the textarea height to maintain a minimum distance (replacing the previous `autoResizeTextarea` logic).
+  - Tracking cursor distance via a hidden element (`#cursor-distance-display`).
 
 #### 2.2.2 Backend Components (`api/improve.js`)
 
@@ -53,16 +55,67 @@ Text Polish follows a client-server architecture:
 - **API Integration**: Uses `axios` to send requests to the OpenAI Chat Completions API.
 - **Prompt Engineering**: Constructs specific prompts for the LLM based on `messageType` and `tone`:
   - **Email**: Instructs the LLM to return a JSON object `{ "subject": "...", "body": "..." }` with specific formatting guidelines for the body (greeting, paragraphs, closing).
-  - **Messenger/Social**: Instructs the LLM to return plain text, but explicitly requests paragraph separation using double newlines (`\n\n`) for readability.
+    - **If tone is 'humor'**: The email prompt incorporates specific humor guidelines (sparing emoji use, natural integration, avoiding specific symbols like `♂️`) to be applied to the body.
+  - **Humor (Non-Email)**: Uses a distinct, detailed prompt specifically instructing the LLM on humorous tone, emoji usage (sparing, relevant, no lone lines, avoid `♂️`), and formatting.
+  - **Other Types**: Instructs the LLM to return plain text, explicitly requesting paragraph separation using double newlines (`\n\n`) for readability.
 - **Response Processing**:
   - Parses JSON response for emails.
   - Trims whitespace and removes potential surrounding quotes from LLM responses.
-  - Handles emoji inclusion/exclusion based on tone (`noEmojiTones` list, `addEmojiToText`, `removeEmojis`). **Note:** `removeEmojis` was updated to preserve newline characters (`\n`) during whitespace cleanup.
+  - Performs emoji addition/removal logic based on tone (`noEmojiTones` list, `addEmojiToText`, `removeEmojis`).
+  - Applies explicit backend filters to string responses:
+    - Removes specific unwanted symbols (e.g., `♂️`, `♂`).
+    - Merges lines containing only emojis into the end of the preceding paragraph to prevent lone emoji lines.
 - **Environment Variables**: Uses `dotenv` to manage the `OPENAI_API_KEY`.
 
-## 3. Technology Stack
+## 3. Project Structure
 
-### 3.1 Frontend
+This section outlines the main files and folders in the project root, excluding `node_modules` and `.git`.
+
+```
+.
+├── api/
+│   └── improve.js        # Backend Express.js API endpoint logic, OpenAI interaction.
+├── Guides/
+│   └── TDD📝.md           # This Technical Design Document.
+├── node_modules/           # (Ignored) Project dependencies.
+├── Prompts/
+│   ├── Diagnostic.md     # Template/Prompt for diagnostic information.
+│   ├── Handoff.md        # Template/Prompt for project handoff.
+│   └── ProjectClose.md   # Template/Prompt for project closure.
+├── public/
+│   ├── images/           # Contains static image assets (e.g., logo.png).
+│   ├── index.html        # Main HTML structure for the web application.
+│   ├── script.js         # Frontend JavaScript for UI logic, API calls, etc.
+│   └── style.css         # CSS styles for the application.
+├── .env                    # Stores environment variables (e.g., API keys) - Not committed to Git.
+├── .gitignore              # Specifies intentionally untracked files Git should ignore.
+├── LICENSE                 # Project license information.
+├── package-lock.json       # Records exact dependency versions.
+├── package.json            # Defines project metadata, dependencies, and scripts.
+├── README.md               # General project information and setup instructions.
+└── vercel.json             # Configuration file for Vercel deployment.
+```
+
+### 3.1 Folder Descriptions
+
+- **`api/`**: Contains the backend server code. Currently, only the `improve.js` handles the API logic.
+- **`Guides/`**: Documentation related to the project's design and architecture.
+- **`Prompts/`**: Stores template files or specific prompts used potentially for generation tasks (appears related to project management prompts).
+- **`public/`**: Contains all static frontend assets (HTML, CSS, JS, Images) served directly to the user's browser.
+
+### 3.2 Key File Descriptions
+
+- **`api/improve.js`**: The core backend logic. Sets up an Express server, defines the `/api/improve` endpoint, handles requests, generates prompts, interacts with the OpenAI API, processes responses, and applies necessary filters.
+- **`public/index.html`**: The entry point for the web application, defining the structure and elements the user interacts with.
+- **`public/style.css`**: Contains all the visual styling rules for the application, including layout, colors, fonts, and responsiveness.
+- **`public/script.js`**: Holds all the client-side JavaScript logic, including event handling, DOM manipulation, state management, API communication, and UI enhancements.
+- **`package.json`**: Lists project dependencies (like Express, Axios, OpenAI) and defines scripts (like `start`, `dev`) for running the application.
+- **`.env`**: Used locally to store sensitive information like the `OPENAI_API_KEY` securely.
+- **`vercel.json`**: Configures how the project is built and deployed on the Vercel platform.
+
+## 4. Technology Stack
+
+### 4.1 Frontend
 
 - **HTML5**: Structure (`public/index.html`)
 - **CSS3**: Styling and responsive design (`public/style.css`)
@@ -70,20 +123,20 @@ Text Polish follows a client-server architecture:
 - **Web Share API**: Native sharing functionality (with clipboard fallback)
 - **Web Speech API**: Optional speech-to-text input
 
-### 3.2 Backend
+### 4.2 Backend
 
 - **Node.js**: JavaScript runtime environment
 - **Express.js**: Web application framework
 - **Axios**: Promise-based HTTP client for OpenAI API requests
 - **dotenv**: Loading environment variables from `.env` file
 
-### 3.3 External Services
+### 4.3 External Services
 
 - **OpenAI API**: GPT-4o model via the Chat Completions endpoint.
 
-## 4. Data Flow
+## 5. Data Flow
 
-### 4.1 User Input Flow
+### 5.1 User Input Flow
 
 1. User enters text into `text-input-area`.
 2. User selects message type (`.text-type-option-btn`) and tone (`.tone-buttons`).
@@ -91,24 +144,24 @@ Text Polish follows a client-server architecture:
 4. Frontend JS (`script.js`) constructs a JSON payload containing `text`, `messageType`, and `tone`.
 5. Frontend sends a POST request to the backend `/api/improve` endpoint using `fetch`.
 
-### 4.2 Backend Processing (`api/improve.js`)
+### 5.2 Backend Processing (`api/improve.js`)
 
 1. Backend receives the POST request.
-2. `generatePrompt` function creates a tailored prompt based on `messageType`:
-   - **Email**: Asks for JSON output with `subject` and `body`, specifying required body structure (greeting, paragraphs, closing).
-   - **Other Types**: Asks for plain text output, requesting `
-
-`paragraph separators.
+2. `generatePrompt` function creates a tailored prompt:
+   - **If `messageType` is 'email'**: Generates a prompt requesting JSON output (`subject`, `body`) with specific structure. If `tone` is 'humor', incorporates humor guidelines into this prompt.
+   - **If `messageType` is not 'email' and `tone` is 'humor'**: Generates the specific detailed humor prompt requesting plain text output with strict style/emoji/formatting guidelines.
+   - **Otherwise**: Generates a standard prompt requesting plain text output with `\n\n` separators, including tone instructions and emoji inclusion/exclusion.
 3. Backend sends the generated prompt to the OpenAI API via`axios`.
 4. Backend receives the raw response from OpenAI.
 5. **If Email**: Attempts to `JSON.parse`the response. If successful and valid, extracts`subject`and`body`. If parsing fails, returns an error.
 6. **If Other Types**: Trims whitespace, strips surrounding quotes.
-7. Performs emoji addition/removal logic based on `shouldIncludeEmojis`flag and tone. The`removeEmojis`function specifically avoids removing`
-`characters.
-8. Returns a JSON response`{"improved": ...}`to the client. For emails,`improved`is the structured`{subject, body}`object; otherwise, it's the processed text string containing potential`
-` characters.
+7. Performs emoji addition/removal logic based on `shouldIncludeEmojis`flag and tone.
+8. Applies backend filters to the processed string (`improved`):
+   - Removes specific unwanted symbols (e.g., `♂️`, `♂`).
+   - Merges lone emoji lines into the preceding paragraph.
+9. Returns a JSON response`{"improved": ...}`to the client. For emails,`improved`is the structured`{subject, body}`object; otherwise, it's the final processed text string.
 
-### 4.3 User Output Flow (`script.js`)
+### 5.3 User Output Flow (`script.js`)
 
 1. Frontend `fetch` call receives the JSON response from the backend.
 2. **If Email**: `EmailHandler.processResponse` formats the `subject` and `body` (including a `***` separator) into a single `displayText` string.
@@ -120,9 +173,9 @@ Text Polish follows a client-server architecture:
 8. The output container is displayed.
 9. User can interact with the output using Copy, Paste to Input, Clear, Edit (contenteditable), and Share buttons.
 
-## 5. API Endpoints
+## 6. API Endpoints
 
-### 5.1 Internal API
+### 6.1 Internal API
 
 - **POST /api/improve**
   - **Request Body:**
@@ -157,116 +210,114 @@ Text Polish follows a client-server architecture:
     }
     ```
 
-### 5.2 External API
+### 6.2 External API
 
 - **OpenAI Chat Completions API (`https://api.openai.com/v1/chat/completions`)**
   - Used via POST request with appropriate headers (`Authorization: Bearer $OPENAI_API_KEY`) and payload including model (`gpt-4o`), messages (system and user roles), and temperature.
 
-## 6. Key Features
+## 7. Key Features
 
-### 6.1 Text Type Selection
+### 7.1 Text Type Selection
 
 - **Email**: Targets formal correspondence format. Backend expects structured JSON (subject/body) from LLM. Frontend uses `EmailHandler` for processing and sharing.
-- **Messenger**: Targets conversational, concise format. Backend expects plain text with `
+- **Messenger**: Targets conversational, concise format. Backend expects plain text with `\n\n` separators. Frontend formats using paragraph splitting.
 
-` separators. Frontend formats using paragraph splitting.
+- **Social Post**: Targets platform-appropriate posts (Facebook, LinkedIn, etc.). Backend expects plain text with `\n\n` separators. Frontend formats using paragraph splitting.
 
-- **Social Post**: Targets platform-appropriate posts (Facebook, LinkedIn, etc.). Backend expects plain text with `
+### 7.2 Output Formatting **(Crucial Implementation Detail)**
 
-` separators. Frontend formats using paragraph splitting.
+- **Email**: Relies on the LLM returning structured JSON (`{subject, body}`). The frontend `EmailHandler` combines these with a visual separator (`***`) for display. Paragraphs within the body are expected to be handled by `\n` characters within the `body` string returned by the LLM, which are then rendered correctly when the frontend splits the combined text and creates `<p>` tags.
+- **Messenger / Social Post**: Relies on the LLM following the instruction to use double newlines (`\n\n`) for paragraph separation in its plain text response. The frontend explicitly splits the received text using `/\n\n+/`and`/\n/`regex and generates individual`<p>` elements for each resulting non-empty string. This ensures visual separation of paragraphs in the UI.
 
-### 6.2 Output Formatting **(Crucial Implementation Detail)**
+### 7.3 Tone Application
 
-- **Email**: Relies on the LLM returning structured JSON (`{subject, body}`). The frontend `EmailHandler` combines these with a visual separator (`***`) for display. Paragraphs within the body are expected to be handled by `
-` characters within the `body` string returned by the LLM, which are then rendered correctly when the frontend splits the combined text and creates `<p>` tags.
-- **Messenger / Social Post**: Relies on the LLM following the instruction to use double newlines (`
-
-`) for paragraph separation in its plain text response. The frontend explicitly splits the received text using `/\n\n+/`and`/\n/`regex and generates individual`<p>` elements for each resulting non-empty string. This ensures visual separation of paragraphs in the UI.
-
-### 6.3 Tone Application
-
-- Dynamically modifies the system prompt sent to OpenAI based on the selected tone.
+- Dynamically modifies the prompt sent to OpenAI based on the selected tone.
+- For 'Humor' tone: Uses specific, detailed prompts (different for email vs. non-email) to guide the LLM on style, emoji usage, formatting, and avoiding specific symbols.
 - Influences emoji usage and writing style.
 
-### 6.4 Emoji Management
+### 7.4 Emoji Management
 
 - `noEmojiTones` list prevents emoji insertion/request for specific tones.
-- `containsEmoji`, `addEmojiToText`, `removeEmojis` functions handle emoji logic.
-- `removeEmojis` regex updated (`/ +/g`) to preserve newline characters (`
-`) during whitespace normalization, fixing a previous bug that collapsed paragraphs.
+- Specific 'Humor' prompt instructs LLM on appropriate emoji usage (sparing, relevant, integrated, no lone lines, avoid `♂️`).
+- `containsEmoji`, `addEmojiToText`, `removeEmojis` functions handle basic emoji logic.
+- Backend filtering explicitly removes certain unwanted symbols (e.g., `♂️`) and merges lone emoji lines into preceding paragraphs as a fallback/cleanup step.
 
-### 6.5 Error Handling
+### 7.5 Error Handling
 
 - Backend validates input (`text` required) and API key presence.
 - Backend includes `try...catch` blocks for OpenAI API calls and JSON parsing. Returns informative JSON errors.
 - Frontend includes `try...catch` for `fetch` calls. Displays error messages to the user.
 - Frontend implements API call retry logic (`callAPIWithRetry`) for transient server errors (e.g., 500 status).
 
-### 6.6 UI/UX Enhancements
+### 7.6 UI/UX Enhancements
 
-- Dynamic textarea resizing (`autoResizeTextarea`).
+- Dynamic textarea height adjustment based on cursor distance to bottom (`updateCursorDistance`), replacing previous auto-resize logic.
 - Dynamic input placeholder text based on selected message type.
 - Loading animations (`startHourglassAnimation`) on the "Improve" button.
 - Visual feedback (`showIconFeedback`) on icon button clicks.
 - Content-aware body class (`has-content`) for styling adjustments.
 - Speech-to-text input using Web Speech API.
 - Output text editing via `contenteditable` attribute.
+- Cursor-distance calculation element (`#cursor-distance-display`) exists in HTML but is visually hidden via CSS.
+- Desktop-specific CSS rule reduces the size of the input clear button (`#clear-input`).
 
-## 7. User Interface
+## 8. User Interface
 
-### 7.1 Main Components
+### 8.1 Main Components
 
-- Text input area (`#text-input-area`) with dynamic placeholder and auto-resize.
+- Text input area (`#text-input-area`) with dynamic placeholder and cursor-distance-based height adjustment.
 - Option selection buttons for Type and Tone.
 - Collapsible Tone Category section (`#tone-categories`).
 - Improve button (`#improve-btn`) with loading state.
 - Output display area (`#improved-message`) rendering content within `<p>` tags.
 - Action buttons for Input (Mic, Clear, Copy, Paste) and Output (Edit, Clear, Copy, Paste to Input, Share).
+- Hidden cursor distance display element (`#cursor-distance-display`).
 
-### 7.2 Responsive Design
+### 8.2 Responsive Design
 
 - CSS utilizes flexbox and media queries for responsiveness.
 - Mobile-first considerations in styling.
+- Desktop-specific styling applied to reduce the size of the input area's clear button.
 
-## 8. Deployment
+## 9. Deployment
 
-### 8.1 Development Environment
+### 9.1 Development Environment
 
 - Run locally using `npm install` and `npm run dev` (or `npm run dev:sync` if using concurrently).
 - Uses `nodemon` for automatic server restarts on file changes.
 - Requires a `.env` file with `OPENAI_API_KEY`.
 
-### 8.2 Production Deployment
+### 9.2 Production Deployment
 
 - Can be deployed to platforms supporting Node.js (e.g., Vercel, Render, Heroku).
 - Requires setting the `OPENAI_API_KEY` environment variable on the hosting platform.
 - Express serves the static frontend files.
 
-## 9. Security Considerations
+## 10. Security Considerations
 
-### 9.1 API Key Management
+### 10.1 API Key Management
 
 - OpenAI API key is stored securely in backend environment variables, never exposed to the client.
 
-### 9.2 Input Sanitization
+### 10.2 Input Sanitization
 
 - Basic trimming of input text occurs. No complex sanitization is currently implemented, relying on OpenAI's handling of input content.
 
-## 10. Performance Optimization
+## 11. Performance Optimization
 
-### 10.1 Frontend
+### 11.1 Frontend
 
 - Vanilla JS avoids framework overhead.
 - DOM manipulation is generally limited to button state changes and rendering output.
 
-### 10.2 Backend
+### 11.2 Backend
 
 - API calls to OpenAI are the main performance bottleneck. Timeout (`60s`) is set for `axios` requests.
 - No complex computations performed on the backend besides prompt generation and basic string manipulation.
 
-## 11. Future Enhancements
+## 12. Future Enhancements
 
-### 11.1 Potential Features
+### 12.1 Potential Features
 
 - User accounts and saved preferences
 - History of previous improvements
@@ -274,13 +325,13 @@ Text Polish follows a client-server architecture:
 - Multi-language support
 - More advanced formatting options
 
-### 11.2 Technical Improvements
+### 12.2 Technical Improvements
 
 - Client-side caching
 - Service workers for offline capabilities
 - Analytics integration for usage patterns
 - A/B testing for UI improvements
 
-## 12. Conclusion
+## 13. Conclusion
 
 Text Polish provides an efficient solution for improving written communications through AI assistance. The architecture leverages specific prompting strategies and complementary frontend/backend processing to deliver appropriately formatted output for different communication types (Email, Messenger, Social Post). Key implementation details, such as JSON handling for emails and newline-based paragraph splitting for other types, ensure a user-friendly experience.
