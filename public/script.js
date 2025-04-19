@@ -1719,7 +1719,7 @@ ${cleanedBody}
           signatureDiv.id = signatureId;
           signatureDiv.className = "signature-container";
           signatureDiv.innerHTML = `
-            <div class="signature-dashes">----------------------------------</div>
+            <div class="signature-dashes">----------------------------</div>
             <div class="signature-text-container">
               <span>Polished by <a href="https://textpolish.com" target="_blank" class="signature-link" rel="noopener noreferrer">TextPolish.com</a> ✍🏻</span>
             </div>
