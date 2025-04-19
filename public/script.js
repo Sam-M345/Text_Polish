@@ -967,9 +967,6 @@ ${cleanedBody}
 
         const data = await response.json();
 
-        // Log the raw API response
-        console.log("Raw API response:", data);
-
         // Check if there's an error message in the response
         if (data.error) {
           throw new Error(`API Error: ${data.error}`);
@@ -1002,11 +999,6 @@ ${cleanedBody}
             EmailHandler.clearData();
           }
 
-          console.log(
-            ">>> FRONTEND LOG (PRE-SPLIT): displayText received/processed:\n",
-            JSON.stringify(displayText)
-          ); // Log before split
-
           // For text messages, format paragraphs with emoji breaks
           if (selectedType === "text-message") {
             displayText = formatEmojiBreaks(displayText);
@@ -1019,7 +1011,6 @@ ${cleanedBody}
             .flatMap((block) => {
               // Further split by single newlines but preserve as separate paragraphs
               const result = block.split(/\n/);
-              // console.log("Paragraphs after splitting:", result); // Keep original log
               return result;
             })
             .filter((p) => {
@@ -1029,11 +1020,6 @@ ${cleanedBody}
               // Check if trimmed string is empty OR if it consists ONLY of Variation Selector 16 (U+FE0F)
               return trimmed !== "" && !/^\uFE0F+$/.test(trimmed);
             });
-
-          console.log(
-            ">>> FRONTEND LOG (POST-SPLIT): Paragraphs array:\n",
-            paragraphs
-          ); // Log the result of splitting
 
           // Create paragraph elements for each section
           paragraphs.forEach((paragraph, index) => {
@@ -1697,55 +1683,7 @@ ${cleanedBody}
           improvedMessageEl.appendChild(signatureDiv);
 
           // --- START: Smart Logging for Signature Spacing ---
-          // Use setTimeout to ensure styles are applied after DOM update
-          setTimeout(() => {
-            console.log("--- Signature Spacing Debug --- ");
-            const sigContainer = improvedMessageEl.querySelector(
-              "#" + signatureId
-            );
-            const sigHR = sigContainer?.querySelector(".signature-hr");
-            const sigTextDiv = sigContainer?.querySelector("div"); // The div wrapping the span
-
-            if (improvedMessageEl) {
-              const parentStyle = window.getComputedStyle(improvedMessageEl);
-              console.log("#improved-message (Parent):", {
-                paddingLeft: parentStyle.paddingLeft,
-                marginLeft: parentStyle.marginLeft,
-                display: parentStyle.display,
-                position: parentStyle.position,
-              });
-            }
-            if (sigContainer) {
-              const containerStyle = window.getComputedStyle(sigContainer);
-              console.log(".signature-container:", {
-                paddingLeft: containerStyle.paddingLeft,
-                marginLeft: containerStyle.marginLeft,
-                display: containerStyle.display,
-                position: containerStyle.position,
-              });
-            }
-            if (sigHR) {
-              const hrStyle = window.getComputedStyle(sigHR);
-              console.log("hr.signature-hr:", {
-                paddingLeft: hrStyle.paddingLeft,
-                marginLeft: hrStyle.marginLeft,
-                display: hrStyle.display,
-                position: hrStyle.position,
-                width: hrStyle.width,
-                boxSizing: hrStyle.boxSizing,
-              });
-            }
-            if (sigTextDiv) {
-              const textDivStyle = window.getComputedStyle(sigTextDiv);
-              console.log("Inner Text Div:", {
-                paddingLeft: textDivStyle.paddingLeft,
-                marginLeft: textDivStyle.marginLeft,
-                display: textDivStyle.display,
-                position: textDivStyle.position,
-              });
-            }
-            console.log("--- End Debug --- ");
-          }, 0);
+          // REMOVED
           // --- END: Smart Logging for Signature Spacing ---
         }
       } else {

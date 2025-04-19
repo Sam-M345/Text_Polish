@@ -124,16 +124,16 @@ async function improveHandler(req, res) {
 
     // Log the raw content immediately after receiving
     const rawApiResponseContent = apiResponse.data.choices[0].message.content;
-    console.log(
-      ">>> BACKEND LOG (RAW): OpenAI API Response Content:\n",
-      JSON.stringify(rawApiResponseContent)
-    );
+    // console.log(
+    //   ">>> BACKEND LOG (RAW): OpenAI API Response Content:\n",
+    //   JSON.stringify(rawApiResponseContent)
+    // ); // REMOVED
 
     let improved = rawApiResponseContent.trim();
-    console.log(
-      ">>> BACKEND LOG: Content after initial trim:",
-      JSON.stringify(improved)
-    );
+    // console.log(
+    //   ">>> BACKEND LOG: Content after initial trim:",
+    //   JSON.stringify(improved)
+    // );
 
     // If we're expecting JSON for an email, parse it
     if (messageType === "email") {
@@ -244,10 +244,10 @@ async function improveHandler(req, res) {
     }
 
     // Log the final content before sending to client
-    console.log(
-      ">>> BACKEND LOG (FINAL): Content sent to client:\n",
-      JSON.stringify(improved)
-    );
+    // console.log(
+    //   ">>> BACKEND LOG (FINAL): Content sent to client:\n",
+    //   JSON.stringify(improved)
+    // ); // REMOVED
     return res.status(200).json({ improved });
   } catch (error) {
     console.error("Error improving message:", error);
