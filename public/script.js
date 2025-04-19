@@ -11,9 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const improvedMessageEl = document.getElementById("improved-message");
   const outputContainer = document.getElementById("output-container");
   const outputIcons = document.querySelector(".output-icons");
-  const inputAreaButtonsContainer = document.querySelector(
-    ".input-area-buttons"
+  const toneMicListeningIndicator = document.getElementById(
+    "tone-mic-listening-indicator"
   );
+  const distanceValueEl = document.getElementById("distance-value");
+  const toneHeaderMicBtn = document.getElementById("tone-header-mic-indicator"); // NEW Mic Button in Tone Header
 
   // Undo functionality constants
   const UNDO_STORAGE_KEY = "textPolishUndoState";
@@ -108,13 +110,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const clearOutputBtn = document.getElementById("clear-output");
   const copyOutputBtn = document.getElementById("copy-output");
   const pasteOutputBtn = document.getElementById("paste-output");
-  const listeningIndicator = document.getElementById("listening-indicator");
-  const distanceValueEl = document.getElementById("distance-value"); // Get the display element
-
-  // Ensure listening indicator is hidden initially
-  if (listeningIndicator) {
-    listeningIndicator.classList.add("hidden");
-  }
 
   // --- START: Cursor Distance Calculation ---
   const mirrorDivId = "input-mirror-div";
@@ -254,7 +249,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   // --- END: Cursor Distance Calculation ---
 
-  // Speech recognition setup
+  // --- START: Speech Recognition Logic (Restored based on temp-23-Microphone.md) ---
   let recognition = null;
   let isRecognizing = false;
   let manualStop = false; // Flag to track if stop was initiated by user click
@@ -268,35 +263,30 @@ document.addEventListener("DOMContentLoaded", () => {
     if (SpeechRecognition) {
       recognition = new SpeechRecognition();
       recognition.continuous = true; // Keep listening until stopped
-      recognition.interimResults = false; // Only get final results to avoid changing previous words
+      recognition.interimResults = false; // Only get final results
       recognition.lang = "en-US"; // Default to English
-
-      // Initialize with the indicators hidden
-      if (listeningIndicator) listeningIndicator.classList.add("hidden");
 
       recognition.onstart = function () {
         console.log("Speech recognition started.");
         isRecognizing = true;
         manualStop = false; // Reset flag on successful start
-        micInputBtn.style.backgroundColor = "#25a56a";
-        micInputBtn.style.borderColor = "#25a56a";
-        inputAreaButtonsContainer.classList.add("listening");
-        listeningIndicator.classList.remove("hidden");
-        listeningIndicator.style.display = "flex";
+        // Apply active styles directly to the new button
+        if (toneHeaderMicBtn) {
+          toneHeaderMicBtn.classList.add("listening"); // Use class for styling active state
+        }
+        // Show the new ear indicator
+        if (toneMicListeningIndicator) {
+          toneMicListeningIndicator.classList.remove("hidden");
+        }
       };
 
       recognition.onresult = function (event) {
-        // Get current cursor position for insertion
         const cursorPosition = messageInputEl.selectionStart;
         const currentText = messageInputEl.value;
-
-        // Get only the latest final result
         const latestResult = event.results[event.results.length - 1];
         let newText = latestResult[0].transcript;
 
-        // Fix first word duplication only on the first recognized text
         if (currentText.trim() === "" || cursorPosition === 0) {
-          // Fix first word duplication using a simple pattern match
           const firstWordMatch = newText.match(/^(\w+['']?\w*)\s+\1\b/i);
           if (firstWordMatch) {
             newText = newText.replace(/^(\w+['']?\w*)\s+/, "");
@@ -304,7 +294,6 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        // Add space before new text if needed (if cursor isn't at the start and doesn't end with space)
         if (
           cursorPosition > 0 &&
           cursorPosition === currentText.length &&
@@ -315,85 +304,108 @@ document.addEventListener("DOMContentLoaded", () => {
           newText = " " + newText;
         }
 
-        // Insert the new text at the cursor position
         messageInputEl.value =
           currentText.substring(0, cursorPosition) +
           newText +
           currentText.substring(cursorPosition);
 
-        // Move cursor to end of inserted text
         const newCursorPosition = cursorPosition + newText.length;
         messageInputEl.selectionStart = newCursorPosition;
         messageInputEl.selectionEnd = newCursorPosition;
-
-        // Scroll textarea to keep cursor visible
         messageInputEl.scrollTop = messageInputEl.scrollHeight;
 
-        // Manually trigger resize and content check after speech input
-        updateCursorDistance();
-        checkContentAndUpdateBody();
+        updateCursorDistance(); // Update height/distance
+        checkContentAndUpdateBody(); // Update content status
       };
 
       recognition.onend = function () {
         console.log("Speech recognition ended.");
         isRecognizing = false;
-        micInputBtn.style.backgroundColor = "";
-        micInputBtn.style.borderColor = "";
-        inputAreaButtonsContainer.classList.remove("listening");
-        listeningIndicator.classList.add("hidden");
-        listeningIndicator.style.display = "none";
-        clearInputBtn.style.display = "";
-        copyInputBtn.style.display = "";
-        pasteInputBtn.style.display = "";
+        // Reset mic button styles
+        if (toneHeaderMicBtn) {
+          toneHeaderMicBtn.classList.remove("listening");
+        }
 
-        // --- START: Auto-restart logic ---
+        // Auto-restart logic
         if (!manualStop) {
           console.log("Recognition ended automatically, restarting...");
-          try {
-            recognition.start(); // Attempt to restart immediately
-          } catch (error) {
-            console.error(
-              "Error restarting recognition after automatic end:",
-              error
-            );
-            // Ensure UI is fully reset if restart fails
-            manualStop = true; // Prevent potential loops if start fails repeatedly
-          }
+          // Add a small delay before restarting
+          setTimeout(() => {
+            try {
+              if (recognition) {
+                // Check if recognition still exists
+                recognition.start();
+              }
+            } catch (error) {
+              console.error(
+                "Error restarting recognition after automatic end:",
+                error
+              );
+              manualStop = true; // Prevent loops if start fails repeatedly
+            }
+          }, 250); // 250ms delay
         } else {
           console.log("Recognition ended due to manual stop.");
-          // Reset flag for the next session
-          manualStop = false;
+          manualStop = false; // Reset flag for the next session
         }
-        // --- END: Auto-restart logic ---
+        // Hide the new ear indicator
+        if (toneMicListeningIndicator) {
+          toneMicListeningIndicator.classList.add("hidden");
+        }
       };
 
       recognition.onerror = function (event) {
         console.error("Speech recognition error:", event.error);
         isRecognizing = false;
-        manualStop = true; // Treat errors as a reason to stop trying to auto-restart
-        micInputBtn.style.backgroundColor = "";
-        micInputBtn.style.borderColor = "";
-        inputAreaButtonsContainer.classList.remove("listening");
-        listeningIndicator.classList.add("hidden");
-        listeningIndicator.style.display = "none";
-        clearInputBtn.style.display = "";
-        copyInputBtn.style.display = "";
-        pasteInputBtn.style.display = "";
+        manualStop = true; // Stop trying to auto-restart on error
+        // Reset UI styles (ensure consistency)
+        if (toneHeaderMicBtn) {
+          toneHeaderMicBtn.classList.remove("listening");
+        }
+
+        // Make sure to check content state
+        checkContentAndUpdateBody();
+        // Hide the new ear indicator
+        if (toneMicListeningIndicator) {
+          toneMicListeningIndicator.classList.add("hidden");
+        }
       };
 
-      return true;
+      return true; // Indicate success
     } else {
       console.log("Speech recognition not supported");
-      return false;
+      return false; // Indicate failure
     }
   }
 
-  // Speech to text button
-  if (micInputBtn) {
-    micInputBtn.addEventListener("click", () => {
+  // Mic Button Click Handler - Now targets the tone header mic
+  if (toneHeaderMicBtn) {
+    console.log(
+      "Tone header mic button (#tone-header-mic-indicator) found. Attaching listener."
+    );
+    toneHeaderMicBtn.addEventListener("click", () => {
+      console.log("Tone header mic button CLICK HANDLER FIRED!");
+
+      // Check if the button is actually visible (desktop check)
+      const micDisplayStyle = window.getComputedStyle(toneHeaderMicBtn).display;
+      console.log(`Tone header mic button display style: ${micDisplayStyle}`);
+      if (micDisplayStyle === "none") {
+        console.log("Tone header mic button is hidden. Ignoring click.");
+        return; // Do nothing if button is hidden
+      }
+
       // Initialize on first click if not already done
-      if (!recognition && !initSpeechRecognition()) {
-        alert("Speech recognition is not supported in your browser.");
+      let initResult = false;
+      if (!recognition) {
+        console.log("Attempting to initialize Speech Recognition..."); // Log: Init attempt
+        initResult = initSpeechRecognition();
+        console.log(`Speech Recognition initialization result: ${initResult}`); // Log: Init result
+      }
+
+      if (!recognition && !initResult) {
+        // Check if init failed
+        // Alert only shown if init failed on this click
+        alert("Speech recognition is not supported or failed to initialize.");
         return;
       }
 
@@ -401,55 +413,59 @@ document.addEventListener("DOMContentLoaded", () => {
         // Stop listening
         console.log("Manual stop initiated.");
         manualStop = true; // Set flag BEFORE stopping
-        recognition.stop();
-        // UI updates now handled primarily by onend event
+        if (recognition) recognition.stop();
       } else {
         // Start listening
-        // Reset flag just in case it was left true from an error
-        manualStop = false;
+        manualStop = false; // Reset flag just in case
         try {
           messageInputEl.focus(); // Focus the textarea
-          recognition.start(); // This triggers onstart where visibility is handled
-          showIconFeedback(micInputBtn);
-          // Manually hide buttons when starting via button click
-          clearInputBtn.style.display = "none";
-          copyInputBtn.style.display = "none";
-          pasteInputBtn.style.display = "none";
-
-          // Explicitly show the listening indicator (ear)
-          if (listeningIndicator) {
-            listeningIndicator.classList.remove("hidden");
-            listeningIndicator.style.display = "flex";
-          }
+          console.log("Attempting to call recognition.start()..."); // Log: Start attempt
+          if (recognition) recognition.start(); // This triggers onstart where UI is handled
         } catch (error) {
-          console.error("Speech recognition error:", error);
-          // If the recognition is already started, stop and restart
+          console.error("Speech recognition start error:", error);
+          // Handle specific errors like InvalidStateError
           if (error.name === "InvalidStateError") {
+            console.log(
+              "Attempting to stop and restart recognition due to InvalidStateError"
+            );
+            // Stop recognition first
             recognition.stop();
-            // Make sure the indicators are hidden when stopping
-            if (listeningIndicator) {
-              listeningIndicator.classList.add("hidden");
-              listeningIndicator.style.display = "none";
+            // Important: Ensure UI resets related to stopping occur
+            // Manually trigger parts of onend logic here if needed,
+            // as the auto-restart might happen before onend fully completes.
+            if (toneHeaderMicBtn) {
+              toneHeaderMicBtn.classList.remove("listening");
             }
-            // Manually show buttons when stopping due to error/restart
-            clearInputBtn.style.display = "";
-            copyInputBtn.style.display = "";
-            pasteInputBtn.style.display = "";
 
+            // Defer restart slightly
             setTimeout(() => {
-              recognition.start();
-              // Show the indicators when restarting
-              if (listeningIndicator) {
-                listeningIndicator.classList.remove("hidden");
-                listeningIndicator.style.display = "flex";
+              manualStop = false; // Reset before trying to start again
+              try {
+                if (recognition) recognition.start();
+              } catch (restartError) {
+                console.error(
+                  "Failed to restart recognition after InvalidStateError:",
+                  restartError
+                );
+                manualStop = true; // Prevent loops if restart also fails
               }
-            }, 200);
+            }, 300); // Increased delay slightly
+          } else {
+            manualStop = true; // Ensure flag is set if start fails critically
+            // Reset UI as a fallback
+            if (toneHeaderMicBtn) {
+              toneHeaderMicBtn.classList.remove("listening");
+            }
           }
-          manualStop = true; // Ensure flag is set if start fails critically
         }
       }
     });
+  } else {
+    console.error(
+      "Tone header mic button (#tone-header-mic-indicator) NOT FOUND in DOM when trying to attach listener."
+    );
   }
+  // --- END: Speech Recognition Logic ---
 
   // Function to handle selection state update for button groups
   function handleButtonSelection(buttons, clickedButton) {
@@ -841,7 +857,7 @@ ${cleanedBody}
   // Update the improveBtn event listener
   improveBtn.addEventListener("click", async () => {
     // --- Stop Mic if Active ---
-    if (isRecognizing) {
+    if (isRecognizing && recognition) {
       console.log("Improve button clicked, stopping microphone...");
       manualStop = true; // Prevent auto-restart
       recognition.stop();
@@ -1517,17 +1533,22 @@ ${cleanedBody}
 
   // --- START: New Function to Update Header Tone Display ---
   function updateMainToneDisplay(selectedToneButton) {
-    const toneOptions = document.querySelector(".tone-options");
-    if (!toneOptions) return; // Exit if container not found
+    // Target the new parent container
+    const toneGroupContainer = document.querySelector(".tone-selection-group");
+    if (!toneGroupContainer) {
+      console.error("Could not find .tone-selection-group container!");
+      return;
+    }
 
-    const autoButton = toneOptions.querySelector(
+    // Find the Auto button WITHIN the new container
+    const autoButton = toneGroupContainer.querySelector(
       '.tone-buttons[data-tone="auto"]'
     );
     const selectedTone = selectedToneButton.dataset.tone;
     const toneText = selectedToneButton.innerHTML; // Includes emoji if present
 
-    // Find existing specific tone button in header, if it exists
-    const existingHeaderToneButton = toneOptions.querySelector(
+    // Find existing specific tone button in the new container, if it exists
+    const existingHeaderToneButton = toneGroupContainer.querySelector(
       '.tone-buttons:not([data-tone="auto"])'
     );
 
@@ -1576,16 +1597,27 @@ ${cleanedBody}
         }
       });
 
-      // Append the new button
-      toneOptions.appendChild(newHeaderToneButton);
+      // Insert the new button AFTER the Auto button
+      if (autoButton) {
+        autoButton.parentNode.insertBefore(
+          newHeaderToneButton,
+          autoButton.nextSibling
+        );
+      } else {
+        // Fallback if auto button isn't found (shouldn't happen)
+        toneGroupContainer.appendChild(newHeaderToneButton);
+      }
     }
   }
   // --- END: Function to Update Header Tone Display ---\
 
-  // --- START: Listener for Header Tone Buttons (.tone-options) ---
-  const toneOptionsContainer = document.querySelector(".tone-options");
-  if (toneOptionsContainer) {
-    toneOptionsContainer.addEventListener("click", (event) => {
+  // --- START: Listener for Header Tone Buttons (Now targets .tone-selection-group) ---
+  const toneGroupContainerForListener = document.querySelector(
+    ".tone-selection-group"
+  );
+  if (toneGroupContainerForListener) {
+    toneGroupContainerForListener.addEventListener("click", (event) => {
+      // Find the closest tone button that was clicked
       const clickedButton = event.target.closest(".tone-buttons[data-tone]");
       if (!clickedButton) return; // Ignore clicks not on a tone button
 

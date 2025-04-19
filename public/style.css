@@ -380,17 +380,12 @@ h3 {
   cursor: pointer;
   font-size: 2.4rem;
   padding: 0;
-  margin-left: 1px;
-  margin-right: 1px;
-  display: flex;
+  margin-left: auto; /* Push to the right within the flex group */
   align-items: center;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: 0px;
   width: 40px;
   justify-content: center;
   touch-action: manipulation;
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
 /* Tone categories */
@@ -437,7 +432,7 @@ h3 {
   justify-self: flex-end; /* Align left column to the RIGHT */
   width: auto;
   min-width: 0;
-  margin-right: 0;
+  margin-right: 0px;
 }
 
 .tone-category:first-of-type .tone-buttons:nth-child(even),
@@ -737,51 +732,71 @@ body.tones-expanded .output-section {
   overflow-x: visible;
 }
 
-/* Listening indicator for speech recognition */
-#listening-indicator {
-  position: static;
-  font-size: 1.8rem;
-  color: #25a56a;
-  opacity: 0.9;
-  transition: opacity 0.3s ease;
-  min-width: 30px; /* Reduced min-width for just the ear */
-  width: auto; /* Allow ear to take natural width */
-  text-align: left;
-  display: none; /* Initially hidden, JS controls visibility */
-  align-items: center;
-  padding-top: 0px;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* Animation for the listening indicator (blinking ear) */
-@keyframes listeningBlink {
-  0%,
-  100% {
-    opacity: 1;
-  } /* Visible */
-  50% {
-    opacity: 0.2;
-  } /* Dim/Invisible */
-}
-
-/* Make the microphone button slightly larger */
-.input-area-buttons.listening #mic-input {
-  margin-right: 0.1rem; /* Reduce space after mic */
+/* --- START: Moved Mic Button Base Styles --- */
+/* Mic button base style (hidden by default) - Applies to #mic-input if it exists */
+#mic-input {
+  margin-left: -0.4rem; /* Pull closer to the title */
 }
 
 #mic-input .icon {
   font-size: 2.35rem; /* Increase this value as needed */
 }
 
-/* Adjust default spacing for mic button */
-#mic-input {
-  margin-left: -0.4rem; /* Pull closer to the title */
+/* --- END: Moved Mic Button Base Styles --- */
+
+/* --- START: Tone Header Mic Indicator Base Style --- */
+#tone-header-mic-indicator {
+  display: none; /* Hide by default for mobile */
+  /* Reset button defaults */
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  /* Styling */
+  font-size: 2.5rem; /* Adjust size as needed */
+  margin-right: 0.5rem; /* Space before 'Tone' label */
+  color: var(--secondary-text); /* Match other icons */
+  opacity: 0.7;
+  transition: opacity 0.2s ease, color 0.2s ease;
 }
+#tone-header-mic-indicator:hover {
+  color: var(--text-color);
+  opacity: 1;
+}
+/* Style for when listening is active (added via JS) */
+#tone-header-mic-indicator.listening {
+  color: #25a56a; /* Active color */
+  opacity: 1;
+  /* Add subtle pulse/glow? */
+  /* animation: pulse 1.5s infinite ease-in-out; */
+}
+/* --- END: Tone Header Mic Indicator Base Style --- */
+
+/* --- START: Blinking Ear Indicator Base Style & Animation --- */
+#tone-mic-listening-indicator {
+  display: none; /* Hidden by default */
+  position: absolute; /* Take out of flow */
+  top: 50%; /* Align vertically */
+  left: 100%; /* Position relative to the right edge of the mic button's container */
+  transform: translateY(-50%); /* Center vertically */
+  font-size: 2.5rem; /* Match mic button */
+  vertical-align: middle; /* Align with mic button */
+  line-height: 1;
+  white-space: nowrap; /* Prevent wrapping if somehow needed */
+}
+
+/* Re-add animation */
+@keyframes listeningBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+/* --- END: Blinking Ear Indicator Base Style & Animation --- */
 
 /* Specific size for the Share SVG */
 .SVG-Share {
@@ -810,12 +825,6 @@ body.tones-expanded .output-section {
   opacity: 1;
 }
 /* --- END UNDO BUTTON --- */
-
-/* --- START: Tone Header Mic Indicator Base Style --- */
-#tone-header-mic-indicator {
-  display: none; /* Hide by default for mobile */
-}
-/* --- END: Tone Header Mic Indicator Base Style --- */
 
 /* --- START: Specific styles for Email Button --- */
 .text-type-option-btn[data-type="email"] {
@@ -927,9 +936,10 @@ textarea#text-input-area,
   /* Spread out items in the Tone header row */
   .tone-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     width: 100%;
+    gap: 8rem;
   }
 
   /* Ensure the .tone-options div (Auto + Selected) still displays correctly */
@@ -1013,14 +1023,147 @@ textarea#text-input-area,
 
   /* --- START: Desktop Tone Header Mic Indicator Style --- */
   #tone-header-mic-indicator {
-    display: flex; /* Show on desktop, use flex for alignment */
-    align-items: center; /* Vertically align with text */
-    font-size: 1.5rem; /* Adjust size as needed */
-    margin-right: 0.5rem; /* Space before 'Tone' label */
+    display: flex;
+    align-items: center;
   }
   /* Ensure Tone label aligns */
   .tone-container h2 {
     vertical-align: middle;
   }
   /* --- END: Desktop Tone Header Mic Indicator Style --- */
+
+  /* Add background to active mic button and show/animate ear */
+  #tone-header-mic-indicator.listening {
+    color: white; /* Ensure icon is visible on background */
+    background-color: var(--primary-color); /* Active background */
+    opacity: 1;
+    border-radius: 5px; /* Optional: slight rounding */
+    padding: 0 3px; /* Optional: small padding */
+  }
+  #tone-header-mic-indicator.listening + #tone-mic-listening-indicator {
+    display: block; /* Show the ear (block or inline-block should work) */
+    animation: listeningBlink 1.5s infinite; /* Apply blinking */
+    /* Fine-tune position if needed */
+    /* left: calc(100% + 2px); */ /* Example: add small gap */
+  }
+
+  /* Style the new tone selection group container on desktop */
+  .tone-selection-group {
+    display: flex;
+    flex-grow: 1;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+    gap: 1rem;
+  }
+
+  /* Ensure items inside the group have appropriate spacing/alignment */
+  .tone-selection-group h2 {
+    margin: 0;
+    margin-right: -7rem; /* Add negative margin to pull Auto button closer on desktop */
+  }
+  .tone-selection-group .toggle-tones {
+    position: static;
+    transform: none;
+    margin: 0;
+  }
 }
+
+/* --- START: Base Style for Tone Selection Group --- */
+.tone-selection-group {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  width: 100%;
+}
+/* --- END: Base Style for Tone Selection Group --- */
+
+/* --- START: Mic Group Base Style --- */
+.tone-mic-group {
+  display: none; /* Hidden by default */
+}
+/* --- END: Mic Group Base Style --- */
+
+/* --- START: Blinking Ear Indicator Base Style & Animation --- */
+#tone-mic-listening-indicator {
+  display: none; /* Hidden by default */
+  position: absolute; /* Take out of flow */
+  top: 50%; /* Align vertically */
+  left: 100%; /* Position relative to the right edge of the mic button's container */
+  transform: translateY(-50%); /* Center vertically */
+  font-size: 2.5rem; /* Match mic button */
+  vertical-align: middle; /* Align with mic button */
+  line-height: 1;
+  white-space: nowrap; /* Prevent wrapping if somehow needed */
+}
+
+/* Re-add animation */
+@keyframes listeningBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+/* --- END: Blinking Ear Indicator Base Style & Animation --- */
+
+/* Add background to active mic button and show/animate ear */
+#tone-header-mic-indicator.listening {
+  color: white; /* Ensure icon is visible on background */
+  background-color: var(--primary-color); /* Active background */
+  opacity: 1;
+  border-radius: 5px; /* Optional: slight rounding */
+  padding: 0 3px; /* Optional: small padding */
+}
+/* Target ear based on class on button WITHIN the group */
+.tone-mic-group
+  #tone-header-mic-indicator.listening
+  + #tone-mic-listening-indicator {
+  display: block; /* Show the ear (block or inline-block should work) */
+  animation: listeningBlink 1.5s infinite; /* Apply blinking */
+  /* Fine-tune position if needed */
+  /* left: calc(100% + 2px); */ /* Example: add small gap */
+}
+
+/* Ensure Tone label aligns */
+.tone-container h2 {
+  vertical-align: middle;
+}
+
+/* --- START: Desktop Tone Header Mic Indicator Style --- */
+/* Make the mic group visible and align items */
+.tone-mic-group {
+  display: flex;
+  align-items: center;
+  position: relative; /* Needed for absolute positioning of child */
+  /* Add a small gap between mic and ear if needed when ear is visible */
+  /* gap: 0.2rem; */
+}
+
+/* Ensure the button inside the group is displayed (flex handles it) */
+/* 
+#tone-header-mic-indicator {
+  display: flex;       
+  align-items: center; 
+}
+*/
+
+/* Ensure Tone label aligns */
+.tone-container h2 {
+  vertical-align: middle;
+}
+/* --- END: Desktop Tone Header Mic Indicator Style --- */
+
+/* --- START: Mobile Spacing for Tone Header Buttons --- */
+/* Add right margin to Auto button on mobile */
+.tone-selection-group > .tone-buttons[data-tone="auto"] {
+  margin-right: 12.8px;
+}
+
+/* Add right margin to the dynamically added selected tone button on mobile */
+.tone-selection-group > .tone-buttons:not([data-tone="auto"]) {
+  margin-right: 12.8px;
+}
+/* --- END: Mobile Spacing for Tone Header Buttons --- */

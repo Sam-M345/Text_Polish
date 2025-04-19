@@ -46,6 +46,13 @@
             placeholder="Type your Message / Email here..."
           ></textarea>
           <div class="textarea-icons">
+            <button
+              id="mic-input"
+              title="Start/Stop Speech Input"
+              style="display: none"
+            >
+              <span class="icon">🎤</span>
+            </button>
             <button id="clear-input" title="Clear text">✕</button>
             <button id="copy-input" title="Copy text">
               <svg
@@ -92,14 +99,22 @@
 
       <div class="tone-settings-container">
         <div class="tone-container">
-          <span id="tone-header-mic-indicator">🎙️</span>
-          <h2 class="bright-blue-title stacked-title">
-            <span>Tone</span>
-          </h2>
-          <div class="tone-options">
-            <button class="tone-buttons" data-tone="auto">Auto</button>
+          <div class="tone-mic-group">
+            <button
+              id="tone-header-mic-indicator"
+              title="Start/Stop Speech Input"
+            >
+              🎙️
+            </button>
+            <span id="tone-mic-listening-indicator" class="hidden">👂🏻</span>
           </div>
-          <button class="toggle-tones" id="toggle-tones">⏬</button>
+          <div class="tone-selection-group">
+            <h2 class="bright-blue-title stacked-title">
+              <span>Tone</span>
+            </h2>
+            <button class="tone-buttons" data-tone="auto">Auto</button>
+            <button class="toggle-tones" id="toggle-tones">⏬</button>
+          </div>
         </div>
 
         <div id="tone-categories" class="collapsed-tones">
