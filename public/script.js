@@ -255,8 +255,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (messageInputEl) {
     messageInputEl.addEventListener("input", updateCursorDistance);
     messageInputEl.addEventListener("keyup", updateCursorDistance); // Catch arrow key movements
-    messageInputEl.addEventListener("mouseup", updateCursorDistance); // Catch mouse clicks
-    messageInputEl.addEventListener("focus", updateCursorDistance); // Update on focus
     messageInputEl.addEventListener("scroll", updateCursorDistance); // Update on scroll
     // Initial calculation
     setTimeout(updateCursorDistance, 100); // Small delay to ensure layout is stable
