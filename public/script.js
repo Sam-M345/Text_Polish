@@ -33,8 +33,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Get other elements
   const messageInputEl = document.getElementById("text-input-area");
-  const improveBtn = document.getElementById("improve-btn");
-  const improvedMessageEl = document.getElementById("improved-message");
+  const polishBtn = document.getElementById("polish-btn");
+  const polishedMessageEl = document.getElementById("polished-message");
   const outputContainer = document.getElementById("output-container");
   const outputIcons = document.querySelector(".output-icons");
   const toneMicListeningIndicator = document.getElementById(
@@ -140,8 +140,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function checkContentAndUpdateBody() {
     if (
       messageInputEl.value.trim() ||
-      (improvedMessageEl.textContent &&
-        improvedMessageEl.textContent.trim() !== "Processing...") ||
+      (polishedMessageEl.textContent &&
+        polishedMessageEl.textContent.trim() !== "Processing...") ||
       document.body.classList.contains("tones-expanded")
     ) {
       document.body.classList.add("has-content");
@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Initially hide output container and icons if empty
-  if (!improvedMessageEl.textContent.trim()) {
+  if (!polishedMessageEl.textContent.trim()) {
     outputContainer.style.display = "none";
     outputIcons.style.display = "none";
   }
@@ -837,7 +837,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Clear output text
   clearOutputBtn.addEventListener("click", () => {
     saveStateForUndo(); // Save state BEFORE clearing
-    improvedMessageEl.textContent = "";
+    polishedMessageEl.textContent = "";
     document.body.classList.remove("response-generated");
     showIconFeedback(clearOutputBtn);
 
@@ -850,10 +850,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Copy output text
   copyOutputBtn.addEventListener("click", () => {
-    if (improvedMessageEl.innerHTML) {
+    if (polishedMessageEl.innerHTML) {
       // Get the text content from all paragraph elements
       const textToCopy =
-        improvedMessageEl.innerText || improvedMessageEl.textContent;
+        polishedMessageEl.innerText || polishedMessageEl.textContent;
 
       navigator.clipboard
         .writeText(textToCopy)
@@ -868,9 +868,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Paste output text to input
   pasteOutputBtn.addEventListener("click", () => {
-    if (improvedMessageEl.innerText || improvedMessageEl.textContent) {
+    if (polishedMessageEl.innerText || polishedMessageEl.textContent) {
       messageInputEl.value =
-        improvedMessageEl.innerText || improvedMessageEl.textContent;
+        polishedMessageEl.innerText || polishedMessageEl.textContent;
       messageInputEl.focus();
       showIconFeedback(pasteOutputBtn);
     }
@@ -974,9 +974,9 @@ ${cleanedBody}
       console.log("Attempting to share email via mailto");
 
       // 1. Get the current displayed text from the output element
-      const improvedMessageEl = document.getElementById("improved-message");
+      const polishedMessageEl = document.getElementById("polished-message");
       const currentFullText =
-        improvedMessageEl.innerText || improvedMessageEl.textContent;
+        polishedMessageEl.innerText || polishedMessageEl.textContent;
 
       // 2. Try to parse subject and body based on the known separator
       const separator = "\n\n***\n\n"; // Separator used in EmailHandler.format
@@ -1045,13 +1045,13 @@ ${cleanedBody}
     },
   };
 
-  // Update the improveBtn event listener
-  improveBtn.addEventListener("click", async () => {
-    console.log("--- New Improve Click ---"); // Separator Log
+  // Update the polishBtn event listener
+  polishBtn.addEventListener("click", async () => {
+    console.log("--- New Polish Click ---"); // Updated Log
 
     // --- Stop Mic if Active ---
     if (isRecognizing && recognition) {
-      console.log("Improve button clicked, stopping microphone...");
+      console.log("Polish button clicked, stopping microphone...");
       manualStop = true; // Prevent auto-restart
       recognition.stop();
     }
@@ -1059,7 +1059,7 @@ ${cleanedBody}
     // --- START: Remove Undo Button ---
     const undoButton = document.getElementById("undo-button");
     if (undoButton) {
-      console.log("Improve button clicked, removing undo button...");
+      console.log("Polish button clicked, removing undo button...");
       undoButton.remove();
     }
     // --- END: Remove Undo Button ---
@@ -1077,7 +1077,7 @@ ${cleanedBody}
     // This preserves the UI labels while using a safer term for backend processing
     const apiTone = selectedTone === "auto" ? "automatic" : selectedTone;
 
-    // Collapse the tone categories when improve button is pressed
+    // Collapse the tone categories when polish button is pressed
     const toneCategories = document.getElementById("tone-categories");
     const toggleTonesBtn = document.getElementById("toggle-tones");
     if (toneCategories && toggleTonesBtn) {
@@ -1094,8 +1094,8 @@ ${cleanedBody}
     }
 
     // Change button state to indicate loading with spinning hourglass
-    startHourglassAnimation(improveBtn);
-    improveBtn.disabled = true;
+    startHourglassAnimation(polishBtn);
+    polishBtn.disabled = true;
 
     // Hide output container while processing, keep icons hidden until result
     outputContainer.style.display = "none";
@@ -1136,7 +1136,7 @@ ${cleanedBody}
             console.log(
               `API returned 500 error. Retry attempt ${retryCount}/${maxRetries}`
             );
-            // improvedMessageEl.textContent = `Processing... (Retry ${retryCount}/${maxRetries})`; // No need to show this if container is hidden
+            // polishedMessageEl.textContent = `Processing... (Retry ${retryCount}/${maxRetries})`; // No need to show this if container is hidden
             // Wait a second before retrying
             await new Promise((resolve) => setTimeout(resolve, 1000));
             return callAPIWithRetry(); // Recursive retry
@@ -1156,7 +1156,7 @@ ${cleanedBody}
           console.log("Original improved text:", data.improved);
 
           // Clear existing content
-          improvedMessageEl.innerHTML = "";
+          polishedMessageEl.innerHTML = "";
 
           // Add a class to the body to indicate content has been generated
           document.body.classList.add("response-generated");
@@ -1206,19 +1206,19 @@ ${cleanedBody}
               console.log(`Creating paragraph ${index}:`, paragraph.trim());
               const p = document.createElement("p");
               p.textContent = paragraph.trim();
-              improvedMessageEl.appendChild(p);
+              polishedMessageEl.appendChild(p);
             }
           });
 
           // If there were no paragraphs, just set the text directly
-          if (improvedMessageEl.children.length === 0) {
-            improvedMessageEl.textContent = displayText;
+          if (polishedMessageEl.children.length === 0) {
+            polishedMessageEl.textContent = displayText;
           }
 
           // Update body class since we have content
           document.body.classList.add("has-content");
         } else {
-          improvedMessageEl.textContent = "No improvements were made.";
+          polishedMessageEl.textContent = "No improvements were made.";
         }
 
         // Scroll to the very bottom of the page
@@ -1228,7 +1228,7 @@ ${cleanedBody}
         });
 
         // Set button text back to normal immediately
-        stopHourglassAnimation(improveBtn, "Improve");
+        stopHourglassAnimation(polishBtn, "Polish");
 
         // Show output container and icons now that we have a result
         outputContainer.style.display = "block";
@@ -1238,21 +1238,21 @@ ${cleanedBody}
         outputContainer.style.display = "block";
         outputIcons.style.display = "flex";
 
-        improvedMessageEl.textContent = `Something went wrong: ${error.message}. Please try again.`;
+        polishedMessageEl.textContent = `Something went wrong: ${error.message}. Please try again.`;
         console.error("Error:", error);
 
         // Remove the response-generated class on error
         document.body.classList.remove("response-generated");
 
         // Reset button state
-        stopHourglassAnimation(improveBtn, "Improve");
-        improveBtn.disabled = false;
+        stopHourglassAnimation(polishBtn, "Polish");
+        polishBtn.disabled = false;
 
         // Make sure to check content state
         checkContentAndUpdateBody();
       } finally {
         // Enable button
-        improveBtn.disabled = false;
+        polishBtn.disabled = false;
       }
     }
 
@@ -1282,16 +1282,16 @@ ${cleanedBody}
         toneCategories.classList.remove("collapsed-tones");
         toneCategories.classList.add("expanded-tones");
         toggleTonesBtn.textContent = "⏫";
-        // Add class to body to enable improve button safe zone and disable elastic bounce
+        // Add class to body to enable polish button safe zone and disable elastic bounce
         document.body.classList.add("tones-expanded");
         document.body.classList.add("has-content");
 
-        // No scrolling behavior - removed to keep improve button visible
+        // No scrolling behavior - removed to keep polish button visible
       } else {
         toneCategories.classList.remove("expanded-tones");
         toneCategories.classList.add("collapsed-tones");
         toggleTonesBtn.textContent = "⏬";
-        // Remove class from body to disable improve button safe zone
+        // Remove class from body to disable polish button safe zone
         document.body.classList.remove("tones-expanded");
       }
     });
@@ -1312,7 +1312,7 @@ ${cleanedBody}
   const shareOutputBtn = document.getElementById("share-output");
   if (shareOutputBtn) {
     shareOutputBtn.addEventListener("click", () => {
-      const outputElement = improvedMessageEl; // Use the main output element
+      const outputElement = polishedMessageEl;
       if (outputElement.innerText || outputElement.textContent) {
         // --- START: Check CURRENTLY selected type ---
         const currentSelectedTypeButton = document.querySelector(
@@ -1485,8 +1485,8 @@ ${cleanedBody}
     } else {
       // Page is visible again (user returned)
       console.log("Page visible again - checking state...");
-      // Re-enable improve button if it was disabled
-      if (improveBtn) improveBtn.disabled = false;
+      // Re-enable polish button if it was disabled
+      if (polishBtn) polishBtn.disabled = false;
       // Re-check content in case state was lost/reset
       checkContentAndUpdateBody();
 
@@ -1510,7 +1510,7 @@ ${cleanedBody}
   function saveStateForUndo() {
     const state = {
       inputText: messageInputEl.value,
-      outputHTML: improvedMessageEl.innerHTML,
+      outputHTML: polishedMessageEl.innerHTML,
       selectedType: document.querySelector(".text-type-option-btn.selected")
         ?.dataset.type,
       selectedTone: document.querySelector(".tone-buttons.selected")?.dataset
@@ -1549,11 +1549,11 @@ ${cleanedBody}
       messageInputEl.value = savedState.inputText || "";
 
       // Restore output
-      improvedMessageEl.innerHTML = savedState.outputHTML || "";
-      if (improvedMessageEl.innerHTML.trim()) {
+      polishedMessageEl.innerHTML = savedState.outputHTML || "";
+      if (polishedMessageEl.innerHTML.trim()) {
         outputContainer.style.display = "block";
         outputIcons.style.display = "flex";
-        improvedMessageEl.contentEditable = "false"; // Ensure it's not editable initially
+        polishedMessageEl.contentEditable = "false"; // Ensure it's not editable initially
         editOutputBtn.classList.remove("active");
         editOutputBtn.querySelector(".icon").textContent = "✏️";
       } else {
@@ -1636,8 +1636,8 @@ ${cleanedBody}
       logoContainer.appendChild(undoButton); // Append inside logo container
     } else {
       // Fallback: append to body if logo container not found
-      // Fallback: append to body if improve button not found (shouldn't happen)
-      console.error("Improve button not found, appending undo button to body.");
+      // Fallback: append to body if polish button not found (shouldn't happen)
+      console.error("Polish button not found, appending undo button to body.");
       document.body.appendChild(undoButton);
     }
     // --- END: Append to Logo Container ---
@@ -1797,18 +1797,18 @@ ${cleanedBody}
   });
 
   // --- START: Click to Edit Output Box ---
-  if (improvedMessageEl) {
-    improvedMessageEl.addEventListener("click", (event) => {
+  if (polishedMessageEl) {
+    polishedMessageEl.addEventListener("click", (event) => {
       // Add logging to see if listener fires
-      console.log("#improved-message click listener fired!", event.target);
+      console.log("#polished-message click listener fired!", event.target);
 
       // Only make editable if it's not already
-      if (improvedMessageEl.getAttribute("contenteditable") !== "true") {
+      if (polishedMessageEl.getAttribute("contenteditable") !== "true") {
         console.log("Output box clicked, enabling edit mode.");
-        improvedMessageEl.setAttribute("contenteditable", "true");
-        improvedMessageEl.focus(); // Focus for immediate editing
+        polishedMessageEl.setAttribute("contenteditable", "true");
+        polishedMessageEl.focus(); // Focus for immediate editing
         // Add a class for visual feedback during editing
-        improvedMessageEl.classList.add("editing-output");
+        polishedMessageEl.classList.add("editing-output");
       }
     });
   }
@@ -1818,17 +1818,17 @@ ${cleanedBody}
   document.addEventListener("click", (event) => {
     // Check if the output box exists and is currently editable
     if (
-      improvedMessageEl &&
-      improvedMessageEl.getAttribute("contenteditable") === "true"
+      polishedMessageEl &&
+      polishedMessageEl.getAttribute("contenteditable") === "true"
     ) {
       // Check if the click was outside the output box
-      if (!improvedMessageEl.contains(event.target)) {
+      if (!polishedMessageEl.contains(event.target)) {
         console.log(
           "Clicked outside editable output box, saving/disabling edit mode."
         );
-        improvedMessageEl.setAttribute("contenteditable", "false");
+        polishedMessageEl.setAttribute("contenteditable", "false");
         // Remove the editing class
-        improvedMessageEl.classList.remove("editing-output");
+        polishedMessageEl.classList.remove("editing-output");
         checkContentAndUpdateBody();
       }
     }
@@ -1836,10 +1836,10 @@ ${cleanedBody}
   // --- END: Click Outside Output Box to Save ---
 
   // --- START: Signature Button Functionality ---
-  if (signatureOutputBtn && improvedMessageEl) {
+  if (signatureOutputBtn && polishedMessageEl) {
     signatureOutputBtn.addEventListener("click", () => {
       const signatureId = "signature-line-output";
-      const existingSignature = improvedMessageEl.querySelector(
+      const existingSignature = polishedMessageEl.querySelector(
         `#${signatureId}`
       );
 
@@ -1858,8 +1858,8 @@ ${cleanedBody}
               <span>Polished by <a href="https://textpolish.com" target="_blank" class="signature-link" rel="noopener noreferrer">TextPolish.com</a> ✍🏻</span>
             </div>
           `;
-          // Append back INSIDE improvedMessageEl
-          improvedMessageEl.appendChild(signatureDiv);
+          // Append back INSIDE polishedMessageEl
+          polishedMessageEl.appendChild(signatureDiv);
 
           // --- START: Smart Logging for Signature Spacing ---
           // REMOVED

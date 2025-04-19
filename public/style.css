@@ -572,7 +572,7 @@ h3 {
 /* Unified text style for input and output */
 .unified-text-style,
 textarea,
-#improved-message {
+#polished-message {
   font-size: 20px;
   line-height: 1.6;
   color: var(--text-color);
@@ -599,8 +599,8 @@ textarea#text-input-area {
   padding-bottom: 35px; /* Add padding to prevent text overlap */
 }
 
-/* Additional styles for improved message */
-#improved-message {
+/* Additional styles for polished message */
+#polished-message {
   max-height: none;
   overflow: visible;
   word-break: break-word;
@@ -609,25 +609,25 @@ textarea#text-input-area {
   padding-bottom: 35px; /* Keep padding for icons */
 }
 
-/* Improved message when editable */
-#improved-message[contenteditable="true"] {
+/* Polished message when editable */
+#polished-message[contenteditable="true"] {
   outline: none; /* Keep outline none to rely on box-shadow for focus */
 }
 
 textarea:focus,
-#improved-message:focus {
+#polished-message:focus {
   outline: none;
   box-shadow: 0 0 0 2px var(--primary-color);
 }
 
-#improved-message p,
+#polished-message p,
 textarea p {
   margin-top: 0;
   margin-bottom: 0.7rem;
   line-height: 1.4;
 }
 
-#improved-message p:last-child {
+#polished-message p:last-child {
   margin-bottom: 0;
 }
 
@@ -700,8 +700,8 @@ textarea p {
 
 /* END: Styles for Signature Line */
 
-/* Improve button - all styles consolidated */
-#improve-btn {
+/* Polish button - all styles consolidated */
+#polish-btn {
   display: block;
   width: 60%;
   margin-top: 0.35rem;
@@ -927,7 +927,7 @@ body.tones-expanded .output-section {
 
 /* Input and output areas */
 textarea#text-input-area,
-#improved-message {
+#polished-message {
   font-size: 1.35rem;
   padding: 0.8rem;
   padding-bottom: 0.8rem; /* Ensure padding for icons is kept on desktop too */
@@ -1002,8 +1002,8 @@ textarea#text-input-area,
     min-width: auto;
   }
 
-  /* Add more space around Improve button */
-  #improve-btn {
+  /* Add more space around Polish button */
+  #polish-btn {
     width: 100%;
     margin-left: 0;
     margin-right: 0;
@@ -1214,19 +1214,19 @@ textarea#text-input-area,
 }
 /* --- END: Keyboard Status Indicator --- */
 
-/* --- START: Container for Indicator and Improve Button --- */
+/* --- START: Container for Indicator and Polish Button --- */
 .indicator-button-container {
   display: flex;
   align-items: center; /* Vertically align indicator text and button */
   justify-content: center; /* Center the group (button might need margin auto adjustments) */
-  margin-bottom: 0.7rem; /* Match original improve button margin */
-  margin-top: 0rem; /* Match original improve button margin */
+  margin-bottom: 0.7rem; /* Match original polish button margin */
+  margin-top: 0rem; /* Match original polish button margin */
 }
 
-/* Adjust improve button margins within flex container */
-.indicator-button-container #improve-btn {
+/* Adjust polish button margins within flex container */
+.indicator-button-container #polish-btn {
   margin: 0; /* Remove original auto margins */
   width: 60%; /* Keep original width */
   /* flex-grow: 1; /* Optional: Allow button to take more space */
 }
-/* --- END: Container for Indicator and Improve Button --- */
+/* --- END: Container for Indicator and Polish Button --- */
