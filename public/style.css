@@ -89,14 +89,21 @@ h3 {
 
 /* Option Sections */
 .text-type-container {
-  margin-bottom: 0.7rem;
+  border: 1px solid rgb(110, 110, 133);
+  border-radius: 8px;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
   display: flex;
   flex-direction: row;
-
-  align-items: flex-start;
+  align-items: center;
   width: 100%;
-  gap: 1.6rem;
+  gap: 1.4rem;
   position: relative;
+  white-space: nowrap;
+  margin: 0;
 }
 
 .text-type-container h2 {
@@ -119,6 +126,7 @@ h3 {
   padding-right: 1rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+  margin-top: 1rem;
   margin-bottom: 1rem;
 }
 
@@ -237,7 +245,7 @@ h3 {
   font-size: 1.2rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  height: 65px;
+
   box-sizing: border-box;
   touch-action: manipulation;
   -webkit-appearance: none;
@@ -887,65 +895,28 @@ body.tones-expanded .output-section {
 }
 /* --- END UNDO BUTTON --- */
 
-/* --- START: Specific styles for Email Button --- */
-.text-type-option-btn[data-type="email"] {
-  flex-direction: column; /* Stack items vertically */
-  justify-content: center; /* Vertically center content */
-  align-items: center; /* Horizontally center content */
-  height: 65px; /* Keep existing height */
+/* --- START: Consolidated styles for Text Type Buttons --- */
+/* Apply slightly smaller font size to ALL text type buttons */
+.text-type-option-btn {
+  font-size: 1.1rem; /* Applied to all */
+  /* Keep other base styles */
+  /* display: flex; align-items: center; justify-content: center; padding: 0.5rem 0.8rem; etc... */
 }
 
-/* Target the text container span inside the Email button */
-.text-type-option-btn[data-type="email"] .button-text-stacked {
-  order: -1; /* Ensure text is visually first (top) */
-  margin-left: 0; /* Remove inherited margin */
-  line-height: 1.1;
-}
-
-/* Target the emoji span inside the Email button */
-.text-type-option-btn[data-type="email"] .emoji {
-  margin-right: 0; /* Remove inherited margin */
-  margin-top: 2px; /* Add small space below text */
-  display: block; /* Ensure it takes its own line */
-  font-size: 1.1em; /* Adjust emoji size if needed */
-  line-height: 1;
-}
-/* --- END: Specific styles for Email Button --- */
-
-/* --- START: Specific styles for Text Message & Social Buttons --- */
-.text-type-option-btn[data-type="text-message"],
-.text-type-option-btn[data-type="social"] {
-  font-size: 1.1rem; /* Keep reduced font size */
-}
-
-/* Adjust emoji alignment within the new structure if needed */
-.text-type-option-btn[data-type="text-message"] .button-text-stacked .emoji,
-.text-type-option-btn[data-type="social"] .button-text-stacked .emoji {
-  font-size: 0.9em; /* Slightly smaller emoji */
+/* Adjust emoji alignment/size within the text stack for ALL text type buttons */
+.text-type-option-btn .button-text-stacked .emoji {
+  font-size: 0.9em; /* Slightly smaller emoji for all */
   vertical-align: baseline; /* Align with text */
   display: inline; /* Keep it inline with text */
   margin: 0;
+  margin-left: 0.2em; /* Consistent small space before emoji */
 }
 
-/* Add margin below the first span in the Text Message button */
-.text-type-option-btn[data-type="text-message"]
-  .button-text-stacked
-  span:first-child {
-  margin-bottom: 3px;
+/* Add margin below the first span in ALL text type buttons */
+.text-type-option-btn .button-text-stacked span:first-child {
+  margin-bottom: 3px; /* Consistent margin for all */
 }
-
-/* Add margin below the first span in the Email button */
-.text-type-option-btn[data-type="email"] .button-text-stacked span:first-child {
-  margin-bottom: 3px;
-}
-
-/* Add margin below the first span in the Social Post button */
-.text-type-option-btn[data-type="social"]
-  .button-text-stacked
-  span:first-child {
-  margin-bottom: 3px;
-}
-/* --- END: Specific styles for Text Message & Social Buttons --- */
+/* --- END: Consolidated styles for Text Type Buttons --- */
 
 /* Media Query to hide Mic button on smaller screens (iOS/Mobile) */
 @media (max-width: 767px) {
@@ -1248,7 +1219,7 @@ textarea#text-input-area,
   display: flex;
   align-items: center; /* Vertically align indicator text and button */
   justify-content: center; /* Center the group (button might need margin auto adjustments) */
-  margin-bottom: 0.9rem; /* Match original improve button margin */
+  margin-bottom: 0.7rem; /* Match original improve button margin */
   margin-top: 0rem; /* Match original improve button margin */
 }
 
