@@ -1,0 +1,161 @@
+[33m7c18372[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: reset: moving to HEAD~1
+[33mb778fcd[m HEAD@{1}: reset: moving to b778fcd504b8e884b88c984668b65a11bce841e5
+[33m470c969[m HEAD@{2}: commit: 110
+[33mb778fcd[m HEAD@{3}: commit: improve >>> Polish
+[33m7c18372[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{4}: commit: 109
+[33m6fa0138[m HEAD@{5}: commit: 108
+[33m67e062c[m HEAD@{6}: commit: ios scrolling improvement -OK
+[33m58b5de8[m HEAD@{7}: commit: keyboard status -OK
+[33m1393c65[m HEAD@{8}: commit: 107
+[33m3cc9b95[m HEAD@{9}: commit: 106 - Formatting improved
+[33m41ef524[m HEAD@{10}: commit: 105
+[33m394b702[m HEAD@{11}: commit: Great Perfromance
+[33m0aca33c[m HEAD@{12}: commit: The very last character
+[33mca133f7[m HEAD@{13}: commit: signature - improved
+[33me0810bf[m HEAD@{14}: commit: signature added
+[33mc7a4fda[m HEAD@{15}: commit: font-size: 1.35rem;
+[33ma4c797e[m HEAD@{16}: commit: 🎙️ Microphone OK - Shrinking input area - OK
+[33m49cb88b[m HEAD@{17}: commit: 104
+[33m6c95369[m HEAD@{18}: commit: 🎙️ icon shows - Desktop only
+[33mc9ec068[m HEAD@{19}: commit: 103
+[33m6c87c49[m HEAD@{20}: commit: "Humot" tone impproved.
+[33md123085[m HEAD@{21}: commit: 102
+[33m7bd097c[m HEAD@{22}: commit: cursor-distance-display - OK
+[33mf064ed4[m HEAD@{23}: commit: 101
+[33m335f651[m HEAD@{24}: commit: 100
+[33me2a8bd9[m HEAD@{25}: commit: 99
+[33mc70cc48[m HEAD@{26}: commit: 98
+[33mdd3a51e[m HEAD@{27}: commit: 97
+[33m55d319c[m HEAD@{28}: commit: 96
+[33m576650e[m HEAD@{29}: commit: 95
+[33m1e582b4[m HEAD@{30}: commit: 94
+[33madd23a5[m HEAD@{31}: commit: 93
+[33m523b602[m HEAD@{32}: commit: great progress
+[33m025726c[m HEAD@{33}: commit: 92
+[33mc5a1f0d[m HEAD@{34}: commit: 91
+[33m64712c8[m HEAD@{35}: commit: 90
+[33m413dbea[m HEAD@{36}: commit: Update Share button logic to use current message type
+[33mb4f0ab7[m HEAD@{37}: commit: 89
+[33mb8246fe[m HEAD@{38}: commit: desktop improved
+[33mbd30f9f[m HEAD@{39}: commit: 88
+[33m86c23fe[m HEAD@{40}: commit: v87
+[33mf9f301b[m HEAD@{41}: commit: v86
+[33m7daca9d[m HEAD@{42}: commit: 85
+[33mfa4f6e9[m HEAD@{43}: commit: 84
+[33mb0fb44b[m HEAD@{44}: commit: 83-great
+[33m10aac9d[m HEAD@{45}: commit: v82
+[33m54c4193[m HEAD@{46}: commit: v81
+[33mba39d9d[m HEAD@{47}: commit: v80
+[33mc3d4ef7[m HEAD@{48}: commit: good - v79
+[33m07884d1[m HEAD@{49}: commit: v77
+[33m2c236be[m HEAD@{50}: commit: testing
+[33m491157e[m HEAD@{51}: commit: awesome
+[33m781baae[m HEAD@{52}: commit: page visibility - testing
+[33m6a46a97[m HEAD@{53}: commit: v76
+[33me4649b8[m HEAD@{54}: commit: v75
+[33m2b5e045[m HEAD@{55}: commit: TDD updated
+[33m99a13e7[m HEAD@{56}: commit: social post formatting - OK
+[33m3328b0b[m HEAD@{57}: commit: v74
+[33mfa67e2f[m HEAD@{58}: commit: v73
+[33mf1d114a[m HEAD@{59}: commit: v72
+[33m7efe7e2[m HEAD@{60}: commit: v71
+[33m7fab6c4[m HEAD@{61}: commit: Caopy-paste replaced
+[33m347815b[m HEAD@{62}: commit: v70
+[33mb21decc[m HEAD@{63}: commit: v69
+[33m4be014b[m HEAD@{64}: commit: Gmail working - OK
+[33mfb8e5cc[m HEAD@{65}: commit: great improvements
+[33m876b7c4[m HEAD@{66}: commit: v68
+[33m58f1b15[m HEAD@{67}: commit: [Your Name] removed from bottom of email
+[33mc5bcc5d[m HEAD@{68}: commit: output length - Removed
+[33m093ca3b[m HEAD@{69}: commit: v67
+[33m023d925[m HEAD@{70}: commit: v66
+[33m53d5687[m HEAD@{71}: commit: v65
+[33m9738b73[m HEAD@{72}: commit: improvements
+[33m04f1faa[m HEAD@{73}: commit: CSS Injection - 3001
+[33m06d6947[m HEAD@{74}: commit: v64
+[33m434d200[m HEAD@{75}: commit: IOS - OK
+[33ma8dc94f[m HEAD@{76}: commit: Vercel-Web analytics
+[33m395c24d[m HEAD@{77}: commit: v63
+[33m42c0e7b[m HEAD@{78}: commit: v62
+[33m4036ca3[m HEAD@{79}: commit: vertical paddings
+[33m7ebe83f[m HEAD@{80}: commit: v61
+[33me42c7c4[m HEAD@{81}: commit: v60
+[33m3bceb0d[m HEAD@{82}: commit: v59
+[33mf048c8d[m HEAD@{83}: commit: numbers issue fixed
+[33m407af8b[m HEAD@{84}: commit: server fixed
+[33m166a61a[m HEAD@{85}: commit: v58
+[33m8d4b72a[m HEAD@{86}: commit: v57
+[33m9ab351b[m HEAD@{87}: commit: v56
+[33mbb9ff3a[m HEAD@{88}: commit: v55
+[33ma83c4bb[m HEAD@{89}: commit: sms spacing
+[33m503d332[m HEAD@{90}: commit: v54
+[33m6a9ed0a[m HEAD@{91}: commit: Works Great
+[33m47f04f9[m HEAD@{92}: commit: v53
+[33mf538837[m HEAD@{93}: commit: 👂🏻.......
+[33m565e61f[m HEAD@{94}: commit: working great
+[33mda5661c[m HEAD@{95}: commit: v52
+[33m1971d54[m HEAD@{96}: commit: v51
+[33m621564c[m HEAD@{97}: commit: v50
+[33mdd2c7b3[m HEAD@{98}: commit: issue with subject line in email
+[33mc5e2598[m HEAD@{99}: commit: v49
+[33m1532aea[m HEAD@{100}: commit: Email improved
+[33ma69eb51[m HEAD@{101}: commit: v48
+[33m4980555[m HEAD@{102}: commit: testing 47
+[33md9d1d98[m HEAD@{103}: commit: 46- testing
+[33m8cfa665[m HEAD@{104}: commit: testing
+[33m53f7bd3[m HEAD@{105}: commit: subject line - OK
+[33me0092d2[m HEAD@{106}: commit: testing
+[33m010d94a[m HEAD@{107}: commit: v45
+[33mef60ad0[m HEAD@{108}: commit: v44
+[33m4f905f1[m HEAD@{109}: commit: v43
+[33m79af642[m HEAD@{110}: commit: v42
+[33mc69f7e9[m HEAD@{111}: commit: v41
+[33mcec7107[m HEAD@{112}: commit: v40
+[33m4d8ebaf[m HEAD@{113}: commit: v39
+[33mfea83f0[m HEAD@{114}: commit: V38
+[33mfb9d809[m HEAD@{115}: commit: STT ok
+[33m0882936[m HEAD@{116}: commit: Edit Button added to outout
+[33mb96aa4b[m HEAD@{117}: commit: v37
+[33m5b146ca[m HEAD@{118}: commit: ios - mobile first
+[33m26f5e81[m HEAD@{119}: reset: moving to 26f5e81cef40824ed3faf61274ce0808c2f4a003
+[33mbf6dcd1[m HEAD@{120}: commit: only IOS and Desktop codes
+[33m26f5e81[m HEAD@{121}: commit: font-size: 17.5px
+[33m5b907f2[m HEAD@{122}: commit: v36
+[33mbd408e8[m HEAD@{123}: pull --tags origin main: Fast-forward
+[33mce52f46[m HEAD@{124}: reset: moving to ce52f46873380e49aa2fb9b6281eca247e04596d
+[33mbd408e8[m HEAD@{125}: commit: v35
+[33m5c7d6ee[m HEAD@{126}: commit: v0
+[33mce52f46[m HEAD@{127}: commit: clean up
+[33mc99f450[m HEAD@{128}: commit: v34
+[33mc185c94[m HEAD@{129}: commit: v33
+[33m131f66c[m HEAD@{130}: commit: v32
+[33mc4d9006[m HEAD@{131}: commit: v31
+[33m881059f[m HEAD@{132}: commit: text input area height increased
+[33mb0e5710[m HEAD@{133}: commit: logo updated
+[33m829acc5[m HEAD@{134}: commit: looks ok
+[33m1317d2a[m HEAD@{135}: commit: v30
+[33m72b72cc[m HEAD@{136}: commit: v29
+[33m58c4dd6[m HEAD@{137}: commit: car emoji issue fixed
+[33me9f9f7a[m HEAD@{138}: commit: v28
+[33m1be834b[m HEAD@{139}: commit: Guides updated
+[33md047af7[m HEAD@{140}: commit: unified input / output text area
+[33mea7ca27[m HEAD@{141}: commit: v27
+[33m20024a0[m HEAD@{142}: commit: font size
+[33m9b2af68[m HEAD@{143}: commit: spacing improved
+[33md80f95f[m HEAD@{144}: commit: v26
+[33m38c67e9[m HEAD@{145}: commit: v25
+[33ma049193[m HEAD@{146}: commit: v24
+[33m5697607[m HEAD@{147}: commit: test
+[33m66e1efd[m HEAD@{148}: commit: test
+[33maacd1ca[m HEAD@{149}: commit: v23
+[33m6576602[m HEAD@{150}: commit: v22
+[33mb29f11b[m[33m ([m[1;32mfixed-main[m[33m)[m HEAD@{151}: reset: moving to b29f11baf18c3a037e9cd0918cb7bdf5a77f04c4
+[33mfad7c51[m HEAD@{152}: pull --tags origin main: Fast-forward
+[33mb29f11b[m[33m ([m[1;32mfixed-main[m[33m)[m HEAD@{153}: reset: moving to b29f11baf18c3a037e9cd0918cb7bdf5a77f04c4
+[33mfad7c51[m HEAD@{154}: pull --tags origin main: Fast-forward
+[33mb29f11b[m[33m ([m[1;32mfixed-main[m[33m)[m HEAD@{155}: reset: moving to fixed-main
+[33mb29f11b[m[33m ([m[1;32mfixed-main[m[33m)[m HEAD@{156}: checkout: moving from fixed-main to main
+[33mb29f11b[m[33m ([m[1;32mfixed-main[m[33m)[m HEAD@{157}: checkout: moving from main to fixed-main
+[33mb29f11b[m[33m ([m[1;32mfixed-main[m[33m)[m HEAD@{158}: reset: moving to b29f11baf18c3a037e9cd0918cb7bdf5a77f04c4
+[33mfad7c51[m HEAD@{159}: pull --tags origin main: Fast-forward
+[33mb29f11b[m[33m ([m[1;32mfixe

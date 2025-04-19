@@ -345,29 +345,35 @@ document.addEventListener("DOMContentLoaded", () => {
         if (messageInputEl) messageInputEl.style.minHeight = "330px";
         // --- END: Adjust min-height when keyboard opens ---
         // --- START: Scroll input area near top when keyboard opens ---
-        setTimeout(() => {
-          if (messageInputEl) {
-            const desiredOffset = 10; // Pixels to leave between viewport top and textarea top
-            const elementTopRelativeToViewport =
-              messageInputEl.getBoundingClientRect().top;
-            const currentScrollY = window.scrollY;
-            // Calculate how much we need to scroll UP (elementTop - offset)
-            const scrollAmount = elementTopRelativeToViewport - desiredOffset;
-            // Calculate the final absolute scroll position
-            const targetScrollY = currentScrollY + scrollAmount;
+        if (document.activeElement === messageInputEl) {
+          setTimeout(() => {
+            if (messageInputEl) {
+              const desiredOffset = 10; // Pixels to leave between viewport top and textarea top
+              const elementTopRelativeToViewport =
+                messageInputEl.getBoundingClientRect().top;
+              const currentScrollY = window.scrollY;
+              // Calculate how much we need to scroll UP (elementTop - offset)
+              const scrollAmount = elementTopRelativeToViewport - desiredOffset;
+              // Calculate the final absolute scroll position
+              const targetScrollY = currentScrollY + scrollAmount;
 
-            window.scrollTo({
-              top: targetScrollY,
-              behavior: "smooth",
-            });
-            console.log(
-              `Scrolled input area near top (offset: ${desiredOffset}px) on keyboard open. Scrolled by: ${Math.round(
-                scrollAmount
-              )}px`
-            );
-            // Removed: messageInputEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 100); // Delay to allow layout to stabilize
+              window.scrollTo({
+                top: targetScrollY,
+                behavior: "smooth",
+              });
+              console.log(
+                `Scrolled input area near top (offset: ${desiredOffset}px) on keyboard open (INPUT AREA FOCUSED). Scrolled by: ${Math.round(
+                  scrollAmount
+                )}px`
+              );
+              // Removed: messageInputEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 100); // Delay to allow layout to stabilize
+        } else {
+          console.log(
+            "Keyboard opened, but focus is not on the main input area. Skipping scroll."
+          );
+        }
         // --- END: Scroll input area near top when keyboard opens ---
       }
     } else {
