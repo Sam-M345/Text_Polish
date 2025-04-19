@@ -189,13 +189,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!messageInputEl || !distanceValueEl) return; // Ensure elements exist
 
     try {
+      const computedStyle = window.getComputedStyle(messageInputEl);
+      const minHeightCSS = parseFloat(computedStyle.minHeight);
+      const lineHeight = parseFloat(computedStyle.lineHeight);
+
+      // --- START: Shrink Logic ---
+      // Reset height to auto first to allow shrinking based on content
+      messageInputEl.style.height = "auto";
+      // Force reflow/recalculation might not be strictly necessary but can help ensure values are updated
+      // messageInputEl.offsetHeight; // Reading offsetHeight can sometimes trigger reflow
+      // --- END: Shrink Logic ---
+
+      // Recalculate values AFTER resetting height to auto
       const caretY = getCaretPixelPosition(messageInputEl); // Y position relative to text start
       const scrollTop = messageInputEl.scrollTop; // How much the textarea is scrolled
-      const clientHeight = messageInputEl.clientHeight; // Visible height including padding, excluding borders/scrollbar
+      // IMPORTANT: Re-read clientHeight and scrollHeight AFTER setting height to auto
+      const clientHeight = messageInputEl.clientHeight; // Visible height
       const scrollHeight = messageInputEl.scrollHeight; // Total height of content
-      const computedStyle = window.getComputedStyle(messageInputEl);
-      const lineHeight = parseFloat(computedStyle.lineHeight);
-      const minHeightCSS = parseFloat(computedStyle.minHeight);
 
       // Calculate the caret's visible position from the *top* of the visible area
       const visibleCaretY = caretY - scrollTop;
@@ -205,29 +215,24 @@ document.addEventListener("DOMContentLoaded", () => {
       const distance = Math.max(0, clientHeight - visibleCaretY - lineHeight);
 
       console.log(
-        `CaretY: ${caretY}, ScrollTop: ${scrollTop}, ClientHeight: ${clientHeight}, ScrollHeight: ${scrollHeight}, VisibleCaretY: ${visibleCaretY}, Distance: ${distance}`
+        `After Auto Height -> CaretY: ${caretY}, ScrollTop: ${scrollTop}, ClientHeight: ${clientHeight}, ScrollHeight: ${scrollHeight}, VisibleCaretY: ${visibleCaretY}, Distance: ${distance}`
       );
 
       distanceValueEl.textContent = Math.round(distance);
 
-      // --- NEW Height Adjustment Logic ---
+      // --- Expansion Logic (Runs after potential shrink) ---
       if (distance <= 35) {
-        // Calculate potential new height (current + one line)
-        // Using scrollHeight ensures we account for content that might already need more space
-        const potentialNewHeight = messageInputEl.scrollHeight + lineHeight;
+        // Calculate potential new height (current scrollHeight + one line)
+        const potentialNewHeight = scrollHeight + lineHeight;
         // Ensure new height is at least the CSS min-height
         const newHeight = Math.max(potentialNewHeight, minHeightCSS);
 
         console.log(
-          `Cursor close to bottom (<=35px). Adjusting height. Current scrollHeight: ${messageInputEl.scrollHeight}, New height target: ${newHeight}`
+          `Cursor close to bottom (<=35px). Adjusting height. Current scrollHeight: ${scrollHeight}, New height target: ${newHeight}`
         );
         messageInputEl.style.height = newHeight + "px";
-
-        // Optional: Re-run distance calculation immediately after height change?
-        // This might help if the height change itself affects the calculation significantly.
-        // requestAnimationFrame(updateCursorDistance); // Avoid infinite loop if possible
       }
-      // --- END NEW Height Adjustment Logic ---
+      // --- END Expansion Logic ---
     } catch (error) {
       console.error(
         "Error calculating cursor distance or adjusting height:",
