@@ -110,6 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const clearOutputBtn = document.getElementById("clear-output");
   const copyOutputBtn = document.getElementById("copy-output");
   const pasteOutputBtn = document.getElementById("paste-output");
+  const signatureOutputBtn = document.getElementById("signature-output"); // Get signature button
 
   // --- START: Cursor Distance Calculation ---
   const mirrorDivId = "input-mirror-div";
@@ -1699,4 +1700,95 @@ ${cleanedBody}
     }
   });
   // --- END: Click Outside Output Box to Save ---
+
+  // --- START: Signature Button Functionality ---
+  if (signatureOutputBtn && improvedMessageEl) {
+    signatureOutputBtn.addEventListener("click", () => {
+      const signatureId = "signature-line-output";
+      const existingSignature = improvedMessageEl.querySelector(
+        `#${signatureId}`
+      );
+
+      // Toggle active class on the button
+      signatureOutputBtn.classList.toggle("active");
+
+      if (signatureOutputBtn.classList.contains("active")) {
+        // Activate: Add signature if it doesn't exist
+        if (!existingSignature) {
+          const signatureDiv = document.createElement("div");
+          signatureDiv.id = signatureId;
+          signatureDiv.className = "signature-container";
+          signatureDiv.innerHTML = `
+            <div class="signature-dashes">----------------------------------</div>
+            <div class="signature-text-container">
+              <span>Polished by <a href="https://textpolish.com" target="_blank" class="signature-link" rel="noopener noreferrer">TextPolish.com</a> ✍🏻</span>
+            </div>
+          `;
+          // Append back INSIDE improvedMessageEl
+          improvedMessageEl.appendChild(signatureDiv);
+
+          // --- START: Smart Logging for Signature Spacing ---
+          // Use setTimeout to ensure styles are applied after DOM update
+          setTimeout(() => {
+            console.log("--- Signature Spacing Debug --- ");
+            const sigContainer = improvedMessageEl.querySelector(
+              "#" + signatureId
+            );
+            const sigHR = sigContainer?.querySelector(".signature-hr");
+            const sigTextDiv = sigContainer?.querySelector("div"); // The div wrapping the span
+
+            if (improvedMessageEl) {
+              const parentStyle = window.getComputedStyle(improvedMessageEl);
+              console.log("#improved-message (Parent):", {
+                paddingLeft: parentStyle.paddingLeft,
+                marginLeft: parentStyle.marginLeft,
+                display: parentStyle.display,
+                position: parentStyle.position,
+              });
+            }
+            if (sigContainer) {
+              const containerStyle = window.getComputedStyle(sigContainer);
+              console.log(".signature-container:", {
+                paddingLeft: containerStyle.paddingLeft,
+                marginLeft: containerStyle.marginLeft,
+                display: containerStyle.display,
+                position: containerStyle.position,
+              });
+            }
+            if (sigHR) {
+              const hrStyle = window.getComputedStyle(sigHR);
+              console.log("hr.signature-hr:", {
+                paddingLeft: hrStyle.paddingLeft,
+                marginLeft: hrStyle.marginLeft,
+                display: hrStyle.display,
+                position: hrStyle.position,
+                width: hrStyle.width,
+                boxSizing: hrStyle.boxSizing,
+              });
+            }
+            if (sigTextDiv) {
+              const textDivStyle = window.getComputedStyle(sigTextDiv);
+              console.log("Inner Text Div:", {
+                paddingLeft: textDivStyle.paddingLeft,
+                marginLeft: textDivStyle.marginLeft,
+                display: textDivStyle.display,
+                position: textDivStyle.position,
+              });
+            }
+            console.log("--- End Debug --- ");
+          }, 0);
+          // --- END: Smart Logging for Signature Spacing ---
+        }
+      } else {
+        // Deactivate: Remove signature if it exists
+        if (existingSignature) {
+          existingSignature.remove();
+        }
+      }
+
+      // Provide visual feedback (optional, can reuse existing function)
+      showIconFeedback(signatureOutputBtn);
+    });
+  }
+  // --- END: Signature Button Functionality ---
 });

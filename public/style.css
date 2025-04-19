@@ -552,6 +552,15 @@ h3 {
 }
 /* END: Styles for textarea wrapper and inner icons */
 
+/* START: Style for Signature Icon SVG */
+.signature-icon-svg {
+  width: 2rem; /* Match the base .icon font-size */
+  height: 2rem; /* Match the base .icon font-size */
+  vertical-align: middle; /* Align similarly to SVGs/Emoji */
+  filter: invert(1) brightness(1.5); /* Invert black to white and adjust brightness */
+}
+/* END: Style for Signature Icon SVG */
+
 /* Unified text style for input and output */
 .unified-text-style,
 textarea,
@@ -563,7 +572,7 @@ textarea,
   padding: 10px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  white-space: pre-wrap;
+
   overflow-wrap: break-word;
   word-wrap: break-word;
   text-align: left;
@@ -630,6 +639,58 @@ textarea p {
 #edit-output.active {
   background-color: #25a56a;
 }
+
+/* Signature button active state */
+#signature-output.active {
+  background-color: #25a56a; /* Same highlight as edit button */
+}
+
+/* START: Styles for Signature Line */
+.signature-container {
+  margin-top: 2rem; /* Reduced space above the signature line */
+
+  text-align: left; /* Align signature text/emoji to the LEFT */
+  font-size: 0.9rem; /* Slightly smaller font size */
+  color: var(--secondary-text); /* Dimmer text color */
+  box-sizing: border-box; /* Explicit box-sizing */
+}
+
+/* Style for the signature dashes */
+.signature-dashes {
+  color: var(--secondary-text); /* Match previous line color */
+  font-size: 0.9rem; /* Match signature text size */
+  line-height: 1; /* Keep line height tight */
+  margin-bottom: 0.3rem; /* Space below dashes */
+  white-space: nowrap; /* Prevent wrapping */
+  overflow: hidden; /* Hide overflow if needed */
+  /* Explicit Horizontal Spacing */
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Style for the div wrapping the signature text */
+.signature-text-container {
+  /* Updated selector */
+  box-sizing: border-box; /* Explicit box-sizing */
+  /* Explicit Horizontal Spacing */
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.signature-link {
+  color: #00bbff; /* Bright blue for link */
+  text-decoration: none; /* Remove underline */
+}
+
+.signature-link:hover {
+  text-decoration: underline; /* Underline on hover */
+}
+
+/* END: Styles for Signature Line */
 
 /* Improve button - all styles consolidated */
 #improve-btn {
