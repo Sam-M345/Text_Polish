@@ -115,10 +115,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- START: Cursor Distance Calculation ---
   const mirrorDivId = "input-mirror-div";
 
-  function getCaretPixelPosition(element) {
-    const position = element.selectionStart;
+  // Renamed function: Calculates vertical pixel position for a given text index
+  function getTextVPixelPosition(element, textIndex) {
     const text = element.value;
-    const textBeforeCaret = text.substring(0, position);
+    // Clamp index to be within valid range
+    const position = Math.max(0, Math.min(textIndex, text.length));
+    const textBeforePos = text.substring(0, position);
 
     let mirrorDiv = document.getElementById(mirrorDivId);
     if (!mirrorDiv) {
@@ -165,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
     mirrorDiv.style.height = "auto"; // Allow height to adjust to content
 
     // Use textContent to handle newlines correctly
-    mirrorDiv.textContent = textBeforeCaret;
+    mirrorDiv.textContent = textBeforePos;
 
     // Create a span to mark the caret position
     const span = document.createElement("span");
@@ -202,27 +204,33 @@ document.addEventListener("DOMContentLoaded", () => {
       // --- END: Shrink Logic ---
 
       // Recalculate values AFTER resetting height to auto
-      const caretY = getCaretPixelPosition(messageInputEl); // Y position relative to text start
+      const endOfTextY = getTextVPixelPosition(
+        messageInputEl,
+        messageInputEl.value.length
+      );
       const scrollTop = messageInputEl.scrollTop; // How much the textarea is scrolled
       // IMPORTANT: Re-read clientHeight and scrollHeight AFTER setting height to auto
       const clientHeight = messageInputEl.clientHeight; // Visible height
       const scrollHeight = messageInputEl.scrollHeight; // Total height of content
 
-      // Calculate the caret's visible position from the *top* of the visible area
-      const visibleCaretY = caretY - scrollTop;
+      // Calculate the end-of-text's visible position from the *top* of the visible area
+      const visibleEndOfTextY = endOfTextY - scrollTop;
 
-      // Calculate distance from the caret's visible position to the bottom of the *visible* area
-      // Subtract approx 1 line height for better trigger timing
-      const distance = Math.max(0, clientHeight - visibleCaretY - lineHeight);
+      // Calculate distance from the end-of-text's visible position to the bottom of the *visible* area
+      const distance = Math.max(
+        0,
+        clientHeight - visibleEndOfTextY - lineHeight
+      );
 
       console.log(
-        `After Auto Height -> CaretY: ${caretY}, ScrollTop: ${scrollTop}, ClientHeight: ${clientHeight}, ScrollHeight: ${scrollHeight}, VisibleCaretY: ${visibleCaretY}, Distance: ${distance}`
+        `After Auto Height -> EndOfTextY: ${endOfTextY}, ScrollTop: ${scrollTop}, ClientHeight: ${clientHeight}, ScrollHeight: ${scrollHeight}, VisibleEndOfTextY: ${visibleEndOfTextY}, DistanceToEnd: ${distance}`
       );
 
       distanceValueEl.textContent = Math.round(distance);
 
-      // --- Expansion Logic (Runs after potential shrink) ---
+      // --- Expansion Logic (Based on end of text position) ---
       if (distance <= 35) {
+        // Check distance from END OF TEXT
         // Calculate potential new height (current scrollHeight + one line)
         const potentialNewHeight = scrollHeight + lineHeight;
         // Ensure new height is at least the CSS min-height
@@ -236,7 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // --- END Expansion Logic ---
     } catch (error) {
       console.error(
-        "Error calculating cursor distance or adjusting height:",
+        "Error calculating end-of-text distance or adjusting height:",
         error
       );
       distanceValueEl.textContent = "Err"; // Indicate an error occurred
