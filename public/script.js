@@ -16,6 +16,9 @@ document.addEventListener("DOMContentLoaded", () => {
   );
   const distanceValueEl = document.getElementById("distance-value");
   const toneHeaderMicBtn = document.getElementById("tone-header-mic-indicator"); // NEW Mic Button in Tone Header
+  const keyboardStatusIndicator = document.getElementById(
+    "keyboard-status-indicator"
+  ); // Get the new indicator
 
   // Undo functionality constants
   const UNDO_STORAGE_KEY = "textPolishUndoState";
@@ -260,6 +263,70 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(updateCursorDistance, 100); // Small delay to ensure layout is stable
   }
   // --- END: Cursor Distance Calculation ---
+
+  // --- START: Viewport Height Keyboard Detection ---
+  let baseHeight = window.visualViewport
+    ? window.visualViewport.height
+    : window.innerHeight;
+  let isKeyboardOpen = false;
+
+  function updateKeyboardStatusIndicator() {
+    keyboardStatusIndicator.textContent = `Keyboard: ${
+      isKeyboardOpen ? "UP" : "DOWN"
+    }`;
+    // Ensure indicator is visible when status is determined
+    keyboardStatusIndicator.style.display = "inline-block";
+  }
+
+  function handleViewportResize() {
+    const currentHeight = window.visualViewport
+      ? window.visualViewport.height
+      : window.innerHeight;
+    const keyboardThreshold = 100; // Pixels
+
+    if (currentHeight < baseHeight - keyboardThreshold) {
+      if (!isKeyboardOpen) {
+        isKeyboardOpen = true;
+        updateKeyboardStatusIndicator();
+        console.log("Keyboard open (Viewport)");
+        // Optionally call scrollToBottom or other actions when keyboard opens
+        // scrollToBottom(false);
+      }
+    } else {
+      // Check if it was previously open to avoid redundant updates
+      if (isKeyboardOpen) {
+        isKeyboardOpen = false;
+        updateKeyboardStatusIndicator();
+        console.log("Keyboard closed (Viewport)");
+        // Optionally call scrollToBottom or other actions when keyboard closes
+        // scrollToBottom(false);
+      }
+    }
+  }
+
+  // Initial setup
+  if (keyboardStatusIndicator) {
+    updateKeyboardStatusIndicator(); // Set initial state (DOWN)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", handleViewportResize);
+    } else {
+      window.addEventListener("resize", handleViewportResize);
+    }
+
+    // Update base height on orientation change
+    window.addEventListener("orientationchange", () => {
+      // Use a timeout to allow viewport to stabilize after orientation change
+      setTimeout(() => {
+        baseHeight = window.visualViewport
+          ? window.visualViewport.height
+          : window.innerHeight;
+        console.log("Orientation changed, new baseHeight:", baseHeight);
+        // Re-evaluate keyboard state after orientation change
+        handleViewportResize();
+      }, 300); // Adjust delay if needed
+    });
+  }
+  // --- END: Viewport Height Keyboard Detection ---
 
   // --- START: Speech Recognition Logic (Restored based on temp-23-Microphone.md) ---
   let recognition = null;

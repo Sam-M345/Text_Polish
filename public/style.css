@@ -1228,3 +1228,34 @@ textarea#text-input-area,
   margin-right: 12.8px;
 }
 /* --- END: Mobile Spacing for Tone Header Buttons --- */
+
+/* --- START: Keyboard Status Indicator --- */
+#keyboard-status-indicator {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  z-index: 1001; /* Keep z-index in case of overlap issues */
+  margin-right: 0.5rem; /* Add space between indicator and button */
+  white-space: nowrap; /* Prevent text wrapping */
+  /* display: none; handled by JS/HTML */
+}
+/* --- END: Keyboard Status Indicator --- */
+
+/* --- START: Container for Indicator and Improve Button --- */
+.indicator-button-container {
+  display: flex;
+  align-items: center; /* Vertically align indicator text and button */
+  justify-content: center; /* Center the group (button might need margin auto adjustments) */
+  margin-bottom: 0.9rem; /* Match original improve button margin */
+  margin-top: 0.35rem; /* Match original improve button margin */
+}
+
+/* Adjust improve button margins within flex container */
+.indicator-button-container #improve-btn {
+  margin: 0; /* Remove original auto margins */
+  width: 60%; /* Keep original width */
+  /* flex-grow: 1; /* Optional: Allow button to take more space */
+}
+/* --- END: Container for Indicator and Improve Button --- */
