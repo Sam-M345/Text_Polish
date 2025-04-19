@@ -105,6 +105,31 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   // --- END: Auto-focus on input area ---
 
+  // --- START: Scroll to top on textarea blur (iOS "Done" button) ---
+  if (messageInputEl) {
+    messageInputEl.addEventListener("blur", () => {
+      // Check if keyboard *was* open before blur
+      if (isKeyboardOpen) {
+        // Use a small delay to see if focus immediately returns (e.g., Clear button)
+        setTimeout(() => {
+          // Check if focus is *still* not on the input after the delay
+          if (document.activeElement !== messageInputEl) {
+            // Only scroll if focus has truly moved away (like tapping "Done")
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            console.log(
+              "Scrolled to top on textarea blur after delay (focus moved away)."
+            );
+          } else {
+            console.log(
+              "Textarea blurred but focus returned quickly, skipped scroll."
+            );
+          }
+        }, 50); // 50ms delay
+      }
+    });
+  }
+  // --- END: Scroll to top on textarea blur (iOS "Done" button) ---
+
   // Check for content on page load to handle scrolling
   checkContentAndUpdateBody();
 
@@ -258,17 +283,20 @@ document.addEventListener("DOMContentLoaded", () => {
       distanceValueEl.textContent = Math.round(distance);
 
       // --- Expansion Logic (Based on end of text position) ---
-      if (distance <= 35) {
-        // Check distance from END OF TEXT
-        // Calculate potential new height (current scrollHeight + one line)
-        const potentialNewHeight = scrollHeight + lineHeight;
-        // Ensure new height is at least the CSS min-height
-        const newHeight = Math.max(potentialNewHeight, minHeightCSS);
+      // --- Only expand if keyboard is NOT open ---
+      if (!isKeyboardOpen) {
+        if (distance <= 35) {
+          // Check distance from END OF TEXT
+          // Calculate potential new height (current scrollHeight + one line)
+          const potentialNewHeight = scrollHeight + lineHeight;
+          // Ensure new height is at least the CSS min-height
+          const newHeight = Math.max(potentialNewHeight, minHeightCSS);
 
-        console.log(
-          `Cursor close to bottom (<=35px). Adjusting height. Current scrollHeight: ${scrollHeight}, New height target: ${newHeight}`
-        );
-        messageInputEl.style.height = newHeight + "px";
+          console.log(
+            `Cursor close to bottom (<=35px). Adjusting height. Current scrollHeight: ${scrollHeight}, New height target: ${newHeight}`
+          );
+          messageInputEl.style.height = newHeight + "px";
+        }
       }
       // --- END Expansion Logic ---
     } catch (error) {
@@ -351,8 +379,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // --- START: Adjust min-height when keyboard closes ---
         if (messageInputEl) messageInputEl.style.minHeight = "240px";
         // --- END: Adjust min-height when keyboard closes ---
-        // Optionally call scrollToBottom or other actions when keyboard closes
-        // scrollToBottom(false);
+
+        // --- START: Scroll to top on keyboard close ---
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        console.log("Scrolled to top on keyboard close (viewport resize).");
+        // --- END: Scroll to top on keyboard close ---
       }
     }
   }
@@ -733,14 +764,33 @@ document.addEventListener("DOMContentLoaded", () => {
   clearInputBtn.addEventListener("click", () => {
     saveStateForUndo(); // Save state BEFORE clearing
     messageInputEl.value = "";
-    // Reset height to minimum defined in CSS
-    const computedStyle = window.getComputedStyle(messageInputEl);
-    messageInputEl.style.height = computedStyle.minHeight;
-    messageInputEl.focus();
+
+    // --- START: Conditional Height Reset ---
+    // Only reset height to CSS min-height if keyboard is DOWN
+    if (!isKeyboardOpen) {
+      const computedStyle = window.getComputedStyle(messageInputEl);
+      messageInputEl.style.height = computedStyle.minHeight;
+      console.log("Keyboard down, reset height on clear.");
+    } else {
+      console.log("Keyboard up, skipped height reset on clear.");
+      // When keyboard is up, height is controlled by minHeight: 330px and content
+    }
+    // --- END: Conditional Height Reset ---
+
+    messageInputEl.focus(); // Keep focus behavior
     showIconFeedback(clearInputBtn);
     checkContentAndUpdateBody();
     createUndoButton(); // Show undo button AFTER clearing
-    updateCursorDistance(); // Update distance display after clearing
+
+    // --- START: Conditional Distance Update ---
+    // Only update distance/height if keyboard is DOWN
+    if (!isKeyboardOpen) {
+      updateCursorDistance();
+      console.log("Keyboard down, updated cursor distance on clear.");
+    } else {
+      console.log("Keyboard up, skipped cursor distance update on clear.");
+    }
+    // --- END: Conditional Distance Update ---
   });
 
   // Copy input text
@@ -765,8 +815,17 @@ document.addEventListener("DOMContentLoaded", () => {
         messageInputEl.value = text;
         messageInputEl.focus();
         showIconFeedback(pasteInputBtn);
-        // Trigger resize after pasting
-        updateCursorDistance();
+
+        // --- START: Conditional Distance Update ---
+        // Only trigger resize/distance update if keyboard is DOWN
+        if (!isKeyboardOpen) {
+          updateCursorDistance();
+          console.log("Keyboard down, updated cursor distance on paste.");
+        } else {
+          console.log("Keyboard up, skipped cursor distance update on paste.");
+        }
+        // --- END: Conditional Distance Update ---
+
         // Ensure content check runs after paste
         checkContentAndUpdateBody();
       })
