@@ -868,6 +868,8 @@ ${cleanedBody}
 
   // Update the improveBtn event listener
   improveBtn.addEventListener("click", async () => {
+    console.log("--- New Improve Click ---"); // Separator Log
+
     // --- Stop Mic if Active ---
     if (isRecognizing && recognition) {
       console.log("Improve button clicked, stopping microphone...");
@@ -1001,7 +1003,7 @@ ${cleanedBody}
           }
 
           console.log(
-            ">>> FRONTEND LOG: displayText received from backend (before splitting):",
+            ">>> FRONTEND LOG (PRE-SPLIT): displayText received/processed:\n",
             JSON.stringify(displayText)
           ); // Log before split
 
@@ -1012,15 +1014,24 @@ ${cleanedBody}
           }
 
           // Split text by line breaks (handle both \n\n and single \n with proper spacing)
-          const paragraphs = displayText.split(/\n\n+/).flatMap((block) => {
-            // Further split by single newlines but preserve as separate paragraphs
-            const result = block.split(/\n/).filter((p) => p.trim());
-            // console.log("Paragraphs after splitting:", result); // Keep original log
-            return result;
-          });
+          const paragraphs = displayText
+            .split(/\n\n+/)
+            .flatMap((block) => {
+              // Further split by single newlines but preserve as separate paragraphs
+              const result = block.split(/\n/);
+              // console.log("Paragraphs after splitting:", result); // Keep original log
+              return result;
+            })
+            .filter((p) => {
+              // Filter out empty strings, strings containing only whitespace,
+              // and strings containing only whitespace and/or variation selectors
+              const trimmed = p.trim();
+              // Check if trimmed string is empty OR if it consists ONLY of Variation Selector 16 (U+FE0F)
+              return trimmed !== "" && !/^\uFE0F+$/.test(trimmed);
+            });
 
           console.log(
-            ">>> FRONTEND LOG: Paragraphs array after splitting:",
+            ">>> FRONTEND LOG (POST-SPLIT): Paragraphs array:\n",
             paragraphs
           ); // Log the result of splitting
 
@@ -1276,75 +1287,27 @@ ${cleanedBody}
     button.textContent = newText;
   }
 
-  // Function to add paragraph breaks after emojis (except those at the very beginning) in text messages
+  // Function to add paragraph breaks after emojis (except those at the very beginning
+  // or followed by punctuation/other emojis) in text messages.
+  // Simplified: Replaces space after suitable emoji with single newline.
   function formatEmojiBreaks(text) {
-    // Don't process empty text
-    if (!text || text.length === 0) return text;
-
-    console.log("formatEmojiBreaks input:", text);
-
-    // Find all emoji groups in the text - using a more specific emoji pattern
-    const emojiGroupRegex =
-      /\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu;
-    const emojiGroups = [...text.matchAll(emojiGroupRegex)];
-
-    console.log(
-      "Detected emoji groups:",
-      emojiGroups.map((m) => ({ emoji: m[0], position: m.index }))
-    );
-
-    // If no emojis found, return the original text
-    if (!emojiGroups.length) {
-      console.log("No emojis found, returning original text");
+    // Don't process empty text or non-text-message types
+    const selectedType = document.querySelector(
+      ".text-type-option-btn[data-type].selected"
+    )?.dataset.type;
+    if (!text || text.length === 0 || selectedType !== "text-message")
       return text;
-    }
 
-    // Create a map of emoji positions for quick lookup
-    const emojiPositions = new Set();
-    emojiGroups.forEach((match) => {
-      const start = match.index;
-      const end = start + match[0].length - 1;
-      for (let i = start; i <= end; i++) {
-        emojiPositions.add(i);
-      }
-    });
+    console.log("formatEmojiBreaks input:", JSON.stringify(text));
 
-    // Create a working copy of the text
-    let processedText = text;
+    // Regex to find an emoji followed by a single space, NOT followed by punctuation or another emoji.
+    // Using lookahead assertion.
+    const emojiFollowedBySpaceRegex =
+      /(\p{Emoji_Presentation}|\p{Extended_Pictographic})(\uFE0F)?\s(?![\p{Punctuation}\s\p{Emoji_Presentation}\p{Extended_Pictographic}])/gu;
 
-    // Start from the end to avoid messing up indices when adding line breaks
-    for (let i = emojiGroups.length - 1; i >= 0; i--) {
-      const match = emojiGroups[i];
-      const groupPos = match.index;
-      const groupLength = match[0].length;
+    let processedText = text.replace(emojiFollowedBySpaceRegex, "$1$2\n");
 
-      // Skip if:
-      // 1. The emoji is the absolute first character of the text
-      // 2. Or if the emoji is already at the end of a paragraph
-      // 3. Or if the next character is a digit (to avoid splitting numbers)
-      // 4. Or if the emoji is immediately followed by another emoji
-      if (
-        groupPos === 0 ||
-        processedText.substring(
-          groupPos + groupLength,
-          groupPos + groupLength + 2
-        ) === "\n\n" ||
-        (processedText[groupPos + groupLength] &&
-          emojiPositions.has(groupPos + groupLength))
-      ) {
-        continue;
-      }
-
-      // Add double newline after the emoji group
-      const nextChar = processedText[groupPos + groupLength];
-      if (nextChar && !/\d/.test(nextChar)) {
-        processedText =
-          processedText.substring(0, groupPos + groupLength) +
-          "\n\n" +
-          processedText.substring(groupPos + groupLength);
-      }
-    }
-
+    console.log("formatEmojiBreaks output:", JSON.stringify(processedText));
     return processedText;
   }
 

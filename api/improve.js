@@ -122,24 +122,18 @@ async function improveHandler(req, res) {
       }
     );
 
-    // console.log("OpenAI response status:", apiResponse.status); // Removed for cleaner logs
-
-    // Extract the improved message from the OpenAI response
+    // Log the raw content immediately after receiving
     const rawApiResponseContent = apiResponse.data.choices[0].message.content;
-    /* // Removed debug logs
     console.log(
-      ">>> BACKEND LOG: Raw content from OpenAI API:",
+      ">>> BACKEND LOG (RAW): OpenAI API Response Content:\n",
       JSON.stringify(rawApiResponseContent)
-    ); 
-    */
+    );
 
     let improved = rawApiResponseContent.trim();
-    /* // Removed debug logs
     console.log(
       ">>> BACKEND LOG: Content after initial trim:",
       JSON.stringify(improved)
     );
-    */
 
     // If we're expecting JSON for an email, parse it
     if (messageType === "email") {
@@ -249,13 +243,11 @@ async function improveHandler(req, res) {
       // --- END: Merge lone emoji lines into previous paragraph ---
     }
 
-    // Send the improved message back to the client
-    /* // Removed debug logs
+    // Log the final content before sending to client
     console.log(
-      ">>> BACKEND LOG: Final 'improved' value being sent to client:",
+      ">>> BACKEND LOG (FINAL): Content sent to client:\n",
       JSON.stringify(improved)
     );
-    */
     return res.status(200).json({ improved });
   } catch (error) {
     console.error("Error improving message:", error);
@@ -328,21 +320,32 @@ function generatePrompt(originalText, messageType, tone) {
   // Determine if this tone should include emojis
   const shouldIncludeEmojis = !noEmojiTones.includes(tone);
 
+  // --- START: Define Standardized Instructions ---
+  const universalEmojiInstructions = `
+    **Emoji Usage Guidelines (Apply ONLY if emojis are used):**
+    - Use emojis sparingly (e.g., 0-3 relevant emojis per message or per major point).
+    - Integrate emojis naturally within sentences as a light enhancement.
+    - Choose common, easily understood, and contextually relevant emojis.
+    - **Do NOT** place emojis on their own lines or add extra blank lines around them.
+    - **Strictly AVOID** obscure symbols or random characters used as emojis (e.g., \`♂️\` )
+  `;
+
+  const humorSpecificInstructions = `
+    **Humor Tone Guidance (Apply ONLY for Humor Tone):**
+    - Humor should primarily come from clever wordplay, relatable observations, or lighthearted exaggeration relevant to the original text.
+    - The humor should feel natural, not forced.
+  `;
+  // --- END: Define Standardized Instructions ---
+
   // --- START: Prioritize Email JSON Format ---
   // If message type is email, always return JSON with separate subject and body
   if (messageType === "email") {
-    let humorInstructions = "";
+    let emailExtraInstructions = "";
+    if (shouldIncludeEmojis) {
+      emailExtraInstructions += universalEmojiInstructions;
+    }
     if (tone === "humor") {
-      // Incorporate specific humor guidelines into the email prompt
-      humorInstructions = `
-        **Humor Tone Guidelines (Apply to Body):**
-        - Humor should come from clever wordplay, relatable observations, or lighthearted exaggeration.
-        - Use emojis sparingly (0-3) as a *light enhancement*, integrated naturally within sentences.
-        - Choose common, relevant emojis (smileys, laughing faces, etc.).
-        - **Do NOT** place emojis on their own lines or add extra blank lines around them.
-        - **Strictly AVOID** obscure symbols like \`♂️\` or random \`✨\`.
-        - Make the humor feel natural, not forced.
-      `;
+      emailExtraInstructions += humorSpecificInstructions;
     }
 
     return `
@@ -356,7 +359,7 @@ function generatePrompt(originalText, messageType, tone) {
 
       Requirements:
       - Apply the "${tone}" tone to the subject and body content.
-      ${humorInstructions} 
+      ${emailExtraInstructions}
       - "subject" must be short (one line, no extra punctuation)
       - "body" MUST follow this EXACT structure:
           [Formal Greeting on its own line],
@@ -385,38 +388,18 @@ function generatePrompt(originalText, messageType, tone) {
   // --- START: Specific Prompt for Humor Tone (Non-Email) ---
   if (tone === "humor") {
     // This block is now only reached if messageType is NOT email
+    // Humor tone implies emojis are allowed, so include both sets of instructions.
     return `
-**Tone Guidance: Humor**
+${toneInstruction}
 
-Rewrite the provided text with a humorous and witty tone, suitable for the specified message type (${messageType}).
+${humorSpecificInstructions}
 
-**Key Instructions for Humorous Tone:**
+${universalEmojiInstructions}
 
-1.  **Primary Focus:** The humor should primarily come from clever wordplay, relatable observations, lighthearted exaggeration, or situational comedy relevant to the original text.
-2.  **Emoji Usage - Be Mindful:**
-    *   Use emojis **sparingly** as a *light enhancement* to the text-based humor. A good guideline is often 0-3 relevant emojis for the entire message, or perhaps 1 per major point/paragraph if it genuinely fits.
-    *   Choose **common, easily understood, and contextually relevant emojis**. Think standard smileys, laughing faces, objects, or gestures that directly relate to the joke or sentiment.
-    *   Integrate emojis **naturally within the flow of the text**, typically at the end of a sentence or clause.
-3.  **Formatting:**
-    *   **Do NOT** place emojis on their own lines.
-    *   **Do NOT** add extra blank lines before or after emojis.
-    *   Use standard paragraph breaks (like double newlines) only where logically appropriate to separate distinct ideas.
-4.  **Avoid:**
-    *   **Excessive Emojis:** Do not overload the text with emojis.
-    *   **Obscure Symbols:** Strictly avoid using symbols like \`♂️\`, \`✨\` (when used randomly), or other non-standard characters as substitutes for words or reactions. Stick to conventional emojis.
-    *   **Forced Humor:** The humor should feel natural, not forced by simply adding random emojis.
+**Original Message:**
+"${originalText}"
 
-**Example - Good:** \"Wow, you actually finished that project? I thought it would outlive us all! 😅 Congrats! 🚀\"
-**Example - Bad:**
-\"Project finished!
-✨
-Congrats!
-♂️
-🚀🤯🥳🎉💯\"
-
-Apply these guidelines to generate a genuinely funny and well-formatted response based on the user\'s original text: \"${originalText}\"
-
-Provide ONLY the improved message text without any additional explanation or formatting. Fix any spelling or grammar errors in the original text.
+Provide ONLY the improved message text without any additional explanation or formatting. Fix any spelling or grammar errors in the original text. Structure the response into logical paragraphs separated by double newlines (\n\n) where appropriate for clarity and readability.
     `;
   }
   // --- END: Specific Prompt for Humor Tone (Non-Email) ---
@@ -431,18 +414,16 @@ Provide ONLY the improved message text without any additional explanation or for
     `;
   }
 
+  // Include universal emoji instructions only if applicable for the tone
+  const emojiInstructionsForStandard = shouldIncludeEmojis
+    ? universalEmojiInstructions
+    : "DO NOT include any emojis in your response."; // Explicitly disallow if needed
+
   return `
     ${toneInstruction}
-    ${
-      shouldIncludeEmojis
-        ? `Include appropriate emojis that match the ${
-            tone === "auto" || tone === "automatic"
-              ? "automatically selected"
-              : tone
-          } tone.`
-        : `DO NOT include any emojis in your response.`
-    }
     ${socialContext}
+
+    ${emojiInstructionsForStandard}
 
     Original message: "${originalText}"
 
