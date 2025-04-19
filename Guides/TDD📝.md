@@ -14,6 +14,7 @@ Text Polish transforms user input text into polished, contextually appropriate c
 - Applying specific writing tones (formal, friendly, humorous, etc.)
 - Generating improved text via OpenAI's GPT-4o model
 - Providing well-formatted output suitable for the selected text type
+- Optionally appending a branded signature line to the output.
 
 ## 2. System Architecture
 
@@ -46,8 +47,16 @@ Text Polish follows a client-server architecture:
   - Implementing helper functions for copy/paste, clear, share, speech input, etc.
   - Handling email-specific formatting and sharing (`EmailHandler`).
   - Implementing API call retry logic.
-  - Calculating cursor distance from the bottom of the textarea (`updateCursorDistance`) and dynamically increasing the textarea height to maintain a minimum distance (replacing the previous `autoResizeTextarea` logic).
-  - Tracking cursor distance via a hidden element (`#cursor-distance-display`).
+  - Dynamically adjusting the input textarea height:
+    - Shrinks height to `auto` on interaction to fit current content.
+    - Calculates the vertical position of the **end of the text**.
+    - Expands height by one line if the end of the text is within 35px of the bottom visible edge.
+    - Height adjustment is triggered by `input`, `keyup`, and `scroll` events (removed from `focus` and `mouseup` to prevent scroll jumping).
+  - Implementing the optional Signature feature:
+    - Toggling the active state of the signature button (`#signature-output`).
+    - Appending/removing a signature `div` (`.signature-container`) inside the `#improved-message` element.
+    - The signature `div` contains a dash line (`.signature-dashes`) and a text container (`.signature-text-container`) with the "Polished by TextPolish.com ✍🏻" text and hyperlink.
+  - Tracking end-of-text distance via a hidden element (`#cursor-distance-display`).
 
 #### 2.2.2 Backend Components (`api/improve.js`)
 
@@ -83,7 +92,7 @@ This section outlines the main files and folders in the project root, excluding 
 │   ├── Handoff.md        # Template/Prompt for project handoff.
 │   └── ProjectClose.md   # Template/Prompt for project closure.
 ├── public/
-│   ├── images/           # Contains static image assets (e.g., logo.png).
+│   ├── images/           # Contains static image assets (e.g., logo.png, converted_signature.svg).
 │   ├── index.html        # Main HTML structure for the web application.
 │   ├── script.js         # Frontend JavaScript for UI logic, API calls, etc.
 │   └── style.css         # CSS styles for the application.
@@ -106,9 +115,9 @@ This section outlines the main files and folders in the project root, excluding 
 ### 3.2 Key File Descriptions
 
 - **`api/improve.js`**: The core backend logic. Sets up an Express server, defines the `/api/improve` endpoint, handles requests, generates prompts, interacts with the OpenAI API, processes responses, and applies necessary filters.
-- **`public/index.html`**: The entry point for the web application, defining the structure and elements the user interacts with.
-- **`public/style.css`**: Contains all the visual styling rules for the application, including layout, colors, fonts, and responsiveness.
-- **`public/script.js`**: Holds all the client-side JavaScript logic, including event handling, DOM manipulation, state management, API communication, and UI enhancements.
+- **`public/index.html`**: The entry point for the web application, defining the structure and elements the user interacts with, including the signature button structure.
+- **`public/style.css`**: Contains all the visual styling rules for the application, including layout, colors, fonts, responsiveness, signature styling, and icon filters.
+- **`public/script.js`**: Holds all the client-side JavaScript logic, including event handling, DOM manipulation, state management, API communication, UI enhancements like dynamic height adjustment, and signature toggling.
 - **`package.json`**: Lists project dependencies (like Express, Axios, OpenAI) and defines scripts (like `start`, `dev`) for running the application.
 - **`.env`**: Used locally to store sensitive information like the `OPENAI_API_KEY` securely.
 - **`vercel.json`**: Configures how the project is built and deployed on the Vercel platform.
@@ -120,6 +129,7 @@ This section outlines the main files and folders in the project root, excluding 
 - **HTML5**: Structure (`public/index.html`)
 - **CSS3**: Styling and responsive design (`public/style.css`)
 - **Vanilla JavaScript (ES6+)**: Client-side functionality (`public/script.js`)
+- **SVG**: Used for the signature icon (`public/images/converted_signature.svg`)
 - **Web Share API**: Native sharing functionality (with clipboard fallback)
 - **Web Speech API**: Optional speech-to-text input
 
@@ -171,7 +181,8 @@ This section outlines the main files and folders in the project root, excluding 
 6. The resulting `paragraphs` array is logged (`>>> FRONTEND LOG: ... after splitting`).
 7. Frontend iterates through the `paragraphs` array. For each non-empty string, it creates a `<p>` HTML element (`document.createElement('p')`), sets its `textContent`, and appends it to the output container (`#improved-message`).
 8. The output container is displayed.
-9. User can interact with the output using Copy, Paste to Input, Clear, Edit (contenteditable), and Share buttons.
+9. User can interact with the output using Copy, Paste to Input, Clear, Edit (contenteditable), Share, and **Signature** (`#signature-output`) buttons.
+10. Clicking the Signature button toggles its active state and appends/removes the signature `div` (`.signature-container`) containing dashes and the "Polished by..." text inside the `#improved-message` element.
 
 ## 6. API Endpoints
 
@@ -182,7 +193,7 @@ This section outlines the main files and folders in the project root, excluding 
     ```json
     {
       "text": "Original user text",
-      "messageType": "email | messenger | social", // Updated types
+      "messageType": "email | text-message | social", // Updated types
       "tone": "formal | friendly | etc." // Selected tone
       // Note: textLength was removed as it wasn't implemented
     }
@@ -220,8 +231,7 @@ This section outlines the main files and folders in the project root, excluding 
 ### 7.1 Text Type Selection
 
 - **Email**: Targets formal correspondence format. Backend expects structured JSON (subject/body) from LLM. Frontend uses `EmailHandler` for processing and sharing.
-- **Messenger**: Targets conversational, concise format. Backend expects plain text with `\n\n` separators. Frontend formats using paragraph splitting.
-
+- **Text Message**: Targets conversational, concise format. Backend expects plain text with `\n\n` separators. Frontend formats using paragraph splitting.
 - **Social Post**: Targets platform-appropriate posts (Facebook, LinkedIn, etc.). Backend expects plain text with `\n\n` separators. Frontend formats using paragraph splitting.
 
 ### 7.2 Output Formatting **(Crucial Implementation Detail)**
@@ -251,27 +261,32 @@ This section outlines the main files and folders in the project root, excluding 
 
 ### 7.6 UI/UX Enhancements
 
-- Dynamic textarea height adjustment based on cursor distance to bottom (`updateCursorDistance`), replacing previous auto-resize logic.
+- Dynamic textarea height adjustment based on the **end-of-text** position (not cursor) to bottom (`updateCursorDistance`), preventing unexpected scrolling on focus/click.
 - Dynamic input placeholder text based on selected message type.
 - Loading animations (`startHourglassAnimation`) on the "Improve" button.
 - Visual feedback (`showIconFeedback`) on icon button clicks.
 - Content-aware body class (`has-content`) for styling adjustments.
 - Speech-to-text input using Web Speech API.
 - Output text editing via `contenteditable` attribute.
-- Cursor-distance calculation element (`#cursor-distance-display`) exists in HTML but is visually hidden via CSS.
+- **Signature Feature**:
+  - Toggleable signature line appended within the output box.
+  - Includes dash line, clickable link, and emoji.
+  - Uses negative margin (`.signature-container`) to visually align with parent padding.
+  - Uses SVG icon (`converted_signature.svg`) with CSS filter for consistent appearance.
+- Hidden end-of-text distance display element (`#cursor-distance-display`).
 - Desktop-specific CSS rule reduces the size of the input clear button (`#clear-input`).
 
 ## 8. User Interface
 
 ### 8.1 Main Components
 
-- Text input area (`#text-input-area`) with dynamic placeholder and cursor-distance-based height adjustment.
+- Text input area (`#text-input-area`) with dynamic placeholder and end-of-text-based height adjustment.
 - Option selection buttons for Type and Tone.
 - Collapsible Tone Category section (`#tone-categories`).
 - Improve button (`#improve-btn`) with loading state.
-- Output display area (`#improved-message`) rendering content within `<p>` tags.
-- Action buttons for Input (Mic, Clear, Copy, Paste) and Output (Edit, Clear, Copy, Paste to Input, Share).
-- Hidden cursor distance display element (`#cursor-distance-display`).
+- Output display area (`#improved-message`) rendering content within `<p>` tags and optionally containing the signature `div`.
+- Action buttons for Input (Mic, Clear, Copy, Paste) and Output (Clear, Copy, Paste to Input, **Signature**, Share).
+- Hidden distance display element (`#cursor-distance-display`).
 
 ### 8.2 Responsive Design
 
@@ -289,7 +304,7 @@ This section outlines the main files and folders in the project root, excluding 
 
 ### 9.2 Production Deployment
 
-- Can be deployed to platforms supporting Node.js (e.g., Vercel, Render, Heroku).
+- Deployed on Vercel (configured via `vercel.json`).
 - Requires setting the `OPENAI_API_KEY` environment variable on the hosting platform.
 - Express serves the static frontend files.
 
@@ -308,7 +323,7 @@ This section outlines the main files and folders in the project root, excluding 
 ### 11.1 Frontend
 
 - Vanilla JS avoids framework overhead.
-- DOM manipulation is generally limited to button state changes and rendering output.
+- DOM manipulation is generally limited to button state changes and rendering output/signature.
 
 ### 11.2 Backend
 
@@ -323,15 +338,16 @@ This section outlines the main files and folders in the project root, excluding 
 - History of previous improvements
 - Additional text types (social media, academic, etc.)
 - Multi-language support
-- More advanced formatting options
+- More advanced formatting options (bold, italics, lists)
+- Custom signatures
 
 ### 12.2 Technical Improvements
 
 - Client-side caching
 - Service workers for offline capabilities
-- Analytics integration for usage patterns
+- More robust frontend state management (if complexity increases)
 - A/B testing for UI improvements
 
 ## 13. Conclusion
 
-Text Polish provides an efficient solution for improving written communications through AI assistance. The architecture leverages specific prompting strategies and complementary frontend/backend processing to deliver appropriately formatted output for different communication types (Email, Messenger, Social Post). Key implementation details, such as JSON handling for emails and newline-based paragraph splitting for other types, ensure a user-friendly experience.
+Text Polish provides an efficient solution for improving written communications through AI assistance. The architecture leverages specific prompting strategies and complementary frontend/backend processing to deliver appropriately formatted output for different communication types (Email, Messenger, Social Post). Key implementation details, such as JSON handling for emails, newline-based paragraph splitting, end-of-text height adjustment, and the optional signature feature, ensure a user-friendly and functional experience.
