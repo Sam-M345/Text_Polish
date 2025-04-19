@@ -1,4 +1,30 @@
+// --- ensure we always start at the top on iOS Safari ---
+if ("scrollRestoration" in history) {
+  history.scrollRestoration = "manual";
+}
+
+// pageshow fires on initial load + when restoring from back-forward cache
+window.addEventListener("pageshow", () => {
+  // tiny timeout helps ensure it kicks in *after* any input-focus scroll
+  setTimeout(() => {
+    // Check if we are NOT already at the top before scrolling
+    if (window.scrollY !== 0) {
+      window.scrollTo(0, 0);
+      console.log("Forced scroll to top on pageshow");
+    }
+  }, 0);
+});
+
 document.addEventListener("DOMContentLoaded", () => {
+  // --- START: Scroll to top on load ---
+  setTimeout(() => {
+    if (window.scrollY !== 0) {
+      window.scrollTo(0, 0);
+      console.log("Scrolled to top on load (delayed, after focus).");
+    }
+  }, 50); // 50ms delay
+  // --- END: Scroll to top on load ---
+
   // Get option buttons
   const typeButtons = document.querySelectorAll(
     ".text-type-option-btn[data-type]"
@@ -274,8 +300,6 @@ document.addEventListener("DOMContentLoaded", () => {
     keyboardStatusIndicator.textContent = `Keyboard: ${
       isKeyboardOpen ? "UP" : "DOWN"
     }`;
-    // Ensure indicator is visible when status is determined
-    keyboardStatusIndicator.style.display = "inline-block";
   }
 
   function handleViewportResize() {
@@ -289,8 +313,34 @@ document.addEventListener("DOMContentLoaded", () => {
         isKeyboardOpen = true;
         updateKeyboardStatusIndicator();
         console.log("Keyboard open (Viewport)");
-        // Optionally call scrollToBottom or other actions when keyboard opens
-        // scrollToBottom(false);
+        // --- START: Adjust min-height when keyboard opens ---
+        if (messageInputEl) messageInputEl.style.minHeight = "330px";
+        // --- END: Adjust min-height when keyboard opens ---
+        // --- START: Scroll input area near top when keyboard opens ---
+        setTimeout(() => {
+          if (messageInputEl) {
+            const desiredOffset = 10; // Pixels to leave between viewport top and textarea top
+            const elementTopRelativeToViewport =
+              messageInputEl.getBoundingClientRect().top;
+            const currentScrollY = window.scrollY;
+            // Calculate how much we need to scroll UP (elementTop - offset)
+            const scrollAmount = elementTopRelativeToViewport - desiredOffset;
+            // Calculate the final absolute scroll position
+            const targetScrollY = currentScrollY + scrollAmount;
+
+            window.scrollTo({
+              top: targetScrollY,
+              behavior: "smooth",
+            });
+            console.log(
+              `Scrolled input area near top (offset: ${desiredOffset}px) on keyboard open. Scrolled by: ${Math.round(
+                scrollAmount
+              )}px`
+            );
+            // Removed: messageInputEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100); // Delay to allow layout to stabilize
+        // --- END: Scroll input area near top when keyboard opens ---
       }
     } else {
       // Check if it was previously open to avoid redundant updates
@@ -298,6 +348,9 @@ document.addEventListener("DOMContentLoaded", () => {
         isKeyboardOpen = false;
         updateKeyboardStatusIndicator();
         console.log("Keyboard closed (Viewport)");
+        // --- START: Adjust min-height when keyboard closes ---
+        if (messageInputEl) messageInputEl.style.minHeight = "240px";
+        // --- END: Adjust min-height when keyboard closes ---
         // Optionally call scrollToBottom or other actions when keyboard closes
         // scrollToBottom(false);
       }

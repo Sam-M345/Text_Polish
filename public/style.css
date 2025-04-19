@@ -700,7 +700,7 @@ textarea p {
   margin-bottom: 0.9rem;
   margin-left: auto;
   margin-right: auto;
-  padding: 0.9rem;
+  padding: 0.6rem;
   background-color: #146d43;
   color: white;
   border: none;
@@ -1239,7 +1239,7 @@ textarea#text-input-area,
   z-index: 1001; /* Keep z-index in case of overlap issues */
   margin-right: 0.5rem; /* Add space between indicator and button */
   white-space: nowrap; /* Prevent text wrapping */
-  /* display: none; handled by JS/HTML */
+  display: none; /* Hide the indicator permanently */
 }
 /* --- END: Keyboard Status Indicator --- */
 
@@ -1249,7 +1249,7 @@ textarea#text-input-area,
   align-items: center; /* Vertically align indicator text and button */
   justify-content: center; /* Center the group (button might need margin auto adjustments) */
   margin-bottom: 0.9rem; /* Match original improve button margin */
-  margin-top: 0.35rem; /* Match original improve button margin */
+  margin-top: 0rem; /* Match original improve button margin */
 }
 
 /* Adjust improve button margins within flex container */
