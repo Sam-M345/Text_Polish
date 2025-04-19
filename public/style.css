@@ -896,7 +896,7 @@ body.tones-expanded .output-section {
 /* Input and output areas */
 textarea#text-input-area,
 #improved-message {
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   padding: 0.8rem;
   padding-bottom: 0.8rem; /* Ensure padding for icons is kept on desktop too */
 }
