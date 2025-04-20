@@ -31,18 +31,17 @@ html {
   overflow-y: auto;
 }
 
-
 /* ---------- TEXT‑INPUT‑AREA : consolidated ---------- */
 #text-input-area {
   /* Box‑model & sizing */
   width: 100%;
   min-height: 240px;
-  padding: 12px 12px 35px;          /* extra bottom room for inner icons */
+  padding: 12px 12px 35px; /* extra bottom room for inner icons */
   box-sizing: border-box;
   border: 0.11px solid #555;
   border-radius: 8px;
-  overflow-y: auto;                 /* scrollbar only when needed */
-  resize: none;                     /* disable manual resize */
+  overflow-y: auto; /* scrollbar only when needed */
+  resize: none; /* disable manual resize */
   transition: min-height 0.1s ease-out;
 
   /* Visuals & typography */
@@ -51,11 +50,16 @@ html {
   font-size: 1.35rem;
   cursor: text;
   -webkit-appearance: none;
-          appearance: none;
+  appearance: none;
 }
 
-#text-input-area p            { margin: 0 0 0.7rem; line-height: 1.4; }
-#text-input-area p:last-child { margin-bottom: 0; }
+#text-input-area p {
+  margin: 0 0 0.7rem;
+  line-height: 1.4;
+}
+#text-input-area p:last-child {
+  margin-bottom: 0;
+}
 
 /* Placeholder */
 #text-input-area:empty::before {
@@ -64,12 +68,6 @@ html {
   display: block;
   cursor: text;
 }
-
-
-
-
-
-
 
 /* Layout */
 .app-container {
@@ -135,7 +133,7 @@ h3 {
   padding-right: 2rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  
+
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -144,7 +142,6 @@ h3 {
   position: relative;
   white-space: nowrap;
   margin: 0.8rem 0rem;
-
 }
 
 .text-type-container h2 {
@@ -441,7 +438,6 @@ h3 {
 .collapsed-tones {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease-out;
   width: 100%;
   position: relative;
   z-index: 1;
@@ -449,7 +445,6 @@ h3 {
 
 .expanded-tones {
   max-height: 500px;
-  transition: max-height 0.3s ease-in;
   position: relative;
   z-index: 2;
   width: 100%;
@@ -620,42 +615,22 @@ h3 {
 }
 /* --- END: Text Area Inner Icons --- */
 
-
-
-/* Base Styling */
-
-
-  /* Appearance & Text */
-  font-size: 1.35rem; /* Consolidated from media query */
-  line-height: 1.6;
-  color: #eee;
-  background-color: #333;
-  font-family: inherit;
-  text-align: left;
-  word-wrap: break-word; /* For older browsers */
-  overflow-wrap: break-word;
-  word-break: break-word; /* Ensure long words break */
-  cursor: text;
-  -webkit-appearance: none;
-  appearance: none;
-
-  /* Focus & Outline */
-  outline: none;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Default shadow */
-}
-
-
-
 /* --- START: Output Text Area Styling (#polished-message) --- */
 
 /* Base Styling (Shares some styles with input) */
 #polished-message {
+  /* Sizing & Box Model */
   max-height: none;
+  padding: 10px; /* Base padding */
+  box-sizing: border-box; /* Added for consistency */
+  border: 0.11px solid #555; /* Added border */
+  border-radius: 8px; /* Added border-radius */
+
+  /* Appearance & Text */
+  background-color: var(--card-bg); /* Added background */
+  font-family: inherit;
   overflow: visible;
   word-break: break-word;
-  font-family: inherit;
-  border: none;
-  padding-bottom: 35px; /* Keep padding for icons */
 }
 
 /* Polished message when editable */
