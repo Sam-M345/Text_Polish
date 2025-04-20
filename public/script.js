@@ -98,11 +98,11 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("[INIT] Focus Status Element Found:", focusStatusEl);
 
   // Flag to track if polished message was just blurred
-  let didJustBlurPolishedMessage = false;
+  // let didJustBlurPolishedMessage = false; // <<< REMOVED
   // Flag to track if input area was just blurred
-  let didJustBlurInputArea = false;
+  // let didJustBlurInputArea = false; // <<< REMOVED
   // Track WHEN the textarea last blurred (iOS race-proof)
-  let lastInputBlurTs = 0; // 0 = never
+  // let lastInputBlurTs = 0;          // <<< REMOVED
 
   // Define the specific strings and their corresponding selectors
   const focusMappings = {
@@ -582,38 +582,26 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         // --- END: Adjust input area height ---
 
-        // --- START: Conditional Scroll to top on keyboard close (Timestamp Guarded) ---
+        // --- START: Conditional Scroll to top on keyboard close (REMOVED) ---
+        /* --- REMOVED Timestamp/Flag Guarded Scroll Logic ---
         // Check if the input area blurred very recently
         const recentlyBlurredInput = Date.now() - lastInputBlurTs < 350;
 
-        if (
-          recentlyBlurredInput ||
-          didJustBlurInputArea ||
-          didJustBlurPolishedMessage
-        ) {
+        if (recentlyBlurredInput || didJustBlurInputArea || didJustBlurPolishedMessage) {
           // If keyboard closed right after blurring input OR polished message, OR if input blur was very recent,
           // DON'T scroll.
-          console.log(
-            `Keyboard closed, skipping scroll to top due to: ${
-              recentlyBlurredInput
-                ? "Recent Input Blur"
-                : didJustBlurInputArea
-                ? "Input Flag"
-                : "Polished Flag"
-            }`
-          );
+          console.log(`Keyboard closed, skipping scroll to top due to: ${recentlyBlurredInput ? 'Recent Input Blur' : (didJustBlurInputArea ? 'Input Flag' : 'Polished Flag')}`);
         } else {
           // Otherwise (e.g., keyboard closed without recent blur, like switching apps), scroll to top
-          window.scrollTo({ top: 0, behavior: "smooth" }); // <<< KEEPING Guarded Scroll >>>
-          console.log(
-            "Scrolled to top on keyboard close (viewport resize, no recent input/output blur detected)."
-          );
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          console.log("Scrolled to top on keyboard close (viewport resize, no recent input/output blur detected).");
         }
 
         // Reset flags for the next cycle regardless of scroll decision
         didJustBlurInputArea = false;
         didJustBlurPolishedMessage = false;
         // No need to reset lastInputBlurTs, it just gets overwritten on next blur
+        */
         // --- END: Conditional Scroll to top on keyboard close ---
       }
     }
@@ -646,9 +634,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- START: Add Blur Listeners for Input and Polished Message ---
   if (messageInputEl) {
     messageInputEl.addEventListener("blur", () => {
-      console.log("Input area blurred, setting flag and timestamp."); // Updated log
-      didJustBlurInputArea = true;
-      lastInputBlurTs = Date.now(); // <<< Record timestamp
+      // console.log("Input area blurred, setting flag and timestamp."); // Updated log
+      // didJustBlurInputArea = true; // <<< REMOVED
+      // lastInputBlurTs = Date.now(); // <<< REMOVED
       // Update focus indicator after a delay
       setTimeout(
         () => updateFocusIndicator(null, "messageInputEl_blur_timeout"),
@@ -661,8 +649,8 @@ document.addEventListener("DOMContentLoaded", () => {
     polishedMessageEl.addEventListener("blur", () => {
       // Check if it was editable when blurred
       if (polishedMessageEl.getAttribute("contenteditable") === "true") {
-        console.log("Polished message blurred while editable, setting flag.");
-        didJustBlurPolishedMessage = true;
+        // console.log("Polished message blurred while editable, setting flag."); // Updated log
+        // didJustBlurPolishedMessage = true; // <<< REMOVED
         // Also update focus indicator state since blur might not trigger touch timeout reliably
         setTimeout(
           () => updateFocusIndicator(null, "polishedMessageEl_blur_timeout"),
@@ -1496,11 +1484,13 @@ ${cleanedBody}
           polishedMessageEl.textContent = "No improvements were made.";
         }
 
-        // Scroll to the very bottom of the page
+        // Scroll to the very bottom of the page // <<< COMMENTED OUT
+        /*
         window.scrollTo({
           top: document.body.scrollHeight,
           behavior: "smooth",
         });
+        */
 
         // Set button text back to normal immediately
         stopHourglassAnimation(polishBtn, "Polish");
