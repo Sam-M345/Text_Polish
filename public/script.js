@@ -22,8 +22,15 @@ function getTextFromContentEditable(element) {
 }
 
 function setTextToContentEditable(element, text) {
+  debugLog("SET_TEXT", "setTextToContentEditable called", {
+    text: text?.substring(0, 50) + "...",
+  }); // Log start
   // Clear content first
+  const oldHTML = element.innerHTML;
   element.innerHTML = "";
+  debugLog("SET_TEXT", "Element cleared", {
+    oldHTML: oldHTML?.substring(0, 50) + "...",
+  });
 
   // Add text with paragraph formatting
   if (text && text.trim()) {
@@ -33,19 +40,39 @@ function setTextToContentEditable(element, text) {
         return block.split(/\n/);
       })
       .filter((p) => p.trim() !== "");
+    debugLog("SET_TEXT", "Processed paragraphs", {
+      count: paragraphs.length,
+      firstPara: paragraphs[0]?.substring(0, 30) + "...",
+    });
 
     if (paragraphs.length > 0) {
-      paragraphs.forEach((paragraph) => {
+      paragraphs.forEach((paragraph, index) => {
         if (paragraph.trim()) {
           const p = document.createElement("p");
           p.textContent = paragraph.trim();
           element.appendChild(p);
+          debugLog("SET_TEXT", `Appended paragraph ${index}`, {
+            content: paragraph.trim().substring(0, 30) + "...",
+          });
         }
       });
     } else {
+      // If splitting results in no paragraphs (e.g., single line with no newlines), treat as plain text node
+      debugLog(
+        "SET_TEXT",
+        "No paragraphs found, setting text content directly"
+      );
       element.textContent = text;
     }
+  } else {
+    debugLog(
+      "SET_TEXT",
+      "Input text is empty or whitespace, leaving element empty"
+    );
   }
+  debugLog("SET_TEXT", "setTextToContentEditable finished", {
+    finalHTML: element.innerHTML?.substring(0, 50) + "...",
+  });
 }
 
 function getCursorPositionInContentEditable(element) {
@@ -571,34 +598,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
       distanceValueEl.textContent = Math.round(distance);
 
-      // Height adjustment (only if not keyboard open)
-      if (!isKeyboardOpen) {
-        // Only adjust height if distance is small AND the input actually has content
-        const hasContent =
-          getTextFromContentEditable(messageInputEl).trim() !== "";
-        if (distance <= 35 && hasContent) {
-          // Potential new height calculation
-          const potentialNewHeight = scrollHeight + lineHeight;
-          const newHeight = Math.max(potentialNewHeight, minHeightCSS);
+      // Height adjustment (only if keyboard IS open and cursor is near bottom)
+      // <<< MODIFICATION START: Check isKeyboardOpen here >>>
+      if (isKeyboardOpen && distance <= 35 && hasContent) {
+        // <<< MODIFICATION END >>>
+        // Potential new height calculation
+        const potentialNewHeight = scrollHeight + lineHeight;
+        const newHeight = Math.max(potentialNewHeight, minHeightCSS);
 
-          // Check for large height changes
-          const heightDifference = newHeight - originalHeight;
+        // Check for large height changes
+        const heightDifference = newHeight - originalHeight;
 
-          if (Math.abs(heightDifference) < 100 || atVeryEnd) {
-            console.log(
-              `Cursor close to bottom (<=35px). Adjusting height. Current scrollHeight: ${scrollHeight}, New height target: ${newHeight}`
-            );
+        if (Math.abs(heightDifference) < 100 || atVeryEnd) {
+          debugLog(
+            "CURSOR_DISTANCE",
+            "Adjusting height (Keyboard UP, cursor near bottom)",
+            { scrollHeight, newHeight }
+          ); // Updated Log Context
+          console.log(
+            `Cursor close to bottom (<=35px). Adjusting height. Current scrollHeight: ${scrollHeight}, New height target: ${newHeight}`
+          );
 
-            // Apply the new height
-            messageInputEl.style.minHeight = newHeight + "px";
-          } else {
-            console.log(
-              `Skipping large height adjustment (${heightDifference}px) to prevent visual jump`
-            );
-            // Restore original height
-            messageInputEl.style.minHeight = originalHeight + "px";
-          }
+          // Apply the new height
+          messageInputEl.style.minHeight = newHeight + "px";
+        } else {
+          debugLog(
+            "CURSOR_DISTANCE",
+            "Skipping large height adjustment (Keyboard UP)",
+            { heightDifference }
+          ); // Updated Log Context
+          console.log(
+            `Skipping large height adjustment (${heightDifference}px) to prevent visual jump`
+          );
+          // Restore original height
+          messageInputEl.style.minHeight = originalHeight + "px";
         }
+        // Removed the `else` block that previously handled the !isKeyboardOpen case for this specific adjustment
       }
 
       // Always restore scroll position
@@ -1420,13 +1455,70 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Paste output text to input
   pasteOutputBtn.addEventListener("click", () => {
-    if (polishedMessageEl.innerText || polishedMessageEl.textContent) {
-      setTextToContentEditable(
-        messageInputEl,
-        polishedMessageEl.innerText || polishedMessageEl.textContent
-      );
+    const outputText =
+      polishedMessageEl.innerText || polishedMessageEl.textContent;
+    debugLog("PASTE_OUTPUT", "Paste output button clicked", {
+      outputText: outputText?.substring(0, 50) + "...",
+    });
+
+    if (outputText) {
+      const inputBeforeHTML = messageInputEl.innerHTML;
+      const inputBeforeHeight = messageInputEl.offsetHeight;
+      const inputBeforeMinHeight = messageInputEl.style.minHeight;
+      debugLog("PASTE_OUTPUT", "Before setting text", {
+        inputBeforeHTML: inputBeforeHTML?.substring(0, 50) + "...",
+        inputBeforeHeight,
+        inputBeforeMinHeight,
+      });
+
+      // <<< ADDED RESET >>>
+      debugLog("PASTE_OUTPUT", "Resetting min-height to 240px before paste");
+      messageInputEl.style.minHeight = "240px";
+      // <<< END ADDED RESET >>>
+
+      setTextToContentEditable(messageInputEl, outputText);
+
+      const inputAfterHTML = messageInputEl.innerHTML;
+      debugLog("PASTE_OUTPUT", "After setting text", {
+        inputAfterHTML: inputAfterHTML?.substring(0, 50) + "...",
+      });
+
       messageInputEl.focus();
+      debugLog("PASTE_OUTPUT", "Input focused");
       showIconFeedback(pasteOutputBtn);
+
+      // <<< ADDED UPDATES >>>
+      // Ensure height is recalculated and body class is updated
+      debugLog(
+        "PASTE_OUTPUT",
+        "Calling updateCursorDistance and checkContentAndUpdateBody"
+      );
+      const heightBeforeUpdate = messageInputEl.offsetHeight;
+      const minHeightBeforeUpdate = messageInputEl.style.minHeight;
+      updateCursorDistance();
+      checkContentAndUpdateBody();
+      const heightAfterUpdate = messageInputEl.offsetHeight;
+      const minHeightAfterUpdate = messageInputEl.style.minHeight;
+
+      // <<< WORKAROUND START: Reset height if keyboard is closed >>>
+      if (!isKeyboardOpen) {
+        debugLog(
+          "PASTE_OUTPUT",
+          "Applying height: auto workaround (Keyboard CLOSED)"
+        );
+        messageInputEl.style.height = "auto";
+      }
+      // <<< WORKAROUND END >>>
+
+      debugLog("PASTE_OUTPUT", "Finished updates", {
+        heightBeforeUpdate,
+        minHeightBeforeUpdate,
+        heightAfterUpdate,
+        minHeightAfterUpdate,
+      });
+      console.log("Updated distance and content status after paste-output.");
+    } else {
+      debugLog("PASTE_OUTPUT", "No output text to paste");
     }
   });
 
@@ -2697,16 +2789,31 @@ ${cleanedBody}
   // Enhance updateCursorDistance with logging
   const originalUpdateCursorDistance = updateCursorDistance;
   updateCursorDistance = function () {
+    // Note: Line numbers inside this function might shift relative to original
     if (!messageInputEl || !distanceValueEl) return;
 
     const beforeHeight = messageInputEl.offsetHeight;
     const beforeScrollTop = messageInputEl.scrollTop;
 
+    // <<< FIX START: Use correct method for contenteditable cursor position >>>
+    let cursorPos = -1; // Default value if error occurs
+    let textLength = 0;
+    try {
+      cursorPos = getCursorPositionInContentEditable(messageInputEl);
+      textLength = getTextFromContentEditable(messageInputEl).length;
+    } catch (e) {
+      console.error("Error getting cursor/text length in debug log:", e);
+    }
+    const isAtEnd = textLength > 0 ? cursorPos >= textLength - 5 : false;
+    // <<< FIX END >>>
+
     debugLog("CURSOR_DISTANCE", "Before update", {
       height: beforeHeight,
       scrollTop: beforeScrollTop,
-      selectionStart: messageInputEl.selectionStart,
-      atEnd: messageInputEl.selectionStart >= messageInputEl.value.length - 5,
+      // selectionStart: messageInputEl.selectionStart, // OLD INCORRECT LINE
+      cursorPos: cursorPos, // Use calculated position
+      // atEnd: messageInputEl.selectionStart >= getTextFromContentEditable(messageInputEl).length - 5, // OLD INCORRECT LINE
+      atEnd: isAtEnd, // Use calculated boolean
     });
 
     // Call original function
@@ -2715,12 +2822,31 @@ ${cleanedBody}
     const afterHeight = messageInputEl.offsetHeight;
     const afterScrollTop = messageInputEl.scrollTop;
 
+    // <<< FIX START: Update subsequent logs as well >>>
+    let afterCursorPos = -1;
+    let afterTextLength = 0;
+    try {
+      afterCursorPos = getCursorPositionInContentEditable(messageInputEl);
+      afterTextLength = getTextFromContentEditable(messageInputEl).length;
+    } catch (e) {
+      console.error(
+        "Error getting cursor/text length in debug log (after):",
+        e
+      );
+    }
+    const afterIsAtEnd =
+      afterTextLength > 0 ? afterCursorPos >= afterTextLength - 5 : false;
+    // <<< FIX END >>>
+
     debugLog("CURSOR_DISTANCE", "After update", {
       height: afterHeight,
       heightChange: afterHeight - beforeHeight,
       scrollTop: afterScrollTop,
       scrollChange: afterScrollTop - beforeScrollTop,
       distanceValue: distanceValueEl.textContent,
+      // Add corrected cursor info if needed for further debugging
+      afterCursorPos: afterCursorPos,
+      afterAtEnd: afterIsAtEnd,
     });
 
     // If height changed significantly, this could be causing the jump
@@ -2730,8 +2856,10 @@ ${cleanedBody}
         to: afterHeight,
         change: afterHeight - beforeHeight,
         keyboardOpen: isKeyboardOpen,
-        cursorPosition: messageInputEl.selectionStart,
-        atEnd: messageInputEl.selectionStart >= messageInputEl.value.length - 5,
+        // cursorPosition: messageInputEl.selectionStart, // OLD INCORRECT LINE
+        cursorPos: afterCursorPos, // Use calculated position
+        // atEnd: messageInputEl.selectionStart >= getTextFromContentEditable(messageInputEl).length - 5, // OLD INCORRECT LINE
+        atEnd: afterIsAtEnd, // Use calculated boolean
       });
     }
 
@@ -2742,8 +2870,10 @@ ${cleanedBody}
         to: afterScrollTop,
         change: afterScrollTop - beforeScrollTop,
         keyboardOpen: isKeyboardOpen,
-        cursorPosition: messageInputEl.selectionStart,
-        atEnd: messageInputEl.selectionStart >= messageInputEl.value.length - 5,
+        // cursorPosition: messageInputEl.selectionStart, // OLD INCORRECT LINE
+        cursorPos: afterCursorPos, // Use calculated position
+        // atEnd: messageInputEl.selectionStart >= getTextFromContentEditable(messageInputEl).length - 5, // OLD INCORRECT LINE
+        atEnd: afterIsAtEnd, // Use calculated boolean
       });
     }
   };
