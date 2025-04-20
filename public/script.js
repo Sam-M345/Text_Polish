@@ -50,6 +50,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const focusStatusEl = document.getElementById("focus-status-indicator");
   console.log("[INIT] Focus Status Element Found:", focusStatusEl);
 
+  // Flag to track if polished message was just blurred
+  let didJustBlurPolishedMessage = false;
+
   // Define the specific strings and their corresponding selectors
   const focusMappings = {
     logo: ".logo-container",
@@ -496,10 +499,19 @@ document.addEventListener("DOMContentLoaded", () => {
         if (messageInputEl) messageInputEl.style.minHeight = "240px";
         // --- END: Adjust min-height when keyboard closes ---
 
-        // --- START: Scroll to top on keyboard close ---
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        console.log("Scrolled to top on keyboard close (viewport resize).");
-        // --- END: Scroll to top on keyboard close ---
+        // --- START: Conditional Scroll to top on keyboard close ---
+        if (didJustBlurPolishedMessage) {
+          // If keyboard closed right after blurring the editable polished message, DON'T scroll
+          console.log(
+            "Keyboard closed after polished message blur, skipping scroll to top."
+          );
+          didJustBlurPolishedMessage = false; // Reset the flag
+        } else {
+          // Otherwise (e.g., keyboard closed after input area blur), scroll to top
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          console.log("Scrolled to top on keyboard close (viewport resize).");
+        }
+        // --- END: Conditional Scroll to top on keyboard close ---
       }
     }
   }
@@ -527,6 +539,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   // --- END: Viewport Height Keyboard Detection ---
+
+  // --- START: Add Blur Listener for Polished Message ---
+  if (polishedMessageEl) {
+    polishedMessageEl.addEventListener("blur", () => {
+      // Check if it was editable when blurred
+      if (polishedMessageEl.getAttribute("contenteditable") === "true") {
+        console.log("Polished message blurred while editable, setting flag.");
+        didJustBlurPolishedMessage = true;
+        // Also update focus indicator state since blur might not trigger touch timeout reliably
+        setTimeout(
+          () => updateFocusIndicator(null, "polishedMessageEl_blur_timeout"),
+          50
+        );
+      }
+    });
+  }
+  // --- END: Add Blur Listener for Polished Message ---
 
   // --- START: Speech Recognition Logic (Restored based on temp-23-Microphone.md) ---
   let recognition = null;
