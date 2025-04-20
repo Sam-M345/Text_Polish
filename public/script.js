@@ -244,7 +244,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const toneMicListeningIndicator = document.getElementById(
     "tone-mic-listening-indicator"
   );
-  const distanceValueEl = document.getElementById("distance-value");
   const toneHeaderMicBtn = document.getElementById("tone-header-mic-indicator"); // NEW Mic Button in Tone Header
   const keyboardStatusIndicator = document.getElementById(
     "keyboard-status-indicator"
@@ -555,7 +554,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateCursorDistance() {
-    if (!messageInputEl || !distanceValueEl) return; // Ensure elements exist
+    if (!messageInputEl) return; // Keep check for messageInputEl
 
     try {
       // Save current scroll position and selection before any changes
@@ -595,8 +594,6 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log(
         `After Auto Height -> EndOfTextY: ${endOfTextY}, ScrollTop: ${scrollTop}, ClientHeight: ${clientHeight}, ScrollHeight: ${scrollHeight}, VisibleEndOfTextY: ${visibleEndOfTextY}, DistanceToEnd: ${distance}`
       );
-
-      distanceValueEl.textContent = Math.round(distance);
 
       // Height adjustment (only if keyboard IS open and cursor is near bottom)
       // <<< MODIFICATION START: Check isKeyboardOpen here >>>
@@ -2817,7 +2814,7 @@ ${cleanedBody}
   const originalUpdateCursorDistance = updateCursorDistance;
   updateCursorDistance = function () {
     // Note: Line numbers inside this function might shift relative to original
-    if (!messageInputEl || !distanceValueEl) return;
+    if (!messageInputEl) return; // Keep check for messageInputEl
 
     const beforeHeight = messageInputEl.offsetHeight;
     const beforeScrollTop = messageInputEl.scrollTop;
@@ -2870,7 +2867,7 @@ ${cleanedBody}
       heightChange: afterHeight - beforeHeight,
       scrollTop: afterScrollTop,
       scrollChange: afterScrollTop - beforeScrollTop,
-      distanceValue: distanceValueEl.textContent,
+      // distanceValue: distanceValueEl.textContent, // REMOVED
       // Add corrected cursor info if needed for further debugging
       afterCursorPos: afterCursorPos,
       afterAtEnd: afterIsAtEnd,

@@ -31,6 +31,46 @@ html {
   overflow-y: auto;
 }
 
+
+/* ---------- TEXT‑INPUT‑AREA : consolidated ---------- */
+#text-input-area {
+  /* Box‑model & sizing */
+  width: 100%;
+  min-height: 240px;
+  padding: 12px 12px 35px;          /* extra bottom room for inner icons */
+  box-sizing: border-box;
+  border: 0.11px solid #555;
+  border-radius: 8px;
+  overflow-y: auto;                 /* scrollbar only when needed */
+  resize: none;                     /* disable manual resize */
+  transition: min-height 0.1s ease-out;
+
+  /* Visuals & typography */
+  background: #333;
+  color: #eee;
+  font-size: 1.35rem;
+  cursor: text;
+  -webkit-appearance: none;
+          appearance: none;
+}
+
+#text-input-area p            { margin: 0 0 0.7rem; line-height: 1.4; }
+#text-input-area p:last-child { margin-bottom: 0; }
+
+/* Placeholder */
+#text-input-area:empty::before {
+  content: attr(data-placeholder);
+  color: #888;
+  display: block;
+  cursor: text;
+}
+
+
+
+
+
+
+
 /* Layout */
 .app-container {
   margin-bottom: 8rem;
@@ -95,7 +135,7 @@ h3 {
   padding-right: 2rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  margin-bottom: 1rem;
+  
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -103,7 +143,8 @@ h3 {
   gap: 1.4rem;
   position: relative;
   white-space: nowrap;
-  margin-top: 0.4rem;
+  margin: 0.8rem 0rem;
+
 }
 
 .text-type-container h2 {
@@ -126,7 +167,7 @@ h3 {
   padding-right: 1rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  margin-top: 0.7rem;
+
   margin-bottom: 1rem;
 }
 
@@ -579,69 +620,35 @@ h3 {
 }
 /* --- END: Text Area Inner Icons --- */
 
-/* Unified text style for input and output */
-.unified-text-style,
-textarea,
-#polished-message {
-  font-size: 20px;
+
+
+/* Base Styling */
+
+
+  /* Appearance & Text */
+  font-size: 1.35rem; /* Consolidated from media query */
   line-height: 1.6;
-  color: var(--text-color);
-  background-color: var(--card-bg);
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  text-align: left;
-  -webkit-appearance: none;
-}
-
-/* Additional styles for textarea - DEPRECATED, replaced with editable-div-input */
-textarea#text-input-area {
-  /* Added ID for specificity */
-  display: none; /* Hide the old textarea completely */
-}
-
-/* Editable div input styles (mimics the polished-message) */
-.editable-div-input {
-  font-size: 20px;
-  line-height: 1.6;
-  color: var(--text-color);
-  background-color: var(--card-bg);
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  text-align: left;
-  -webkit-appearance: none;
-  width: 100%;
-  min-height: 240px;
-  max-height: none;
-  overflow: visible;
-  word-break: break-word;
+  color: #eee;
+  background-color: #333;
   font-family: inherit;
-  border: none;
-  padding-bottom: 35px;
-  box-sizing: border-box;
-}
+  text-align: left;
+  word-wrap: break-word; /* For older browsers */
+  overflow-wrap: break-word;
+  word-break: break-word; /* Ensure long words break */
+  cursor: text;
+  -webkit-appearance: none;
+  appearance: none;
 
-/* Style the placeholder text for contenteditable div */
-.editable-div-input:empty:before {
-  content: attr(placeholder);
-  color: #888;
-  font-style: italic;
-}
-
-/* Focus styles to match */
-.editable-div-input:focus,
-#polished-message:focus {
+  /* Focus & Outline */
   outline: none;
-  box-shadow: 0 0 0 2px var(--primary-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Default shadow */
 }
 
-/* Additional styles for polished message */
+
+
+/* --- START: Output Text Area Styling (#polished-message) --- */
+
+/* Base Styling (Shares some styles with input) */
 #polished-message {
   max-height: none;
   overflow: visible;
@@ -652,27 +659,24 @@ textarea#text-input-area {
 }
 
 /* Polished message when editable */
-#polished-message[contenteditable="true"],
-.editable-div-input {
+#polished-message[contenteditable="true"] {
   outline: none; /* Keep outline none to rely on box-shadow for focus */
 }
 
-textarea:focus,
-#polished-message:focus,
-.editable-div-input:focus {
+/* textarea:focus, */ /* REMOVED outdated textarea selector */
+#text-input-area:focus, /* ADDED correct selector */
+#polished-message:focus {
   outline: none;
   box-shadow: 0 0 0 2px var(--primary-color);
 }
 
-#polished-message p,
-.editable-div-input p {
+#polished-message p {
   margin-top: 0;
   margin-bottom: 0.7rem;
   line-height: 1.4;
 }
 
-#polished-message p:last-child,
-.editable-div-input p:last-child {
+#polished-message p:last-child {
   margin-bottom: 0;
 }
 
@@ -795,11 +799,6 @@ body.tones-expanded .output-section {
 #scroll-to-top:active {
   background-color: #1d8a54;
   transform: scale(0.95);
-}
-
-/* Hide cursor distance display visually */
-#cursor-distance-display {
-  display: none;
 }
 
 /* Response generated state */
@@ -959,11 +958,8 @@ body.tones-expanded .output-section {
 }
 
 /* Input and output areas */
-textarea#text-input-area,
 #polished-message {
   font-size: 1.35rem;
-  padding: 0.8rem;
-  padding-bottom: 0.8rem; /* Ensure padding for icons is kept on desktop too */
 }
 
 /* ======================================== */
@@ -1281,42 +1277,3 @@ textarea#text-input-area,
   display: none; /* <<< HIDE VISUALLY >>> */
 }
 /* --- END: Focus Status Indicator Styles --- */
-
-/* Basic styling for the editable div */
-#text-input-area {
-  width: 100%; /* Use full width */
-  min-height: 240px; /* Minimum height */
-  padding: 12px;
-  font-size: 1.35rem;
-  line-height: 1.6; /* Adjust line height for better readability */
-  border: 1px solid #555; /* Slightly darker border */
-  border-radius: 8px;
-  background-color: #333; /* Dark background */
-  color: #eee; /* Light text */
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
-  font-family: inherit; /* Inherit font from body */
-  overflow-y: auto; /* Add scrollbar if content exceeds height */
-  resize: none; /* Disable textarea-like resizing handle */
-  -webkit-appearance: none; /* Remove default iOS appearance */
-  appearance: none;
-  cursor: text; /* Indicate it's text input */
-  outline: none; /* Remove default focus outline */
-  transition: min-height 0.1s ease-out; /* Smooth height transition */
-}
-
-/* CSS Placeholder Styling for contenteditable div */
-#text-input-area:empty::before {
-  content: attr(data-placeholder);
-  color: #888; /* Lighter color for placeholder */
-  cursor: text;
-  display: block; /* Ensures it takes up space */
-}
-
-/* Optional: Style when focused */
-#text-input-area:focus {
-  border-color: #777;
-}
-
-/* --- END: Text Input Area Styling --- */
-
-/* --- START: Output Text Area Styling --- */
