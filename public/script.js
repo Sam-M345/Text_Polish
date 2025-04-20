@@ -2554,6 +2554,33 @@ ${cleanedBody}
           `[DIAG-FOCUS-TOUCH] ${timestamp} - Touchstart detected on:`,
           event.target
         );
+
+        // <<< START RE-ADDED FIX >>>
+        // Use closest() for robustness to check if touch is inside input
+        if (event.target.closest("#text-input-area")) {
+          const isEmpty =
+            getTextFromContentEditable(messageInputEl).trim() === ""; // Use helper
+          console.log(
+            `[DEBUG] Touchstart listener: Target is input area. Is empty? ${isEmpty}`
+          );
+          if (isEmpty) {
+            console.log(
+              "[DEBUG] Touchstart listener: Input empty, setting scroll flag TRUE."
+            );
+            shouldScrollEmptyInputOnKeyboardOpen = true;
+          } else {
+            console.log(
+              "[DEBUG] Touchstart listener: Input NOT empty, ensuring scroll flag FALSE."
+            );
+            shouldScrollEmptyInputOnKeyboardOpen = false;
+          }
+        } else {
+          console.log("[DEBUG] Touchstart listener: Target is NOT input area.");
+          // If touch is not on input, ensure flag is false
+          shouldScrollEmptyInputOnKeyboardOpen = false;
+        }
+        // <<< END RE-ADDED FIX >>>
+
         // Check focus shortly after touchstart allows focus to potentially settle
         setTimeout(() => updateFocusIndicator(null, "touchstart_timeout"), 50); // 50ms delay
       },
