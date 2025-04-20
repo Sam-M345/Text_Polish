@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 2048 305"
+  preserveAspectRatio="xMidYMid meet"
+>
+  <!-- Background -->
+  <rect width="2048" height="305" fill="#1e2329"/>
+
+  <!-- TEXT: "Text" -->
+  <text
+    x="300" y="215"
+    font-family="Poppins, sans-serif"
+    font-size="160"
+    font-weight="700"
+    fill="#eeece3"
+  >Text</text>
+
+  <!-- LOGO ICON -->
+  <g transform="translate(780,10)">
+    <!-- Outer circle -->
+    <circle
+      cx="256" cy="150"
+      r="120"
+      fill="none"
+      stroke="#4aa3e5"
+      stroke-width="16"
+    />
+
+    <!-- Inner white background -->
+    <circle
+      cx="256" cy="150"
+      r="104"
+      fill="#eeece3"
+    />
+
+    <!-- Paper sheet -->
+    <rect
+      x="220" y="60"
+      width="72" height="160"
+      rx="8"
+      fill="#eeece3"
+    />
+    <!-- Paper lines -->
+    <line x1="240" y1="100" x2="296" y2="100"
+      stroke="#4aa3e5" stroke-width="12" stroke-linecap="round"/>
+    <line x1="240" y1="140" x2="296" y2="140"
+      stroke="#4aa3e5" stroke-width="12" stroke-linecap="round"/>
+    <line x1="240" y1="180" x2="296" y2="180"
+      stroke="#4aa3e5" stroke-width="12" stroke-linecap="round"/>
+
+    <!-- Sparkle 1 -->
+    <polygon
+      points="256,20 260,32 272,32 262,40 266,52 256,44 246,52 250,40 238,32 250,32"
+      fill="#eeece3"
+    />
+    <!-- Sparkle 2 -->
+    <polygon
+      points="336,210 340,222 352,222 342,230 346,242 336,234 326,242 330,230 320,222 332,222"
+      fill="#eeece3"
+    />
+
+    <!-- Cloth -->
+    <path
+      d="M300 200
+         c-20 -15 -60 -40 -80 -30
+         c-18 8 -30 30 -20 50
+         c10 20 40 25 68 10
+         c20 -10 28 -30 32 -40Z"
+      fill="#4aa3e5"
+    />
+
+    <!-- Hand silhouette -->
+    <path
+      d="M260 200
+         c-12 -20 -32 -45 -50 -35
+         c-10 6 -12 25 -8 40
+         c4 15 20 20 36 15
+         c14 -5 28 -20 22 -20Z"
+      fill="#1e2329"
+    />
+  </g>
+
+  <!-- TEXT: "Polish" -->
+  <text
+    x="1120" y="215"
+    font-family="Poppins, sans-serif"
+    font-size="160"
+    font-weight="700"
+    fill="#eeece3"
+  >Polish</text>
+
+  <!-- TEXT: ".com" -->
+  <text
+    x="1740" y="222"
+    font-family="Poppins, sans-serif"
+    font-size="72"
+    font-weight="700"
+    fill="#c6c0f1"
+  >.com</text>
+</svg>
