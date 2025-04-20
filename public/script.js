@@ -3,10 +3,133 @@ if ("scrollRestoration" in history) {
   history.scrollRestoration = "manual";
 }
 
+// --- Helper Debug Functions ---
+const DEBUG_INPUT = true; // Toggle to enable/disable input debug logging
+function debugLog(category, message, data = null) {
+  if (!DEBUG_INPUT) return;
+  const timestamp = new Date().toISOString().substring(11, 23); // HH:MM:SS.mmm format
+  const logMessage = `[${timestamp}][${category}] ${message}`;
+  if (data !== null) {
+    console.log(logMessage, data);
+  } else {
+    console.log(logMessage);
+  }
+}
+
+// --- Helper functions for contenteditable div ---
+function getTextFromContentEditable(element) {
+  return element.innerText || element.textContent;
+}
+
+function setTextToContentEditable(element, text) {
+  // Clear content first
+  element.innerHTML = "";
+
+  // Add text with paragraph formatting
+  if (text && text.trim()) {
+    const paragraphs = text
+      .split(/\n\n+/)
+      .flatMap((block) => {
+        return block.split(/\n/);
+      })
+      .filter((p) => p.trim() !== "");
+
+    if (paragraphs.length > 0) {
+      paragraphs.forEach((paragraph) => {
+        if (paragraph.trim()) {
+          const p = document.createElement("p");
+          p.textContent = paragraph.trim();
+          element.appendChild(p);
+        }
+      });
+    } else {
+      element.textContent = text;
+    }
+  }
+}
+
+function getCursorPositionInContentEditable(element) {
+  const selection = window.getSelection();
+
+  if (selection.rangeCount === 0) return 0;
+
+  const range = selection.getRangeAt(0);
+  const preCaretRange = range.cloneRange();
+  preCaretRange.selectNodeContents(element);
+  preCaretRange.setEnd(range.endContainer, range.endOffset);
+
+  return preCaretRange.toString().length;
+}
+
+function setCursorPositionInContentEditable(element, position) {
+  // This is a simplified implementation and may not work perfectly in all cases
+  const selection = window.getSelection();
+  const range = document.createRange();
+
+  // Find the text node and position
+  let currentPos = 0;
+  let foundNode = null;
+  let foundOffset = 0;
+
+  function findPosition(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      if (currentPos + node.length >= position) {
+        foundNode = node;
+        foundOffset = position - currentPos;
+        return true;
+      }
+      currentPos += node.length;
+    } else {
+      for (let i = 0; i < node.childNodes.length; i++) {
+        if (findPosition(node.childNodes[i])) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  findPosition(element);
+
+  if (foundNode) {
+    range.setStart(foundNode, foundOffset);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+}
+
+// --- START: Custom Fast Smooth Scroll Implementation ---
+function fastSmoothScroll(targetY, duration = 1) {
+  // Changed from 150ms to just 1ms for near-instant scrolling
+  const startY = window.scrollY;
+  const difference = targetY - startY;
+  const startTime = performance.now();
+
+  function step() {
+    const currentTime = performance.now();
+    const timeElapsed = currentTime - startTime;
+    const progress = Math.min(timeElapsed / duration, 1);
+
+    // Ease function - easeOutQuad for smoother finish
+    const easeProgress = 1 - (1 - progress) * (1 - progress);
+
+    window.scrollTo(0, startY + difference * easeProgress);
+
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    }
+  }
+
+  requestAnimationFrame(step);
+}
+
 // --- START: Global ScrollTo Override (Prevent Upward Scrolls) ---
 const originalScrollTo = window.scrollTo.bind(window);
 window.scrollTo = function (optionsOrX, y) {
   let targetY;
+  let useFastScroll = false;
+
   // Handle both object ({ top: y, ... }) and coordinate (x, y) arguments
   if (
     typeof optionsOrX === "object" &&
@@ -14,6 +137,8 @@ window.scrollTo = function (optionsOrX, y) {
     optionsOrX.top !== undefined
   ) {
     targetY = optionsOrX.top;
+    // Check if smooth behavior was requested and use our faster version instead
+    useFastScroll = optionsOrX.behavior === "smooth";
   } else if (typeof optionsOrX === "number" && typeof y === "number") {
     targetY = y;
   } else if (typeof optionsOrX === "number" && y === undefined) {
@@ -33,8 +158,13 @@ window.scrollTo = function (optionsOrX, y) {
     return;
   }
 
-  // Call original function with original arguments
-  // console.log(`Allowed scrollTo: targetY=${targetY}, currentY=${window.scrollY}`);
+  // Use our custom fast smooth scroll if requested
+  if (useFastScroll) {
+    fastSmoothScroll(targetY);
+    return;
+  }
+
+  // Call original function with original arguments for non-smooth scrolls
   if (arguments.length === 1 && typeof optionsOrX === "object") {
     originalScrollTo(optionsOrX);
   } else if (arguments.length >= 2) {
@@ -310,8 +440,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Function to check for content and update body class - only disable elastic scroll when absolutely no content
   function checkContentAndUpdateBody() {
+    const inputText = getTextFromContentEditable(messageInputEl);
+
     if (
-      messageInputEl.value.trim() ||
+      inputText.trim() ||
       (polishedMessageEl.textContent &&
         polishedMessageEl.textContent.trim() !== "Processing...") ||
       document.body.classList.contains("tones-expanded")
@@ -343,106 +475,91 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Renamed function: Calculates vertical pixel position for a given text index
   function getTextVPixelPosition(element, textIndex) {
-    const text = element.value;
-    // Clamp index to be within valid range
-    const position = Math.max(0, Math.min(textIndex, text.length));
-    const textBeforePos = text.substring(0, position);
+    // Different implementation for contenteditable div vs textarea
+    if (element.tagName === "TEXTAREA") {
+      // Original implementation for textarea
+      // ... existing getTextVPixelPosition code ...
+    } else {
+      // Implementation for contenteditable div
+      const range = document.createRange();
+      const sel = window.getSelection();
 
-    let mirrorDiv = document.getElementById(mirrorDivId);
-    if (!mirrorDiv) {
-      mirrorDiv = document.createElement("div");
-      mirrorDiv.id = mirrorDivId;
-      document.body.appendChild(mirrorDiv);
+      // Find the appropriate text node and position
+      let currentLength = 0;
+      let foundNode = null;
+      let foundOffset = 0;
+
+      function findTextPosition(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          if (currentLength + node.length >= textIndex) {
+            foundNode = node;
+            foundOffset = textIndex - currentLength;
+            return true;
+          }
+          currentLength += node.length;
+        } else {
+          for (let i = 0; i < node.childNodes.length; i++) {
+            if (findTextPosition(node.childNodes[i])) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+
+      // Try to find the position
+      findTextPosition(element);
+
+      // If we found the position, calculate the visual coordinates
+      if (foundNode) {
+        range.setStart(foundNode, foundOffset);
+        range.collapse(true);
+
+        const rect = range.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+
+        // Return the position relative to the element's top
+        return rect.top - elementRect.top + element.scrollTop;
+      }
+
+      // Fallback: if we can't find the exact position, return the bottom
+      return element.scrollHeight;
     }
-
-    // Apply relevant styles from textarea to mirror div
-    const style = window.getComputedStyle(element);
-    [
-      "fontFamily",
-      "fontSize",
-      "fontWeight",
-      "fontStyle",
-      "letterSpacing",
-      "lineHeight",
-      "textTransform",
-      "wordSpacing",
-      "textIndent",
-      "paddingTop",
-      "paddingRight",
-      "paddingBottom",
-      "paddingLeft",
-      "borderTopWidth",
-      "borderRightWidth",
-      "borderBottomWidth",
-      "borderLeftWidth",
-      "width",
-      "boxSizing",
-    ].forEach((prop) => {
-      mirrorDiv.style[prop] = style[prop];
-    });
-
-    // Make the mirror div behave like the textarea for wrapping
-    mirrorDiv.style.whiteSpace = "pre-wrap";
-    mirrorDiv.style.wordWrap = "break-word";
-
-    // Hide the mirror div but keep its layout dimensions
-    mirrorDiv.style.position = "absolute";
-    mirrorDiv.style.visibility = "hidden";
-    mirrorDiv.style.top = "-9999px";
-    mirrorDiv.style.left = "-9999px";
-    mirrorDiv.style.height = "auto"; // Allow height to adjust to content
-
-    // Use textContent to handle newlines correctly
-    mirrorDiv.textContent = textBeforePos;
-
-    // Create a span to mark the caret position
-    const span = document.createElement("span");
-    // Use a zero-width space or similar to avoid affecting layout
-    span.innerHTML = "&#x200B;";
-    mirrorDiv.appendChild(span);
-
-    // Calculate position relative to the mirror div's content area
-    const caretY = span.offsetTop;
-    console.log(
-      `Mirror Div Scroll Height: ${mirrorDiv.scrollHeight}, Caret Span OffsetTop: ${caretY}`
-    );
-
-    // Clean up the temporary span
-    mirrorDiv.removeChild(span);
-
-    // Return the calculated Y position relative to the start of the text content
-    return caretY;
   }
 
   function updateCursorDistance() {
     if (!messageInputEl || !distanceValueEl) return; // Ensure elements exist
 
     try {
+      // Save current scroll position and selection before any changes
+      const originalScrollTop = messageInputEl.scrollTop;
+      const originalHeight = messageInputEl.offsetHeight;
+
+      // For contenteditable, we need to save/restore the selection
+      const selection = window.getSelection();
+      let savedRange = null;
+      if (selection.rangeCount > 0) {
+        savedRange = selection.getRangeAt(0).cloneRange();
+      }
+
+      // Get content length for contenteditable div
+      const textLength = getTextFromContentEditable(messageInputEl).length;
+      const atVeryEnd = isSelectionNearEnd(messageInputEl, 5);
+
       const computedStyle = window.getComputedStyle(messageInputEl);
       const minHeightCSS = parseFloat(computedStyle.minHeight);
       const lineHeight = parseFloat(computedStyle.lineHeight);
 
-      // --- START: Shrink Logic ---
-      // Reset height to auto first to allow shrinking based on content
-      messageInputEl.style.height = "auto";
-      // Force reflow/recalculation might not be strictly necessary but can help ensure values are updated
-      // messageInputEl.offsetHeight; // Reading offsetHeight can sometimes trigger reflow
-      // --- END: Shrink Logic ---
+      // Calculate end of text position
+      const endOfTextY = getTextVPixelPosition(messageInputEl, textLength);
+      const scrollTop = messageInputEl.scrollTop;
+      const clientHeight = messageInputEl.clientHeight;
+      const scrollHeight = messageInputEl.scrollHeight;
 
-      // Recalculate values AFTER resetting height to auto
-      const endOfTextY = getTextVPixelPosition(
-        messageInputEl,
-        messageInputEl.value.length
-      );
-      const scrollTop = messageInputEl.scrollTop; // How much the textarea is scrolled
-      // IMPORTANT: Re-read clientHeight and scrollHeight AFTER setting height to auto
-      const clientHeight = messageInputEl.clientHeight; // Visible height
-      const scrollHeight = messageInputEl.scrollHeight; // Total height of content
-
-      // Calculate the end-of-text's visible position from the *top* of the visible area
+      // Calculate the end-of-text's visible position
       const visibleEndOfTextY = endOfTextY - scrollTop;
 
-      // Calculate distance from the end-of-text's visible position to the bottom of the *visible* area
+      // Calculate distance from end-of-text to bottom
       const distance = Math.max(
         0,
         clientHeight - visibleEndOfTextY - lineHeight
@@ -454,29 +571,77 @@ document.addEventListener("DOMContentLoaded", () => {
 
       distanceValueEl.textContent = Math.round(distance);
 
-      // --- Expansion Logic (Based on end of text position) ---
-      // --- Only expand if keyboard is NOT open ---
+      // Height adjustment (only if not keyboard open)
       if (!isKeyboardOpen) {
-        if (distance <= 35) {
-          // Check distance from END OF TEXT
-          // Calculate potential new height (current scrollHeight + one line)
+        // Only adjust height if distance is small AND the input actually has content
+        const hasContent =
+          getTextFromContentEditable(messageInputEl).trim() !== "";
+        if (distance <= 35 && hasContent) {
+          // Potential new height calculation
           const potentialNewHeight = scrollHeight + lineHeight;
-          // Ensure new height is at least the CSS min-height
           const newHeight = Math.max(potentialNewHeight, minHeightCSS);
 
-          console.log(
-            `Cursor close to bottom (<=35px). Adjusting height. Current scrollHeight: ${scrollHeight}, New height target: ${newHeight}`
-          );
-          messageInputEl.style.height = newHeight + "px";
+          // Check for large height changes
+          const heightDifference = newHeight - originalHeight;
+
+          if (Math.abs(heightDifference) < 100 || atVeryEnd) {
+            console.log(
+              `Cursor close to bottom (<=35px). Adjusting height. Current scrollHeight: ${scrollHeight}, New height target: ${newHeight}`
+            );
+
+            // Apply the new height
+            messageInputEl.style.minHeight = newHeight + "px";
+          } else {
+            console.log(
+              `Skipping large height adjustment (${heightDifference}px) to prevent visual jump`
+            );
+            // Restore original height
+            messageInputEl.style.minHeight = originalHeight + "px";
+          }
         }
       }
-      // --- END Expansion Logic ---
+
+      // Always restore scroll position
+      messageInputEl.scrollTop = originalScrollTop;
+
+      // Restore selection for contenteditable div
+      if (savedRange) {
+        selection.removeAllRanges();
+        selection.addRange(savedRange);
+      }
+
+      // Final verification of scroll position
+      if (Math.abs(messageInputEl.scrollTop - originalScrollTop) > 5) {
+        console.warn(
+          `Scroll position didn't stick! Expected: ${originalScrollTop}, Actual: ${messageInputEl.scrollTop}`
+        );
+        setTimeout(() => {
+          messageInputEl.scrollTop = originalScrollTop;
+        }, 0);
+      }
     } catch (error) {
-      console.error(
-        "Error calculating end-of-text distance or adjusting height:",
-        error
-      );
-      distanceValueEl.textContent = "Err"; // Indicate an error occurred
+      console.error("Error in updateCursorDistance:", error);
+      distanceValueEl.textContent = "Err";
+    }
+  }
+
+  // Helper function to check if selection is near the end of content
+  function isSelectionNearEnd(element, threshold = 5) {
+    if (element.tagName === "TEXTAREA") {
+      return element.selectionStart >= element.value.length - threshold;
+    } else {
+      const selection = window.getSelection();
+      if (selection.rangeCount === 0) return false;
+
+      const range = selection.getRangeAt(0);
+      const preCaretRange = range.cloneRange();
+      preCaretRange.selectNodeContents(element);
+      preCaretRange.setEnd(range.endContainer, range.endOffset);
+
+      const position = preCaretRange.toString().length;
+      const totalLength = getTextFromContentEditable(element).length;
+
+      return position >= totalLength - threshold;
     }
   }
 
@@ -495,6 +660,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ? window.visualViewport.height
     : window.innerHeight;
   let isKeyboardOpen = false;
+  let initialResizeCheckDone = false; // Flag for initial logging
+  debugLog("INIT_RESIZE", "Initial baseHeight calculated", { baseHeight }); // <<< Log initial baseHeight
 
   function updateKeyboardStatusIndicator() {
     keyboardStatusIndicator.textContent = `Keyboard: ${
@@ -507,14 +674,42 @@ document.addEventListener("DOMContentLoaded", () => {
       ? window.visualViewport.height
       : window.innerHeight;
     const keyboardThreshold = 100; // Pixels
+    const heightDifference = baseHeight - currentHeight;
 
+    debugLog("VIEWPORT_RESIZE", "handleViewportResize triggered", {
+      currentHeight,
+      baseHeight,
+      heightDifference,
+      keyboardThreshold,
+      isKeyboardOpen_before: isKeyboardOpen,
+    });
+
+    // --- Condition for Keyboard OPEN ---
     if (currentHeight < baseHeight - keyboardThreshold) {
+      debugLog(
+        "VIEWPORT_RESIZE",
+        "Condition MET: currentHeight < baseHeight - threshold",
+        {
+          currentHeight,
+          comparisonValue: baseHeight - keyboardThreshold,
+        }
+      );
       if (!isKeyboardOpen) {
+        debugLog(
+          "VIEWPORT_RESIZE",
+          "Keyboard state changing: false -> true (OPENING)"
+        );
         isKeyboardOpen = true;
         updateKeyboardStatusIndicator();
         console.log("Keyboard open (Viewport)");
         // --- START: Adjust min-height when keyboard opens ---
-        if (messageInputEl) messageInputEl.style.minHeight = "388px";
+        if (messageInputEl) {
+          debugLog(
+            "VIEWPORT_RESIZE",
+            "Setting min-height to 388px (Keyboard OPEN)"
+          ); // <<< Log before setting 388px
+          messageInputEl.style.minHeight = "388px";
+        }
         // --- END: Adjust min-height when keyboard opens ---
 
         // --- START: Scroll EMPTY Input Area IF Flag is Set ---
@@ -615,19 +810,41 @@ document.addEventListener("DOMContentLoaded", () => {
         // --- END: Scroll EMPTY Input Area IF Flag is Set ---
       }
     } else {
+      // --- Condition for Keyboard CLOSED ---
+      debugLog(
+        "VIEWPORT_RESIZE",
+        "Condition NOT MET: currentHeight >= baseHeight - threshold",
+        {
+          currentHeight,
+          comparisonValue: baseHeight - keyboardThreshold,
+        }
+      );
       // Check if it was previously open to avoid redundant updates
       if (isKeyboardOpen) {
+        debugLog(
+          "VIEWPORT_RESIZE",
+          "Keyboard state changing: true -> false (CLOSING)"
+        );
         isKeyboardOpen = false;
         updateKeyboardStatusIndicator();
         console.log("Keyboard closed (Viewport)");
         // --- START: Adjust min-height when keyboard closes ---
-        if (messageInputEl) messageInputEl.style.minHeight = "240px";
+        if (messageInputEl) {
+          debugLog(
+            "VIEWPORT_RESIZE",
+            "Setting min-height to 240px (Keyboard CLOSED)"
+          ); // <<< Log before setting 240px
+          messageInputEl.style.minHeight = "240px";
+        }
         // --- END: Adjust min-height when keyboard closes ---
 
         // --- START: Adjust input area height based on content AFTER keyboard closes ---
         if (messageInputEl) {
           // Set height based on scroll height to fit content, but not less than 240px
           const requiredHeight = Math.max(messageInputEl.scrollHeight, 240);
+          debugLog("VIEWPORT_RESIZE", "Adjusting height after keyboard close", {
+            requiredHeight,
+          }); // <<< Log height adjustment
           messageInputEl.style.height = requiredHeight + "px";
           // Reset min-height to allow shrinking later if content is removed
           messageInputEl.style.minHeight = "240px";
@@ -660,10 +877,19 @@ document.addEventListener("DOMContentLoaded", () => {
         // --- END: Conditional Scroll to top on keyboard close ---
       }
     }
+
+    // Log initial check completion
+    if (!initialResizeCheckDone) {
+      debugLog("INIT_RESIZE", "Initial handleViewportResize check completed", {
+        isKeyboardOpen_after: isKeyboardOpen,
+      });
+      initialResizeCheckDone = true;
+    }
   }
 
   // Initial setup
   if (keyboardStatusIndicator) {
+    debugLog("INIT_RESIZE", "Adding viewport resize listeners");
     updateKeyboardStatusIndicator(); // Set initial state (DOWN)
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", handleViewportResize);
@@ -678,6 +904,11 @@ document.addEventListener("DOMContentLoaded", () => {
         baseHeight = window.visualViewport
           ? window.visualViewport.height
           : window.innerHeight;
+        debugLog(
+          "ORIENTATION_CHANGE",
+          "Orientation changed, new baseHeight calculated",
+          { baseHeight }
+        ); // <<< Log orientation change
         console.log("Orientation changed, new baseHeight:", baseHeight);
         // Re-evaluate keyboard state after orientation change
         handleViewportResize();
@@ -714,14 +945,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- START: Scroll Empty Input Area to Top on Focus (iOS Keyboard) ---
   if (messageInputEl) {
     messageInputEl.addEventListener("focus", () => {
-      if (messageInputEl.value.trim() === "") {
+      const inputText = getTextFromContentEditable(messageInputEl);
+      if (inputText.trim() === "") {
         console.log("Empty input area focused, setting scroll flag.");
         shouldScrollEmptyInputOnKeyboardOpen = true;
       } else {
         // Ensure flag is false if input has content on focus
         shouldScrollEmptyInputOnKeyboardOpen = false;
       }
-      // --- REMOVED scroll logic from here ---
     });
   }
   // --- END: Scroll Empty Input Area to Top on Focus ---
@@ -781,14 +1012,15 @@ document.addEventListener("DOMContentLoaded", () => {
           newText = " " + newText;
         }
 
-        messageInputEl.value =
+        setTextToContentEditable(
+          messageInputEl,
           currentText.substring(0, cursorPosition) +
-          newText +
-          currentText.substring(cursorPosition);
+            newText +
+            currentText.substring(cursorPosition)
+        );
 
         const newCursorPosition = cursorPosition + newText.length;
-        messageInputEl.selectionStart = newCursorPosition;
-        messageInputEl.selectionEnd = newCursorPosition;
+        setCursorPositionInContentEditable(messageInputEl, newCursorPosition);
         messageInputEl.scrollTop = messageInputEl.scrollHeight;
 
         updateCursorDistance(); // Update height/distance
@@ -1084,13 +1316,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // Clear input text
   clearInputBtn.addEventListener("click", () => {
     saveStateForUndo(); // Save state BEFORE clearing
-    messageInputEl.value = "";
+    setTextToContentEditable(messageInputEl, "");
 
     // --- START: Conditional Height Reset ---
     // Only reset height to CSS min-height if keyboard is DOWN
     if (!isKeyboardOpen) {
-      const computedStyle = window.getComputedStyle(messageInputEl);
-      messageInputEl.style.height = computedStyle.minHeight;
+      messageInputEl.style.minHeight = "240px";
       console.log("Keyboard down, reset height on clear.");
     } else {
       console.log("Keyboard up, skipped height reset on clear.");
@@ -1115,9 +1346,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Copy input text
   copyInputBtn.addEventListener("click", () => {
-    if (messageInputEl.value) {
+    const inputText = getTextFromContentEditable(messageInputEl);
+    if (inputText) {
       navigator.clipboard
-        .writeText(messageInputEl.value)
+        .writeText(inputText)
         .then(() => {
           showIconFeedback(copyInputBtn);
         })
@@ -1132,7 +1364,7 @@ document.addEventListener("DOMContentLoaded", () => {
     navigator.clipboard
       .readText()
       .then((text) => {
-        messageInputEl.value = text;
+        setTextToContentEditable(messageInputEl, text);
         messageInputEl.focus();
         showIconFeedback(pasteInputBtn);
 
@@ -1189,8 +1421,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Paste output text to input
   pasteOutputBtn.addEventListener("click", () => {
     if (polishedMessageEl.innerText || polishedMessageEl.textContent) {
-      messageInputEl.value =
-        polishedMessageEl.innerText || polishedMessageEl.textContent;
+      setTextToContentEditable(
+        messageInputEl,
+        polishedMessageEl.innerText || polishedMessageEl.textContent
+      );
       messageInputEl.focus();
       showIconFeedback(pasteOutputBtn);
     }
@@ -1399,7 +1633,7 @@ ${cleanedBody}
     const selectedTone = document.querySelector(
       ".tone-buttons[data-tone].selected"
     ).dataset.tone;
-    const originalMessage = messageInputEl.value.trim();
+    const originalMessage = getTextFromContentEditable(messageInputEl).trim();
 
     // Map "auto" values to "automatic" for API communication to avoid car emoji issues
     // This preserves the UI labels while using a safer term for backend processing
@@ -1839,7 +2073,7 @@ ${cleanedBody}
   // Function to save state to sessionStorage
   function saveStateForUndo() {
     const state = {
-      inputText: messageInputEl.value,
+      inputText: getTextFromContentEditable(messageInputEl),
       outputHTML: polishedMessageEl.innerHTML,
       selectedType: document.querySelector(".text-type-option-btn.selected")
         ?.dataset.type,
@@ -1876,7 +2110,7 @@ ${cleanedBody}
       const savedState = JSON.parse(savedStateJSON);
 
       // Restore input
-      messageInputEl.value = savedState.inputText || "";
+      setTextToContentEditable(messageInputEl, savedState.inputText || "");
 
       // Restore output
       polishedMessageEl.innerHTML = savedState.outputHTML || "";
@@ -1989,17 +2223,23 @@ ${cleanedBody}
 
   // Function to update placeholder text dynamically
   function updatePlaceholder(type) {
+    let placeholderText = "";
     switch (type) {
       case "email":
-        messageInputEl.placeholder = "Type your Email content here...";
+        placeholderText = "Type your Email content here...";
         break;
       case "social":
-        messageInputEl.placeholder = "Type your Social Post here...";
+        placeholderText = "Type your Social Post here...";
         break;
       case "text-message":
       default:
-        messageInputEl.placeholder = "Type your Message here...";
+        placeholderText = "Type your Message here...";
         break;
+    }
+    // Use data-placeholder attribute instead of standard placeholder
+    if (messageInputEl) {
+      // messageInputEl.placeholder = placeholderText; // OLD LINE - REMOVE
+      messageInputEl.dataset.placeholder = placeholderText; // NEW LINE - ADD
     }
   }
 
@@ -2260,58 +2500,333 @@ ${cleanedBody}
   }
   // --- END: Add Focus Event Listeners ---
 
-  // Listener to check if input is empty *when focused*
-  messageInputEl.addEventListener("focus", () => {
-    if (messageInputEl.value.trim() === "") {
-      console.log("[DEBUG] Focus listener: Input empty, setting flag TRUE."); // Log 1
-      shouldScrollEmptyInputOnKeyboardOpen = true;
-    } else {
-      console.log(
-        "[DEBUG] Focus listener: Input NOT empty, setting flag FALSE."
-      ); // Log 2
-      shouldScrollEmptyInputOnKeyboardOpen = false;
-    }
-    // --- REMOVED scroll logic from here ---
-  });
+  // --- START: Enhanced Input Debug Tracking ---
+  if (messageInputEl) {
+    let lastScrollTop = 0;
+    let lastHeight = 0;
+    let lastSelectionStart = 0;
+    let lastSelectionEnd = 0;
 
-  // Listen for touchstart - check input emptiness here
-  document.body.addEventListener(
-    "touchstart",
-    (event) => {
-      const timestamp = new Date().toISOString();
-      console.log(
-        `[DIAG-FOCUS-TOUCH] ${timestamp} - Touchstart detected on:`,
-        event.target
-      );
+    // Track input events for debugging
+    messageInputEl.addEventListener("input", (e) => {
+      const currentScrollTop = messageInputEl.scrollTop;
+      const currentHeight = messageInputEl.offsetHeight;
+      const currentSelectionStart = messageInputEl.selectionStart;
+      const currentSelectionEnd = messageInputEl.selectionEnd;
 
-      // <<< Check input emptiness and set flag on touchstart >>>
-      // Use closest() for robustness
-      if (event.target.closest("#text-input-area")) {
-        const isEmpty = messageInputEl.value.trim() === "";
-        console.log(
-          `[DEBUG] Touchstart listener: Target is input area. Is empty? ${isEmpty}`
-        ); // Log value check result
-        if (isEmpty) {
-          console.log(
-            "[DEBUG] Touchstart listener: Input empty, setting scroll flag TRUE."
-          );
-          shouldScrollEmptyInputOnKeyboardOpen = true;
-        } else {
-          console.log(
-            "[DEBUG] Touchstart listener: Input NOT empty, ensuring scroll flag FALSE."
-          );
-          shouldScrollEmptyInputOnKeyboardOpen = false;
-        }
+      debugLog("INPUT_EVENT", "Text input detected", {
+        type: e.inputType,
+        atEnd: currentSelectionStart >= messageInputEl.value.length - 5,
+        selectionChange: {
+          start: {
+            from: lastSelectionStart,
+            to: currentSelectionStart,
+            diff: currentSelectionStart - lastSelectionStart,
+          },
+          end: {
+            from: lastSelectionEnd,
+            to: currentSelectionEnd,
+            diff: currentSelectionEnd - lastSelectionEnd,
+          },
+        },
+        scroll: {
+          from: lastScrollTop,
+          to: currentScrollTop,
+          diff: currentScrollTop - lastScrollTop,
+        },
+        height: {
+          from: lastHeight,
+          to: currentHeight,
+          diff: currentHeight - lastHeight,
+        },
+        textLength: messageInputEl.value.length,
+        keyboardOpen: isKeyboardOpen,
+      });
+
+      // Update tracking values
+      lastScrollTop = currentScrollTop;
+      lastHeight = currentHeight;
+      lastSelectionStart = currentSelectionStart;
+      lastSelectionEnd = currentSelectionEnd;
+    });
+
+    // Track focus events
+    messageInputEl.addEventListener("focus", () => {
+      debugLog("FOCUS", "Input field received focus", {
+        scrollTop: messageInputEl.scrollTop,
+        height: messageInputEl.offsetHeight,
+        selection: {
+          start: messageInputEl.selectionStart,
+          end: messageInputEl.selectionEnd,
+        },
+        isEmpty: getTextFromContentEditable(messageInputEl).trim() === "", // <<< FIX: Use helper function
+        keyboardOpen: isKeyboardOpen,
+      });
+
+      // Existing focus code...
+      if (getTextFromContentEditable(messageInputEl).trim() === "") {
+        debugLog("FOCUS", "Empty input area focused, setting scroll flag");
+        shouldScrollEmptyInputOnKeyboardOpen = true;
       } else {
-        console.log("[DEBUG] Touchstart listener: Target is NOT input area."); // Log if target is not input
-        // If touch is not on input, ensure flag is false
-        // (Prevents flag remaining true if user touches elsewhere after focusing empty input but before keyboard opens)
+        // Ensure flag is false if input has content on focus
         shouldScrollEmptyInputOnKeyboardOpen = false;
       }
+    });
 
-      // Check focus shortly after touchstart allows focus to potentially settle
-      setTimeout(() => updateFocusIndicator(null, "touchstart_timeout"), 50); // 50ms delay
-    },
-    { passive: true }
-  ); // Use passive listener
+    // Track blur events
+    messageInputEl.addEventListener("blur", () => {
+      debugLog("BLUR", "Input field lost focus", {
+        scrollTop: messageInputEl.scrollTop,
+        height: messageInputEl.offsetHeight,
+        selection: {
+          start: messageInputEl.selectionStart,
+          end: messageInputEl.selectionEnd,
+        },
+        isEmpty: getTextFromContentEditable(messageInputEl).trim() === "", // <<< FIX: Use helper function
+        keyboardOpen: isKeyboardOpen,
+      });
+
+      // Existing blur code...
+      if (isKeyboardOpen) {
+        // Use a small delay to see if focus immediately returns (e.g., Clear button)
+        setTimeout(() => {
+          // Check if focus is *still* not on the input after the delay
+          if (document.activeElement !== messageInputEl) {
+            // Only scroll if focus has truly moved away (like tapping "Done")
+            debugLog("BLUR_TIMEOUT", "Focus did not return, scrolling to top");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          } else {
+            debugLog("BLUR_TIMEOUT", "Focus returned quickly, skipped scroll");
+          }
+        }, 50); // 50ms delay
+      }
+    });
+
+    // Track selection changes
+    messageInputEl.addEventListener("selectionchange", () => {
+      // This may not fire in all browsers, but worth trying
+      debugLog("SELECTION", "Selection changed", {
+        start: messageInputEl.selectionStart,
+        end: messageInputEl.selectionEnd,
+        atEnd: messageInputEl.selectionStart >= messageInputEl.value.length - 5,
+        scrollTop: messageInputEl.scrollTop,
+      });
+    });
+
+    // Also track keydown for potential navigation
+    messageInputEl.addEventListener("keydown", (e) => {
+      // Only log arrow keys and nav keys
+      if (
+        e.key.includes("Arrow") ||
+        ["Home", "End", "PageUp", "PageDown"].includes(e.key)
+      ) {
+        debugLog("KEYDOWN", `Navigation key: ${e.key}`, {
+          selectionBefore: {
+            start: messageInputEl.selectionStart,
+            end: messageInputEl.selectionEnd,
+          },
+          scrollTopBefore: messageInputEl.scrollTop,
+        });
+
+        // After the key event has been processed
+        setTimeout(() => {
+          debugLog("KEYDOWN_AFTER", `After ${e.key} processed`, {
+            selectionAfter: {
+              start: messageInputEl.selectionStart,
+              end: messageInputEl.selectionEnd,
+            },
+            scrollTopAfter: messageInputEl.scrollTop,
+            scrollChange: messageInputEl.scrollTop - lastScrollTop,
+          });
+          lastScrollTop = messageInputEl.scrollTop;
+          lastSelectionStart = messageInputEl.selectionStart;
+          lastSelectionEnd = messageInputEl.selectionEnd;
+        }, 0);
+      }
+    });
+  }
+  // --- END: Enhanced Input Debug Tracking ---
+
+  // Enhance viewport resize logging
+  const originalHandleViewportResize = handleViewportResize;
+  handleViewportResize = function () {
+    const beforeHeight = window.visualViewport
+      ? window.visualViewport.height
+      : window.innerHeight;
+    const beforeKeyboardOpen = isKeyboardOpen;
+
+    debugLog("VIEWPORT", "Before resize handler", {
+      height: beforeHeight,
+      keyboardOpen: beforeKeyboardOpen,
+    });
+
+    // Call original function
+    originalHandleViewportResize.apply(this, arguments);
+
+    const afterHeight = window.visualViewport
+      ? window.visualViewport.height
+      : window.innerHeight;
+
+    debugLog("VIEWPORT", "After resize handler", {
+      height: afterHeight,
+      heightChange: afterHeight - beforeHeight,
+      keyboardOpen: isKeyboardOpen,
+      keyboardStateChanged: beforeKeyboardOpen !== isKeyboardOpen,
+    });
+
+    // If keyboard state just changed, log detailed input state
+    if (beforeKeyboardOpen !== isKeyboardOpen) {
+      if (messageInputEl) {
+        debugLog(
+          "KEYBOARD_CHANGE",
+          `Keyboard ${isKeyboardOpen ? "opened" : "closed"}`,
+          {
+            inputHeight: messageInputEl.offsetHeight,
+            inputScrollTop: messageInputEl.scrollTop,
+            inputScrollHeight: messageInputEl.scrollHeight,
+            cursorPosition: messageInputEl.selectionStart,
+            cursorAtEnd:
+              messageInputEl.selectionStart >= messageInputEl.value.length - 5,
+            windowScrollY: window.scrollY,
+          }
+        );
+      }
+    }
+  };
+
+  // Enhance updateCursorDistance with logging
+  const originalUpdateCursorDistance = updateCursorDistance;
+  updateCursorDistance = function () {
+    if (!messageInputEl || !distanceValueEl) return;
+
+    const beforeHeight = messageInputEl.offsetHeight;
+    const beforeScrollTop = messageInputEl.scrollTop;
+
+    debugLog("CURSOR_DISTANCE", "Before update", {
+      height: beforeHeight,
+      scrollTop: beforeScrollTop,
+      selectionStart: messageInputEl.selectionStart,
+      atEnd: messageInputEl.selectionStart >= messageInputEl.value.length - 5,
+    });
+
+    // Call original function
+    originalUpdateCursorDistance.apply(this, arguments);
+
+    const afterHeight = messageInputEl.offsetHeight;
+    const afterScrollTop = messageInputEl.scrollTop;
+
+    debugLog("CURSOR_DISTANCE", "After update", {
+      height: afterHeight,
+      heightChange: afterHeight - beforeHeight,
+      scrollTop: afterScrollTop,
+      scrollChange: afterScrollTop - beforeScrollTop,
+      distanceValue: distanceValueEl.textContent,
+    });
+
+    // If height changed significantly, this could be causing the jump
+    if (Math.abs(afterHeight - beforeHeight) > 5) {
+      debugLog("HEIGHT_CHANGE", "Significant height change detected", {
+        from: beforeHeight,
+        to: afterHeight,
+        change: afterHeight - beforeHeight,
+        keyboardOpen: isKeyboardOpen,
+        cursorPosition: messageInputEl.selectionStart,
+        atEnd: messageInputEl.selectionStart >= messageInputEl.value.length - 5,
+      });
+    }
+
+    // If scroll position changed significantly, this could be causing the jump
+    if (Math.abs(afterScrollTop - beforeScrollTop) > 5) {
+      debugLog("SCROLL_CHANGE", "Significant scroll change detected", {
+        from: beforeScrollTop,
+        to: afterScrollTop,
+        change: afterScrollTop - beforeScrollTop,
+        keyboardOpen: isKeyboardOpen,
+        cursorPosition: messageInputEl.selectionStart,
+        atEnd: messageInputEl.selectionStart >= messageInputEl.value.length - 5,
+      });
+    }
+  };
+
+  // --- START: Handle Paste Event for Contenteditable Div ---
+  // Add paste event listener to strip formatting from pasted text
+  if (messageInputEl) {
+    messageInputEl.addEventListener("paste", function (e) {
+      // Prevent the default paste behavior
+      e.preventDefault();
+
+      // Get plain text from clipboard
+      let text;
+      if (e.clipboardData && e.clipboardData.getData) {
+        // Try text/plain first (standard)
+        text = e.clipboardData.getData("text/plain");
+
+        // Fallback for iOS Safari if text/plain doesn't work
+        if (!text) {
+          text = e.clipboardData.getData("text");
+        }
+      } else if (window.clipboardData && window.clipboardData.getData) {
+        // IE fallback
+        text = window.clipboardData.getData("Text");
+      }
+
+      // Insert text at cursor position
+      if (text) {
+        // Get selection to identify cursor position
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+          // Delete any selected text first
+          const range = selection.getRangeAt(0);
+          range.deleteContents();
+
+          // Insert text as a text node (preserves no formatting)
+          const textNode = document.createTextNode(text);
+          range.insertNode(textNode);
+
+          // Move cursor to end of inserted text
+          range.setStartAfter(textNode);
+          range.setEndAfter(textNode);
+          selection.removeAllRanges();
+          selection.addRange(range);
+
+          // Force iOS to use plain text and remove any remaining styling
+          document.execCommand("insertText", false, text);
+        } else {
+          // If no selection, just append at the end
+          messageInputEl.appendChild(document.createTextNode(text));
+        }
+
+        // iOS specific: clear any potential styles that were applied
+        setTimeout(() => {
+          // Use this opportunity to normalize any potential formatting issues
+          const currentText =
+            messageInputEl.innerText || messageInputEl.textContent;
+
+          // Only proceed if we have content to avoid flickering
+          if (currentText && currentText.trim()) {
+            const hasHTML = messageInputEl.innerHTML !== currentText;
+
+            // If we detect HTML formatting, forcibly reset the content to plain text
+            if (hasHTML) {
+              const plainText = currentText;
+              messageInputEl.innerHTML = "";
+              messageInputEl.appendChild(document.createTextNode(plainText));
+            }
+          }
+        }, 0);
+
+        // Trigger content check and cursor distance update
+        checkContentAndUpdateBody();
+        if (!isKeyboardOpen) {
+          updateCursorDistance();
+          console.log(
+            "Keyboard down, updated cursor distance after paste event."
+          );
+        }
+      }
+    });
+  }
+  // --- END: Handle Paste Event for Contenteditable Div ---
+
+  // ... existing code ...
 });

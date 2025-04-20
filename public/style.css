@@ -514,60 +514,70 @@ h3 {
   color: var(--text-color);
 }
 
-/* START: Styles for textarea wrapper and inner icons */
-.textarea-wrapper {
-  position: relative; /* Positioning context for inner icons */
-}
+/* END: Style for Signature Icon SVG */
 
-.textarea-icons {
+/* START: Text Area Wrapper (for positioning icons) */
+.textarea-wrapper {
+  position: relative; /* Needed for absolute positioning of child icons */
+}
+/* END: Text Area Wrapper */
+
+/* --- START: Text Area Inner Icons --- */
+.text-area-icons {
   position: absolute;
-  bottom: 5px; /* Adjust as needed */
+  bottom: 0.1px; /* Adjust as needed */
   right: 8px; /* Adjust as needed */
   display: flex;
   align-items: center;
   gap: 30px; /* Space between icons */
   z-index: 10; /* Above textarea content/scrollbar */
+  line-height: 1;
 }
 
-.textarea-icons button {
+/* Base styles for all buttons within the text area icons container */
+.text-area-icons button {
   background: none;
   border: none;
-  padding: 2px; /* Small padding for click area */
-  margin: 0;
+  padding-right: 1px; /* Small padding for click area */
   cursor: pointer;
   color: var(--secondary-text); /* Dimmed color */
-  font-size: 1.2rem; /* Adjust icon size */
+  font-size: 1.2rem; /* Default icon size */
   line-height: 1;
   opacity: 0.7;
   transition: opacity 0.2s ease, color 0.2s ease;
 }
 
-.textarea-icons button:hover {
+.text-area-icons button:hover {
   color: var(--text-color);
   opacity: 1;
 }
 
-/* Style SVG within the copy button */
-.textarea-icons button#copy-input svg {
+/* Specific button styles */
+.text-area-icons button#clear-input {
+  font-size: 2.5rem; /* Make X slightly larger on mobile */
+}
+
+.text-area-icons button#copy-input svg {
   width: 1.2em; /* Match font size */
   height: 1.2em;
   vertical-align: middle; /* Align with text/emoji icons */
 }
 
-/* Specific size for the Clear (X) button */
-.textarea-icons button#clear-input {
-  font-size: 2.5rem; /* Make X slightly larger */
+/* Make images within .icon scale correctly */
+.icon-btn .icon img {
+  width: 1em; /* Scale relative to parent font-size */
+  height: 1em; /* Scale relative to parent font-size */
+  object-fit: contain; /* Ensure image fits without distortion */
+  filter: invert(1); /* Invert colors (black -> white) */
 }
-/* END: Styles for textarea wrapper and inner icons */
 
-/* START: Style for Signature Icon SVG */
-.signature-icon-svg {
-  width: 2rem; /* Match the base .icon font-size */
-  height: 2rem; /* Match the base .icon font-size */
-  vertical-align: middle; /* Align similarly to SVGs/Emoji */
-  filter: invert(1) brightness(1.5); /* Invert black to white and adjust brightness */
+.clipboard-icon {
+  /* Keep specific overrides if needed, but base size is now handled above */
+  /* width: 1.43rem; */ /* Can be removed if same as default */
+  /* height: 1.43rem; */ /* Can be removed if same as default */
+  color: var(--text-color);
 }
-/* END: Style for Signature Icon SVG */
+/* --- END: Text Area Inner Icons --- */
 
 /* Unified text style for input and output */
 .unified-text-style,
@@ -587,16 +597,48 @@ textarea,
   -webkit-appearance: none;
 }
 
-/* Additional styles for textarea */
+/* Additional styles for textarea - DEPRECATED, replaced with editable-div-input */
 textarea#text-input-area {
   /* Added ID for specificity */
+  display: none; /* Hide the old textarea completely */
+}
+
+/* Editable div input styles (mimics the polished-message) */
+.editable-div-input {
+  font-size: 20px;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--card-bg);
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  text-align: left;
+  -webkit-appearance: none;
   width: 100%;
   min-height: 240px;
-  border: none;
-  margin-bottom: 0; /* Handled by wrapper/improve btn now */
+  max-height: none;
+  overflow: visible;
+  word-break: break-word;
   font-family: inherit;
-  transition: box-shadow 0.3s ease;
-  padding-bottom: 35px; /* Add padding to prevent text overlap */
+  border: none;
+  padding-bottom: 35px;
+  box-sizing: border-box;
+}
+
+/* Style the placeholder text for contenteditable div */
+.editable-div-input:empty:before {
+  content: attr(placeholder);
+  color: #888;
+  font-style: italic;
+}
+
+/* Focus styles to match */
+.editable-div-input:focus,
+#polished-message:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--primary-color);
 }
 
 /* Additional styles for polished message */
@@ -610,24 +652,27 @@ textarea#text-input-area {
 }
 
 /* Polished message when editable */
-#polished-message[contenteditable="true"] {
+#polished-message[contenteditable="true"],
+.editable-div-input {
   outline: none; /* Keep outline none to rely on box-shadow for focus */
 }
 
 textarea:focus,
-#polished-message:focus {
+#polished-message:focus,
+.editable-div-input:focus {
   outline: none;
   box-shadow: 0 0 0 2px var(--primary-color);
 }
 
 #polished-message p,
-textarea p {
+.editable-div-input p {
   margin-top: 0;
   margin-bottom: 0.7rem;
   line-height: 1.4;
 }
 
-#polished-message p:last-child {
+#polished-message p:last-child,
+.editable-div-input p:last-child {
   margin-bottom: 0;
 }
 
@@ -1035,9 +1080,8 @@ textarea#text-input-area,
   }
 
   /* Reduce size of Clear (X) button on desktop */
-  .textarea-icons button#clear-input {
+  .text-area-icons button#clear-input {
     font-size: 1.6rem; /* Adjust this value as needed */
-
     line-height: 1;
   }
 
@@ -1237,3 +1281,42 @@ textarea#text-input-area,
   display: none; /* <<< HIDE VISUALLY >>> */
 }
 /* --- END: Focus Status Indicator Styles --- */
+
+/* Basic styling for the editable div */
+#text-input-area {
+  width: 100%; /* Use full width */
+  min-height: 240px; /* Minimum height */
+  padding: 12px;
+  font-size: 1.35rem;
+  line-height: 1.6; /* Adjust line height for better readability */
+  border: 1px solid #555; /* Slightly darker border */
+  border-radius: 8px;
+  background-color: #333; /* Dark background */
+  color: #eee; /* Light text */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  font-family: inherit; /* Inherit font from body */
+  overflow-y: auto; /* Add scrollbar if content exceeds height */
+  resize: none; /* Disable textarea-like resizing handle */
+  -webkit-appearance: none; /* Remove default iOS appearance */
+  appearance: none;
+  cursor: text; /* Indicate it's text input */
+  outline: none; /* Remove default focus outline */
+  transition: min-height 0.1s ease-out; /* Smooth height transition */
+}
+
+/* CSS Placeholder Styling for contenteditable div */
+#text-input-area:empty::before {
+  content: attr(data-placeholder);
+  color: #888; /* Lighter color for placeholder */
+  cursor: text;
+  display: block; /* Ensures it takes up space */
+}
+
+/* Optional: Style when focused */
+#text-input-area:focus {
+  border-color: #777;
+}
+
+/* --- END: Text Input Area Styling --- */
+
+/* --- START: Output Text Area Styling --- */
