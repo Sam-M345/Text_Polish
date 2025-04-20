@@ -1246,5 +1246,6 @@ textarea#text-input-area,
   z-index: 9999; /* Ensure it's on top */
   border-bottom-right-radius: 5px;
   pointer-events: none; /* Prevent it from interfering with clicks */
+  display: none; /* <<< HIDE VISUALLY >>> */
 }
 /* --- END: Focus Status Indicator Styles --- */
