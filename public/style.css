@@ -46,8 +46,8 @@ html {
 
   /* Visuals & typography */
   background: #333;
-  color: #eee;
-  font-size: 1.35rem;
+  color: #ffffff;
+  font-size: 1.3rem;
   cursor: text;
   -webkit-appearance: none;
   appearance: none;
@@ -946,7 +946,7 @@ body.tones-expanded .output-section {
 
 /* Input and output areas */
 #polished-message {
-  font-size: 1.35rem;
+  font-size: 1.3rem;
 }
 
 /* ======================================== */
