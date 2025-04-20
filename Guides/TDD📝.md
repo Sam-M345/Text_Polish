@@ -44,7 +44,7 @@ Text Polish follows a client-server architecture:
   - Receiving the improved text response from the backend.
   - Dynamically rendering the output, including splitting text by newlines (`\n\n` and `\n`) and creating `<p>` elements for paragraph formatting.
   - Managing UI state (button selections, loading indicators, content display).
-  - Implementing helper functions for copy/paste, clear, share, speech input, etc.
+  - Implementing helper functions for copy/paste, clear, share, etc. (Note: The speech input button previously in the tone header area has been removed, but a hidden input area mic button `#mic-input` remains).
   - Handling email-specific formatting and sharing (`EmailHandler`).
   - Implementing API call retry logic.
   - Dynamically adjusting the input textarea height:
@@ -266,7 +266,7 @@ This section outlines the main files and folders in the project root, excluding 
 - Loading animations (`startHourglassAnimation`) on the "Improve" button.
 - Visual feedback (`showIconFeedback`) on icon button clicks.
 - Content-aware body class (`has-content`) for styling adjustments.
-- Speech-to-text input using Web Speech API.
+- Speech-to-text input using Web Speech API (Note: The primary UI button `#tone-header-mic-indicator` for this in the tone settings area was removed; functionality might be linked to the hidden `#mic-input`).
 - Output text editing via `contenteditable` attribute.
 - **Signature Feature**:
   - Toggleable signature line appended within the output box.
@@ -285,7 +285,7 @@ This section outlines the main files and folders in the project root, excluding 
 - Collapsible Tone Category section (`#tone-categories`).
 - Improve button (`#improve-btn`) with loading state.
 - Output display area (`#improved-message`) rendering content within `<p>` tags and optionally containing the signature `div`.
-- Action buttons for Input (Mic, Clear, Copy, Paste) and Output (Clear, Copy, Paste to Input, **Signature**, Share).
+- Action buttons for Input (Mic (`#mic-input`, currently hidden), Clear, Copy, Paste) and Output (Clear, Copy, Paste to Input, **Signature**, Share). (Note: The mic button `#tone-header-mic-indicator` in the tone section was removed).
 - Hidden distance display element (`#cursor-distance-display`).
 
 ### 8.2 Responsive Design
