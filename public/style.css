@@ -1230,3 +1230,21 @@ textarea#text-input-area,
   /* flex-grow: 1; /* Optional: Allow button to take more space */
 }
 /* --- END: Container for Indicator and Polish Button --- */
+
+/* Add other global styles or resets if needed */
+
+/* --- START: Focus Status Indicator Styles --- */
+#focus-status-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(255, 255, 0, 0.8); /* Yellow background */
+  color: black;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  font-family: monospace;
+  z-index: 9999; /* Ensure it's on top */
+  border-bottom-right-radius: 5px;
+  pointer-events: none; /* Prevent it from interfering with clicks */
+}
+/* --- END: Focus Status Indicator Styles --- */

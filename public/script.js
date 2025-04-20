@@ -46,6 +46,116 @@ document.addEventListener("DOMContentLoaded", () => {
     "keyboard-status-indicator"
   ); // Get the new indicator
 
+  // --- START: Define focus indicator element and update function early ---
+  const focusStatusEl = document.getElementById("focus-status-indicator");
+  console.log("[INIT] Focus Status Element Found:", focusStatusEl);
+
+  // Define the specific strings and their corresponding selectors
+  const focusMappings = {
+    logo: ".logo-container",
+    "textarea-wrapper": ".textarea-wrapper",
+    "text-type-container": ".text-type-container",
+    "tone-settings-container": ".tone-settings-container",
+    "indicator-button-container": ".indicator-button-container",
+    "output-container": "#output-container",
+  };
+  const notFoundMessage = "Not Found - Error";
+
+  // Function to update the indicator based on the currently focused element OR a provided element
+  const updateFocusIndicator = (element = null, caller = "unknown") => {
+    // Ensure focusStatusEl exists before proceeding
+    if (!focusStatusEl) return;
+
+    const timestamp = new Date().toISOString();
+    console.log(
+      `[DIAG-FOCUS-1] ${timestamp} - updateFocusIndicator called by: ${caller}`
+    );
+
+    const targetElement = element || document.activeElement; // Use provided element or activeElement
+    console.log(
+      `[DIAG-FOCUS-2] ${timestamp} - Target Element for check:`,
+      targetElement
+    );
+
+    let statusText = notFoundMessage; // Default to error message
+    let foundMatch = false;
+
+    if (targetElement && targetElement !== document.body) {
+      console.log(
+        `[DIAG-FOCUS-3] ${timestamp} - Checking targetElement against mappings...`
+      );
+      // Check against selectors. Order can matter for nested elements.
+      // Use targetElement for checks
+      if (targetElement.closest(focusMappings["textarea-wrapper"])) {
+        console.log(`[DIAG-FOCUS-4] ${timestamp} - Match: textarea-wrapper`);
+        statusText = "textarea-wrapper";
+        foundMatch = true;
+      } else if (targetElement.closest(focusMappings["text-type-container"])) {
+        console.log(`[DIAG-FOCUS-4] ${timestamp} - Match: text-type-container`);
+        statusText = "text-type-container";
+        foundMatch = true;
+      } else if (targetElement.closest(focusMappings["logo"])) {
+        console.log(`[DIAG-FOCUS-4] ${timestamp} - Match: logo`);
+        statusText = "logo";
+        foundMatch = true;
+      } else if (
+        targetElement.closest(focusMappings["tone-settings-container"])
+      ) {
+        console.log(
+          `[DIAG-FOCUS-4] ${timestamp} - Match: tone-settings-container`
+        );
+        statusText = "tone-settings-container";
+        foundMatch = true;
+      } else if (
+        targetElement.closest(focusMappings["indicator-button-container"])
+      ) {
+        console.log(
+          `[DIAG-FOCUS-4] ${timestamp} - Match: indicator-button-container`
+        );
+        statusText = "indicator-button-container";
+        foundMatch = true;
+      } else if (targetElement.closest(focusMappings["output-container"])) {
+        console.log(
+          `[DIAG-FOCUS-4] ${timestamp} - Potential Match: output-container. Checking editability...`
+        );
+        // Special check for output area: only count if editable
+        if (targetElement.getAttribute("contenteditable") === "true") {
+          console.log(
+            `[DIAG-FOCUS-5] ${timestamp} - Confirmed Match: output-container (editable)`
+          );
+          statusText = "output-container";
+          foundMatch = true;
+        } else {
+          console.log(
+            `[DIAG-FOCUS-5] ${timestamp} - No Match: output-container (not editable)`
+          );
+          statusText = notFoundMessage; // Treat non-editable focus as not found
+        }
+      } else {
+        console.log(
+          `[DIAG-FOCUS-4] ${timestamp} - No match found in mappings.`
+        );
+      }
+    } else if (targetElement === document.body) {
+      console.log(`[DIAG-FOCUS-3] ${timestamp} - Target element is body.`);
+      statusText = notFoundMessage; // Treat body focus as not found
+    } else {
+      console.log(
+        `[DIAG-FOCUS-3] ${timestamp} - Target element is null or invalid.`
+      );
+    }
+
+    console.log(
+      `[DIAG-FOCUS-6] ${timestamp} - Final statusText determined: ${statusText}`
+    );
+    // No need for extra check here, done at function start
+    focusStatusEl.textContent = statusText;
+    console.log(
+      `[DIAG-FOCUS-7] ${timestamp} - Updated focusStatusEl.textContent to: ${focusStatusEl.textContent}`
+    );
+  };
+  // --- END: Define focus indicator element and update function early ---
+
   // Undo functionality constants
   const UNDO_STORAGE_KEY = "textPolishUndoState";
 
@@ -342,7 +452,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateKeyboardStatusIndicator();
         console.log("Keyboard open (Viewport)");
         // --- START: Adjust min-height when keyboard opens ---
-        if (messageInputEl) messageInputEl.style.minHeight = "330px";
+        if (messageInputEl) messageInputEl.style.minHeight = "380px";
         // --- END: Adjust min-height when keyboard opens ---
         // --- START: Scroll input area near top when keyboard opens ---
         if (document.activeElement === messageInputEl) {
@@ -746,7 +856,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Add click event listeners to all option buttons
   typeButtons.forEach((button) => {
     button.addEventListener("click", () => {
+      const timestamp = new Date().toISOString();
+      console.log(
+        `[DIAG-FOCUS-CLICK] ${timestamp} - Click detected on typeButton:`,
+        button
+      );
       handleButtonSelection(typeButtons, button);
+      // Explicitly update focus indicator based on the CLICKED button
+      updateFocusIndicator(button, "typeButton_click"); // Function is now defined in this scope
     });
   });
 
@@ -779,7 +896,6 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Keyboard down, reset height on clear.");
     } else {
       console.log("Keyboard up, skipped height reset on clear.");
-      // When keyboard is up, height is controlled by minHeight: 330px and content
     }
     // --- END: Conditional Height Reset ---
 
@@ -1053,6 +1169,14 @@ ${cleanedBody}
 
   // Update the polishBtn event listener
   polishBtn.addEventListener("click", async () => {
+    const timestamp = new Date().toISOString();
+    console.log(
+      `[DIAG-FOCUS-CLICK] ${timestamp} - Click detected on polishBtn:`,
+      polishBtn
+    );
+    // Explicitly update focus indicator based on the CLICKED polish button
+    updateFocusIndicator(polishBtn, "polishBtn_click");
+
     console.log("--- New Polish Click ---"); // Updated Log
 
     // --- Stop Mic if Active ---
@@ -1883,4 +2007,54 @@ ${cleanedBody}
     });
   }
   // --- END: Signature Button Functionality ---
+
+  // --- START: Add Focus Event Listeners (Touch Event Based) ---
+  // Check if the indicator element exists before adding listeners that use it
+  if (focusStatusEl) {
+    // Listen for touchstart - often fires before focus fully shifts
+    document.body.addEventListener(
+      "touchstart",
+      (event) => {
+        const timestamp = new Date().toISOString();
+        console.log(
+          `[DIAG-FOCUS-TOUCH] ${timestamp} - Touchstart detected on:`,
+          event.target
+        );
+        // Check focus shortly after touchstart allows focus to potentially settle
+        setTimeout(() => updateFocusIndicator(null, "touchstart_timeout"), 50); // 50ms delay
+      },
+      { passive: true }
+    ); // Use passive listener
+
+    // Also listen for blur on key elements to catch focus moving away
+    if (messageInputEl) {
+      messageInputEl.addEventListener("blur", () => {
+        const timestamp = new Date().toISOString();
+        console.log(
+          `[DIAG-FOCUS-BLUR] ${timestamp} - Blur detected on messageInputEl`
+        );
+        setTimeout(
+          () => updateFocusIndicator(null, "messageInputEl_blur_timeout"),
+          50
+        );
+      });
+    }
+    if (polishedMessageEl) {
+      polishedMessageEl.addEventListener("blur", () => {
+        const timestamp = new Date().toISOString();
+        console.log(
+          `[DIAG-FOCUS-BLUR] ${timestamp} - Blur detected on polishedMessageEl`
+        );
+        setTimeout(
+          () => updateFocusIndicator(null, "polishedMessageEl_blur_timeout"),
+          50
+        );
+      });
+    }
+    // Potentially add blur listeners to other focusable elements if needed
+
+    // Set initial state
+    updateFocusIndicator(null, "initial_load");
+  }
+  // --- END: Add Focus Event Listeners ---
 });
