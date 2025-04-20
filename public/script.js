@@ -97,12 +97,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const focusStatusEl = document.getElementById("focus-status-indicator");
   console.log("[INIT] Focus Status Element Found:", focusStatusEl);
 
-  // Flag to track if polished message was just blurred
-  // let didJustBlurPolishedMessage = false; // <<< REMOVED
-  // Flag to track if input area was just blurred
-  // let didJustBlurInputArea = false; // <<< REMOVED
-  // Track WHEN the textarea last blurred (iOS race-proof)
-  // let lastInputBlurTs = 0;          // <<< REMOVED
+  // Flags/state for scroll management
+  let didJustBlurPolishedMessage = false;
+  let didJustBlurInputArea = false;
+  let lastInputBlurTs = 0;
+  let shouldScrollEmptyInputOnKeyboardOpen = false; // <<< NEW FLAG
 
   // Define the specific strings and their corresponding selectors
   const focusMappings = {
@@ -515,49 +514,105 @@ document.addEventListener("DOMContentLoaded", () => {
         updateKeyboardStatusIndicator();
         console.log("Keyboard open (Viewport)");
         // --- START: Adjust min-height when keyboard opens ---
-        if (messageInputEl) messageInputEl.style.minHeight = "380px";
+        if (messageInputEl) messageInputEl.style.minHeight = "388px";
         // --- END: Adjust min-height when keyboard opens ---
-        // --- START: Scroll input area near top when keyboard opens (DISABLED) ---
+
+        // --- START: Scroll EMPTY Input Area IF Flag is Set ---
         if (document.activeElement === messageInputEl) {
           console.log(
-            "Keyboard opened for input area. Custom scroll-to-top is disabled."
-          );
-          /* --- COMMENTED OUT: Custom scroll logic --- 
-          // Only scroll if the input area is focused AND EMPTY
-          setTimeout(() => {
-            if (messageInputEl && messageInputEl.value.trim() === '') {
-                // Existing scroll logic for EMPTY input area
-                const desiredOffset = 10; // Pixels to leave between viewport top and textarea top
+            "[DEBUG] handleViewportResize: ActiveElement is messageInputEl."
+          ); // Log 3
+          console.log(
+            "[DEBUG] handleViewportResize: Flag value BEFORE check:",
+            shouldScrollEmptyInputOnKeyboardOpen
+          ); // Log 4
+          if (shouldScrollEmptyInputOnKeyboardOpen) {
+            console.log(
+              "[DEBUG] handleViewportResize: Flag is TRUE, scheduling scroll."
+            ); // Log 5
+            const forceFirst = shouldScrollEmptyInputOnKeyboardOpen === true; // Check if this is the first trigger after focus
+            console.log(
+              "[DEBUG] handleViewportResize: forceFirst value:",
+              forceFirst
+            ); // Log 6
+            shouldScrollEmptyInputOnKeyboardOpen = false; // <<< RESET FLAG HERE, before timeout
+            console.log(
+              "[DEBUG] handleViewportResize: Flag value AFTER reset:",
+              shouldScrollEmptyInputOnKeyboardOpen
+            ); // Log 7
+
+            // Scroll logic now runs here, triggered by resize + flag
+            setTimeout(() => {
+              console.log("[DEBUG] setTimeout: Callback executing."); // Log 8
+              console.log(
+                "[DEBUG] setTimeout: ActiveElement:",
+                document.activeElement
+              ); // Log 9
+              if (document.activeElement === messageInputEl) {
+                // Check focus persists
+                const desiredOffset = 5;
                 const elementTopRelativeToViewport =
                   messageInputEl.getBoundingClientRect().top;
-                const currentScrollY = window.scrollY;
-                // Calculate how much we need to scroll UP (elementTop - offset)
-                const scrollAmount = elementTopRelativeToViewport - desiredOffset;
-                // Calculate the final absolute scroll position
-                const targetScrollY = currentScrollY + scrollAmount;
-
-                window.scrollTo({
-                  top: targetScrollY,
-                  behavior: "smooth",
-                });
                 console.log(
-                  `Scrolled EMPTY input area near top (offset: ${desiredOffset}px) on keyboard open. Scrolled by: ${Math.round(
-                    scrollAmount
-                  )}px`
+                  "[DEBUG] setTimeout: elementTopRelativeToViewport:",
+                  elementTopRelativeToViewport
+                ); // Log 10
+                // Scroll if forced (first time) OR if element is actually low
+                console.log(
+                  `[DEBUG] setTimeout: Checking condition (forceFirst || > offset): (${forceFirst} || ${elementTopRelativeToViewport} > ${
+                    desiredOffset + 10
+                  })`
+                ); // Log 11
+                if (
+                  forceFirst ||
+                  elementTopRelativeToViewport > desiredOffset + 10
+                ) {
+                  const currentScrollY = window.scrollY;
+                  const scrollAmount =
+                    elementTopRelativeToViewport - desiredOffset;
+                  const targetScrollY = currentScrollY + scrollAmount;
+                  console.log("[DEBUG] setTimeout: Performing scroll...", {
+                    targetScrollY,
+                    behavior: "smooth",
+                  }); // Log 12
+                  window.scrollTo({ top: targetScrollY, behavior: "smooth" });
+                  console.log(
+                    `Scrolled empty input near top (forceFirst=${forceFirst}). TargetY: ${targetScrollY}`
+                  ); // Updated log
+                } else {
+                  console.log(
+                    "[DEBUG] setTimeout: Condition FALSE. Scroll skipped."
+                  ); // Log 13
+                  console.log(
+                    "Empty input focused, but already near top. Scroll skipped."
+                  );
+                }
+              } else {
+                console.log(
+                  "[DEBUG] setTimeout: ActiveElement check FAILED. Focus moved away."
+                ); // Log 14
+                console.log(
+                  "Focus moved away before delayed scroll could execute."
                 );
-                // Removed: messageInputEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else if (messageInputEl) {
-                // If input area has content, don't scroll automatically
-                 console.log("Keyboard opened for input area with content, skipping automatic scroll-to-top behavior.");
-            }
-          }, 100); // Delay to allow layout to stabilize
-          */
+              }
+            }, 150); // 150ms delay
+          } else {
+            console.log(
+              "[DEBUG] handleViewportResize: Flag is FALSE, scroll not scheduled."
+            ); // Log 15
+            console.log(
+              "Keyboard opened for input area (has content), scroll flag not set."
+            );
+          }
         } else {
           console.log(
-            "Keyboard opened, but focus is not on the main input area. Skipping scroll."
-          );
+            "[DEBUG] handleViewportResize: ActiveElement is NOT messageInputEl."
+          ); // Log 16
+          console.log("Keyboard opened, but focus is not on the input area.");
         }
-        // --- END: Scroll input area near top when keyboard opens (DISABLED) ---
+        // ALWAYS reset the flag after checking it // <<< REMOVED Redundant Reset
+        // shouldScrollEmptyInputOnKeyboardOpen = false;
+        // --- END: Scroll EMPTY Input Area IF Flag is Set ---
       }
     } else {
       // Check if it was previously open to avoid redundant updates
@@ -634,9 +689,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- START: Add Blur Listeners for Input and Polished Message ---
   if (messageInputEl) {
     messageInputEl.addEventListener("blur", () => {
-      // console.log("Input area blurred, setting flag and timestamp."); // Updated log
-      // didJustBlurInputArea = true; // <<< REMOVED
-      // lastInputBlurTs = Date.now(); // <<< REMOVED
       // Update focus indicator after a delay
       setTimeout(
         () => updateFocusIndicator(null, "messageInputEl_blur_timeout"),
@@ -649,8 +701,6 @@ document.addEventListener("DOMContentLoaded", () => {
     polishedMessageEl.addEventListener("blur", () => {
       // Check if it was editable when blurred
       if (polishedMessageEl.getAttribute("contenteditable") === "true") {
-        // console.log("Polished message blurred while editable, setting flag."); // Updated log
-        // didJustBlurPolishedMessage = true; // <<< REMOVED
         // Also update focus indicator state since blur might not trigger touch timeout reliably
         setTimeout(
           () => updateFocusIndicator(null, "polishedMessageEl_blur_timeout"),
@@ -660,6 +710,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   // --- END: Add Blur Listeners for Input and Polished Message ---
+
+  // --- START: Scroll Empty Input Area to Top on Focus (iOS Keyboard) ---
+  if (messageInputEl) {
+    messageInputEl.addEventListener("focus", () => {
+      if (messageInputEl.value.trim() === "") {
+        console.log("Empty input area focused, setting scroll flag.");
+        shouldScrollEmptyInputOnKeyboardOpen = true;
+      } else {
+        // Ensure flag is false if input has content on focus
+        shouldScrollEmptyInputOnKeyboardOpen = false;
+      }
+      // --- REMOVED scroll logic from here ---
+    });
+  }
+  // --- END: Scroll Empty Input Area to Top on Focus ---
 
   // --- START: Speech Recognition Logic (Restored based on temp-23-Microphone.md) ---
   let recognition = null;
@@ -2194,4 +2259,59 @@ ${cleanedBody}
     updateFocusIndicator(null, "initial_load");
   }
   // --- END: Add Focus Event Listeners ---
+
+  // Listener to check if input is empty *when focused*
+  messageInputEl.addEventListener("focus", () => {
+    if (messageInputEl.value.trim() === "") {
+      console.log("[DEBUG] Focus listener: Input empty, setting flag TRUE."); // Log 1
+      shouldScrollEmptyInputOnKeyboardOpen = true;
+    } else {
+      console.log(
+        "[DEBUG] Focus listener: Input NOT empty, setting flag FALSE."
+      ); // Log 2
+      shouldScrollEmptyInputOnKeyboardOpen = false;
+    }
+    // --- REMOVED scroll logic from here ---
+  });
+
+  // Listen for touchstart - check input emptiness here
+  document.body.addEventListener(
+    "touchstart",
+    (event) => {
+      const timestamp = new Date().toISOString();
+      console.log(
+        `[DIAG-FOCUS-TOUCH] ${timestamp} - Touchstart detected on:`,
+        event.target
+      );
+
+      // <<< Check input emptiness and set flag on touchstart >>>
+      // Use closest() for robustness
+      if (event.target.closest("#text-input-area")) {
+        const isEmpty = messageInputEl.value.trim() === "";
+        console.log(
+          `[DEBUG] Touchstart listener: Target is input area. Is empty? ${isEmpty}`
+        ); // Log value check result
+        if (isEmpty) {
+          console.log(
+            "[DEBUG] Touchstart listener: Input empty, setting scroll flag TRUE."
+          );
+          shouldScrollEmptyInputOnKeyboardOpen = true;
+        } else {
+          console.log(
+            "[DEBUG] Touchstart listener: Input NOT empty, ensuring scroll flag FALSE."
+          );
+          shouldScrollEmptyInputOnKeyboardOpen = false;
+        }
+      } else {
+        console.log("[DEBUG] Touchstart listener: Target is NOT input area."); // Log if target is not input
+        // If touch is not on input, ensure flag is false
+        // (Prevents flag remaining true if user touches elsewhere after focusing empty input but before keyboard opens)
+        shouldScrollEmptyInputOnKeyboardOpen = false;
+      }
+
+      // Check focus shortly after touchstart allows focus to potentially settle
+      setTimeout(() => updateFocusIndicator(null, "touchstart_timeout"), 50); // 50ms delay
+    },
+    { passive: true }
+  ); // Use passive listener
 });

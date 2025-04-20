@@ -103,7 +103,7 @@ h3 {
   gap: 1.4rem;
   position: relative;
   white-space: nowrap;
-  margin: 0;
+  margin-top: 0.4rem;
 }
 
 .text-type-container h2 {
@@ -126,7 +126,7 @@ h3 {
   padding-right: 1rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  margin-top: 1rem;
+  margin-top: 0.7rem;
   margin-bottom: 1rem;
 }
 
