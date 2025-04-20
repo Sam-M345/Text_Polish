@@ -631,18 +631,6 @@ textarea p {
   margin-bottom: 0;
 }
 
-/* Output container */
-#output-container {
-  margin-top: 1rem;
-  margin-bottom: 0rem;
-  overflow: visible;
-  max-height: none;
-  height: auto;
-  position: relative;
-  z-index: 1;
-  transition: opacity 0.3s ease;
-}
-
 /* Edit button active state */
 #edit-output.active {
   background-color: #25a56a;

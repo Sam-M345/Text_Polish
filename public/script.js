@@ -3,27 +3,75 @@ if ("scrollRestoration" in history) {
   history.scrollRestoration = "manual";
 }
 
+// --- START: Global ScrollTo Override (Prevent Upward Scrolls) ---
+const originalScrollTo = window.scrollTo.bind(window);
+window.scrollTo = function (optionsOrX, y) {
+  let targetY;
+  // Handle both object ({ top: y, ... }) and coordinate (x, y) arguments
+  if (
+    typeof optionsOrX === "object" &&
+    optionsOrX !== null &&
+    optionsOrX.top !== undefined
+  ) {
+    targetY = optionsOrX.top;
+  } else if (typeof optionsOrX === "number" && typeof y === "number") {
+    targetY = y;
+  } else if (typeof optionsOrX === "number" && y === undefined) {
+    // Handling scrollTo(y) is tricky, browser might treat it as scrollTo(0, y) or ignore.
+    // Let's assume it means scrollTo(0, y) for this check, but pass original args.
+    targetY = optionsOrX;
+  } else {
+    // Default to 0 if y is not determinable or args are weird, unlikely to block useful scrolls
+    targetY = 0;
+  }
+
+  // ignore attempts to move ABOVE the current position
+  if (targetY < window.scrollY) {
+    console.log(
+      `Blocked upward scrollTo: targetY=${targetY}, currentY=${window.scrollY}`
+    );
+    return;
+  }
+
+  // Call original function with original arguments
+  // console.log(`Allowed scrollTo: targetY=${targetY}, currentY=${window.scrollY}`);
+  if (arguments.length === 1 && typeof optionsOrX === "object") {
+    originalScrollTo(optionsOrX);
+  } else if (arguments.length >= 2) {
+    originalScrollTo(optionsOrX, y);
+  } else if (arguments.length === 1 && typeof optionsOrX === "number") {
+    // Handle potential scrollTo(y) case if needed, though less common
+    // originalScrollTo(0, optionsOrX);
+    originalScrollTo(optionsOrX); // Pass single number as is, let browser decide
+  } else {
+    originalScrollTo(); // Call with no args if none given
+  }
+};
+// --- END: Global ScrollTo Override ---
+
 // pageshow fires on initial load + when restoring from back-forward cache
 window.addEventListener("pageshow", () => {
   // tiny timeout helps ensure it kicks in *after* any input-focus scroll
   setTimeout(() => {
     // Check if we are NOT already at the top before scrolling
     if (window.scrollY !== 0) {
-      window.scrollTo(0, 0);
-      console.log("Forced scroll to top on pageshow");
+      // window.scrollTo(0, 0); // <<< COMMENTED OUT
+      // console.log("Forced scroll to top on pageshow"); // <<< COMMENTED OUT
     }
   }, 0);
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  // --- START: Scroll to top on load ---
+  // --- START: Scroll to top on load --- // <<< COMMENTED OUT Section
+  /*
   setTimeout(() => {
     if (window.scrollY !== 0) {
       window.scrollTo(0, 0);
       console.log("Scrolled to top on load (delayed, after focus).");
     }
   }, 50); // 50ms delay
-  // --- END: Scroll to top on load ---
+  */
+  // --- END: Scroll to top on load --- // <<< COMMENTED OUT Section
 
   // Get option buttons
   const typeButtons = document.querySelectorAll(
@@ -35,7 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const messageInputEl = document.getElementById("text-input-area");
   const polishBtn = document.getElementById("polish-btn");
   const polishedMessageEl = document.getElementById("polished-message");
-  const outputContainer = document.getElementById("output-container");
   const outputIcons = document.querySelector(".output-icons");
   const toneMicListeningIndicator = document.getElementById(
     "tone-mic-listening-indicator"
@@ -52,6 +99,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Flag to track if polished message was just blurred
   let didJustBlurPolishedMessage = false;
+  // Flag to track if input area was just blurred
+  let didJustBlurInputArea = false;
+  // Track WHEN the textarea last blurred (iOS race-proof)
+  let lastInputBlurTs = 0; // 0 = never
 
   // Define the specific strings and their corresponding selectors
   const focusMappings = {
@@ -60,7 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
     "text-type-container": ".text-type-container",
     "tone-settings-container": ".tone-settings-container",
     "indicator-button-container": ".indicator-button-container",
-    "output-container": "#output-container",
+    "polished-message-area": "#polished-message", // Track polished message directly
+    "output-icons-area": ".output-icons", // Track icons directly
   };
   const notFoundMessage = "Not Found - Error";
 
@@ -117,23 +169,31 @@ document.addEventListener("DOMContentLoaded", () => {
         );
         statusText = "indicator-button-container";
         foundMatch = true;
-      } else if (targetElement.closest(focusMappings["output-container"])) {
+      } else if (
+        targetElement.closest(focusMappings["polished-message-area"])
+      ) {
+        // UPDATED Check
         console.log(
-          `[DIAG-FOCUS-4] ${timestamp} - Potential Match: output-container. Checking editability...`
+          `[DIAG-FOCUS-4] ${timestamp} - Potential Match: polished-message-area. Checking editability...`
         );
         // Special check for output area: only count if editable
         if (targetElement.getAttribute("contenteditable") === "true") {
           console.log(
-            `[DIAG-FOCUS-5] ${timestamp} - Confirmed Match: output-container (editable)`
+            `[DIAG-FOCUS-5] ${timestamp} - Confirmed Match: polished-message-area (editable)`
           );
-          statusText = "output-container";
+          statusText = "polished-message-area"; // UPDATED Status
           foundMatch = true;
         } else {
           console.log(
-            `[DIAG-FOCUS-5] ${timestamp} - No Match: output-container (not editable)`
+            `[DIAG-FOCUS-5] ${timestamp} - No Match: polished-message-area (not editable)`
           );
           statusText = notFoundMessage; // Treat non-editable focus as not found
         }
+      } else if (targetElement.closest(focusMappings["output-icons-area"])) {
+        // ADDED Check for icons
+        console.log(`[DIAG-FOCUS-4] ${timestamp} - Match: output-icons-area`);
+        statusText = "output-icons-area"; // ADDED Status
+        foundMatch = true;
       } else {
         console.log(
           `[DIAG-FOCUS-4] ${timestamp} - No match found in mappings.`
@@ -263,9 +323,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Initially hide output container and icons if empty
+  // Initially hide output elements if empty
   if (!polishedMessageEl.textContent.trim()) {
-    outputContainer.style.display = "none";
+    polishedMessageEl.style.display = "none";
     outputIcons.style.display = "none";
   }
 
@@ -457,37 +517,47 @@ document.addEventListener("DOMContentLoaded", () => {
         // --- START: Adjust min-height when keyboard opens ---
         if (messageInputEl) messageInputEl.style.minHeight = "380px";
         // --- END: Adjust min-height when keyboard opens ---
-        // --- START: Scroll input area near top when keyboard opens ---
+        // --- START: Scroll input area near top when keyboard opens (DISABLED) ---
         if (document.activeElement === messageInputEl) {
+          console.log(
+            "Keyboard opened for input area. Custom scroll-to-top is disabled."
+          );
+          /* --- COMMENTED OUT: Custom scroll logic --- 
+          // Only scroll if the input area is focused AND EMPTY
           setTimeout(() => {
-            if (messageInputEl) {
-              const desiredOffset = 10; // Pixels to leave between viewport top and textarea top
-              const elementTopRelativeToViewport =
-                messageInputEl.getBoundingClientRect().top;
-              const currentScrollY = window.scrollY;
-              // Calculate how much we need to scroll UP (elementTop - offset)
-              const scrollAmount = elementTopRelativeToViewport - desiredOffset;
-              // Calculate the final absolute scroll position
-              const targetScrollY = currentScrollY + scrollAmount;
+            if (messageInputEl && messageInputEl.value.trim() === '') {
+                // Existing scroll logic for EMPTY input area
+                const desiredOffset = 10; // Pixels to leave between viewport top and textarea top
+                const elementTopRelativeToViewport =
+                  messageInputEl.getBoundingClientRect().top;
+                const currentScrollY = window.scrollY;
+                // Calculate how much we need to scroll UP (elementTop - offset)
+                const scrollAmount = elementTopRelativeToViewport - desiredOffset;
+                // Calculate the final absolute scroll position
+                const targetScrollY = currentScrollY + scrollAmount;
 
-              window.scrollTo({
-                top: targetScrollY,
-                behavior: "smooth",
-              });
-              console.log(
-                `Scrolled input area near top (offset: ${desiredOffset}px) on keyboard open (INPUT AREA FOCUSED). Scrolled by: ${Math.round(
-                  scrollAmount
-                )}px`
-              );
-              // Removed: messageInputEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                window.scrollTo({
+                  top: targetScrollY,
+                  behavior: "smooth",
+                });
+                console.log(
+                  `Scrolled EMPTY input area near top (offset: ${desiredOffset}px) on keyboard open. Scrolled by: ${Math.round(
+                    scrollAmount
+                  )}px`
+                );
+                // Removed: messageInputEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else if (messageInputEl) {
+                // If input area has content, don't scroll automatically
+                 console.log("Keyboard opened for input area with content, skipping automatic scroll-to-top behavior.");
             }
           }, 100); // Delay to allow layout to stabilize
+          */
         } else {
           console.log(
             "Keyboard opened, but focus is not on the main input area. Skipping scroll."
           );
         }
-        // --- END: Scroll input area near top when keyboard opens ---
+        // --- END: Scroll input area near top when keyboard opens (DISABLED) ---
       }
     } else {
       // Check if it was previously open to avoid redundant updates
@@ -499,18 +569,51 @@ document.addEventListener("DOMContentLoaded", () => {
         if (messageInputEl) messageInputEl.style.minHeight = "240px";
         // --- END: Adjust min-height when keyboard closes ---
 
-        // --- START: Conditional Scroll to top on keyboard close ---
-        if (didJustBlurPolishedMessage) {
-          // If keyboard closed right after blurring the editable polished message, DON'T scroll
+        // --- START: Adjust input area height based on content AFTER keyboard closes ---
+        if (messageInputEl) {
+          // Set height based on scroll height to fit content, but not less than 240px
+          const requiredHeight = Math.max(messageInputEl.scrollHeight, 240);
+          messageInputEl.style.height = requiredHeight + "px";
+          // Reset min-height to allow shrinking later if content is removed
+          messageInputEl.style.minHeight = "240px";
           console.log(
-            "Keyboard closed after polished message blur, skipping scroll to top."
+            `Keyboard closed, set input height to fit content: ${requiredHeight}px`
           );
-          didJustBlurPolishedMessage = false; // Reset the flag
-        } else {
-          // Otherwise (e.g., keyboard closed after input area blur), scroll to top
-          window.scrollTo({ top: 0, behavior: "smooth" });
-          console.log("Scrolled to top on keyboard close (viewport resize).");
         }
+        // --- END: Adjust input area height ---
+
+        // --- START: Conditional Scroll to top on keyboard close (Timestamp Guarded) ---
+        // Check if the input area blurred very recently
+        const recentlyBlurredInput = Date.now() - lastInputBlurTs < 350;
+
+        if (
+          recentlyBlurredInput ||
+          didJustBlurInputArea ||
+          didJustBlurPolishedMessage
+        ) {
+          // If keyboard closed right after blurring input OR polished message, OR if input blur was very recent,
+          // DON'T scroll.
+          console.log(
+            `Keyboard closed, skipping scroll to top due to: ${
+              recentlyBlurredInput
+                ? "Recent Input Blur"
+                : didJustBlurInputArea
+                ? "Input Flag"
+                : "Polished Flag"
+            }`
+          );
+        } else {
+          // Otherwise (e.g., keyboard closed without recent blur, like switching apps), scroll to top
+          window.scrollTo({ top: 0, behavior: "smooth" }); // <<< KEEPING Guarded Scroll >>>
+          console.log(
+            "Scrolled to top on keyboard close (viewport resize, no recent input/output blur detected)."
+          );
+        }
+
+        // Reset flags for the next cycle regardless of scroll decision
+        didJustBlurInputArea = false;
+        didJustBlurPolishedMessage = false;
+        // No need to reset lastInputBlurTs, it just gets overwritten on next blur
         // --- END: Conditional Scroll to top on keyboard close ---
       }
     }
@@ -540,7 +643,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   // --- END: Viewport Height Keyboard Detection ---
 
-  // --- START: Add Blur Listener for Polished Message ---
+  // --- START: Add Blur Listeners for Input and Polished Message ---
+  if (messageInputEl) {
+    messageInputEl.addEventListener("blur", () => {
+      console.log("Input area blurred, setting flag and timestamp."); // Updated log
+      didJustBlurInputArea = true;
+      lastInputBlurTs = Date.now(); // <<< Record timestamp
+      // Update focus indicator after a delay
+      setTimeout(
+        () => updateFocusIndicator(null, "messageInputEl_blur_timeout"),
+        50
+      );
+    });
+  }
+
   if (polishedMessageEl) {
     polishedMessageEl.addEventListener("blur", () => {
       // Check if it was editable when blurred
@@ -555,7 +671,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-  // --- END: Add Blur Listener for Polished Message ---
+  // --- END: Add Blur Listeners for Input and Polished Message ---
 
   // --- START: Speech Recognition Logic (Restored based on temp-23-Microphone.md) ---
   let recognition = null;
@@ -992,8 +1108,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.remove("response-generated");
     showIconFeedback(clearOutputBtn);
 
-    // Hide output container and icons when cleared
-    outputContainer.style.display = "none";
+    // Hide output elements when cleared
+    polishedMessageEl.style.display = "none";
     outputIcons.style.display = "none";
     checkContentAndUpdateBody();
     createUndoButton(); // Show undo button AFTER clearing
@@ -1256,8 +1372,8 @@ ${cleanedBody}
     startHourglassAnimation(polishBtn);
     polishBtn.disabled = true;
 
-    // Hide output container while processing, keep icons hidden until result
-    outputContainer.style.display = "none";
+    // Hide output elements while processing
+    polishedMessageEl.style.display = "none";
     outputIcons.style.display = "none";
 
     // Add retry functionality
@@ -1389,12 +1505,12 @@ ${cleanedBody}
         // Set button text back to normal immediately
         stopHourglassAnimation(polishBtn, "Polish");
 
-        // Show output container and icons now that we have a result
-        outputContainer.style.display = "block";
+        // Show output elements now that we have a result
+        polishedMessageEl.style.display = "block";
         outputIcons.style.display = "flex";
       } catch (error) {
-        // Show output container and icons for error messages
-        outputContainer.style.display = "block";
+        // Show output elements for error messages
+        polishedMessageEl.style.display = "block";
         outputIcons.style.display = "flex";
 
         polishedMessageEl.textContent = `Something went wrong: ${error.message}. Please try again.`;
@@ -1710,13 +1826,15 @@ ${cleanedBody}
       // Restore output
       polishedMessageEl.innerHTML = savedState.outputHTML || "";
       if (polishedMessageEl.innerHTML.trim()) {
-        outputContainer.style.display = "block";
+        polishedMessageEl.style.display = "block";
         outputIcons.style.display = "flex";
         polishedMessageEl.contentEditable = "false"; // Ensure it's not editable initially
-        editOutputBtn.classList.remove("active");
-        editOutputBtn.querySelector(".icon").textContent = "✏️";
+        editOutputBtn.classList.remove("active"); // Assuming editOutputBtn exists
+        // Make sure edit button icon resets if it exists
+        const editBtnIcon = editOutputBtn?.querySelector(".icon");
+        if (editBtnIcon) editBtnIcon.textContent = "✏️";
       } else {
-        outputContainer.style.display = "none";
+        polishedMessageEl.style.display = "none";
         outputIcons.style.display = "none";
       }
 
