@@ -71,11 +71,11 @@ html {
 
 /* Layout */
 .app-container {
-  margin-bottom: 8rem;
-  padding: 1rem;
+  /* Base (Mobile-first) styles */
   width: 100%;
-  padding-top: 0.5rem;
-  padding-bottom: 10rem;
+  padding: 0.5rem 1rem 10rem 1rem; /* Combined padding-top/bottom */
+  margin-bottom: 12rem;
+  /* Removed redundant intermediate padding: 1rem; */
 }
 
 /* Typography */
@@ -727,12 +727,13 @@ h3 {
 /* Polish button - all styles consolidated */
 #polish-btn {
   display: block;
-  width: 50%;
-  margin-top: 0.35rem;
-  margin-bottom: 0.9rem;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 0.7rem 0.1rem;
+  width: 65%; /* Or current width */
+  /* Apply margins previously on container */
+  margin-top: 0rem;
+  margin-bottom: 0.7rem;
+  margin-left: auto; /* Keep for centering */
+  margin-right: auto; /* Keep for centering */
+  padding: 0.9rem; /* Or current padding */
   background-color: #146d43;
   color: white;
   border: none;
@@ -797,8 +798,10 @@ body.tones-expanded .output-section {
 }
 
 .response-generated .app-container {
+  /* Add flex properties when output exists */
   display: flex;
   flex-direction: column;
+  /* Base padding/margins are inherited */
 }
 
 .response-generated .output-section {
@@ -959,10 +962,11 @@ body.tones-expanded .output-section {
   }
 
   .app-container {
+    /* Desktop overrides */
     max-width: 900px;
-    margin: 0 auto;
-    padding: 1rem 3rem; /* Reduced vertical padding */
-    margin-bottom: 4rem;
+    margin: 0 auto; /* Centers container, overrides base margin-bottom */
+    padding: 1rem 3rem; /* Overrides base padding */
+    margin-bottom: 4rem; /* Explicitly sets bottom margin for desktop */
   }
 
   .site-logo {
@@ -1226,25 +1230,6 @@ body.tones-expanded .output-section {
   display: none; /* Hide the indicator permanently */
 }
 /* --- END: Keyboard Status Indicator --- */
-
-/* --- START: Container for Indicator and Polish Button --- */
-.indicator-button-container {
-  display: flex;
-  align-items: center; /* Vertically align indicator text and button */
-  justify-content: center; /* Center the group (button might need margin auto adjustments) */
-  margin-bottom: 0.7rem; /* Match original polish button margin */
-  margin-top: 0rem; /* Match original polish button margin */
-}
-
-/* Adjust polish button margins within flex container */
-.indicator-button-container #polish-btn {
-  margin: 0; /* Remove original auto margins */
-  width: 60%; /* Keep original width */
-  /* flex-grow: 1; /* Optional: Allow button to take more space */
-}
-/* --- END: Container for Indicator and Polish Button --- */
-
-/* Add other global styles or resets if needed */
 
 /* --- START: Focus Status Indicator Styles --- */
 #focus-status-indicator {
