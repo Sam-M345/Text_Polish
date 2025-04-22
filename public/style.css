@@ -969,6 +969,10 @@ body.tones-expanded .output-section {
     margin-bottom: 4rem; /* Explicitly sets bottom margin for desktop */
   }
 
+  #text-input-area {
+    font-size: initial; /* Use browser default on desktop */
+  }
+
   .site-logo {
     /* Desktop-specific overrides/additions */
     max-height: 90px; /* Larger max-height on desktop */
