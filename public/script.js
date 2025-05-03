@@ -1422,14 +1422,15 @@ document.addEventListener("DOMContentLoaded", () => {
   clearOutputBtn.addEventListener("click", () => {
     saveStateForUndo(); // Save state BEFORE clearing
     polishedMessageEl.textContent = "";
-    document.body.classList.remove("response-generated");
-    showIconFeedback(clearOutputBtn);
-
-    // Hide output elements when cleared
     polishedMessageEl.style.display = "none";
     outputIcons.style.display = "none";
+    document.body.classList.remove("response-generated");
+    showIconFeedback(clearOutputBtn);
     checkContentAndUpdateBody();
     createUndoButton(); // Show undo button AFTER clearing
+
+    // Sync signature button state after clearing
+    syncSignatureButtonState();
   });
 
   // Copy output text
@@ -1641,8 +1642,10 @@ ${cleanedBody}
         console.warn(
           "Could not find '***' separator in edited text. Sharing full content as body."
         );
-        // Optionally, could try falling back to lastEmailData.subject here if desired
-        // subjectToShare = lastEmailData.subject || "Polished Email";
+        // You could potentially fall back to the old link-click method here, or just alert.
+        alert(
+          "Could not open email client automatically. Please check popup blockers."
+        );
       }
 
       // 3. Construct the mailto URL
@@ -1668,17 +1671,6 @@ ${cleanedBody}
           "Could not open email client automatically. Please check popup blockers."
         );
       }
-
-      /* // Old method: Create and click a mailto link using the potentially edited data
-      const mailtoLink = document.createElement("a");
-      mailtoLink.href = mailtoHref;
-      mailtoLink.style.display = "none";
-      document.body.appendChild(mailtoLink);
-      mailtoLink.click();
-      setTimeout(() => {
-        document.body.removeChild(mailtoLink);
-      }, 100);
-      */
     },
 
     // Clear email data
@@ -1802,11 +1794,19 @@ ${cleanedBody}
           throw new Error(`API Error: ${data.error}`);
         }
 
+        // ---> STEP 1: Remember signature state BEFORE clearing <---
+        const wasSignatureActiveBeforePolish =
+          !!polishedMessageEl.querySelector("#signature-line-output");
+        console.log(
+          "[DEBUG] Persist Signature: Was active before clearing?",
+          wasSignatureActiveBeforePolish
+        );
+
         // Format the improved text with proper paragraphs
         if (data.improved) {
           console.log("Original improved text:", data.improved);
 
-          // Clear existing content
+          // Clear existing content AFTER checking state
           polishedMessageEl.innerHTML = "";
 
           // Add a class to the body to indicate content has been generated
@@ -1866,19 +1866,68 @@ ${cleanedBody}
             polishedMessageEl.textContent = displayText;
           }
 
+          // ---> STEP 3: Re-apply signature state AFTER rendering (Direct Manipulation Approach) <---
+          console.log(
+            "[DEBUG] Persist Signature (Direct): Checking flag after render:",
+            wasSignatureActiveBeforePolish
+          );
+          if (wasSignatureActiveBeforePolish) {
+            // If signature WAS active before, ensure it exists and button is active now.
+            let existingSignature = polishedMessageEl.querySelector(
+              "#signature-line-output"
+            );
+            if (!existingSignature) {
+              // Create and append the signatureDiv directly
+              const signatureDiv = document.createElement("div");
+              signatureDiv.id = "signature-line-output"; // Use the correct ID
+              signatureDiv.className = "signature-container";
+              signatureDiv.innerHTML = `
+                <div class="signature-dashes">----------------------------</div>
+                <div class="signature-text-container">
+                  <span>Polished by <a href="https://textpolish.com" target="_blank" class="signature-link" rel="noopener noreferrer">TextPolish.com</a> ✍🏻</span>
+                </div>
+              `;
+              polishedMessageEl.appendChild(signatureDiv);
+              console.log(
+                "[DEBUG] Persist Signature (Direct): Added signature element."
+              );
+            } else {
+              console.log(
+                "[DEBUG] Persist Signature (Direct): Signature element already existed."
+              );
+            }
+            // Directly ensure the button is active
+            if (signatureOutputBtn) {
+              signatureOutputBtn.classList.add("active");
+              console.log(
+                "[DEBUG] Persist Signature (Direct): Set button class to active."
+              );
+            }
+          } else {
+            // If signature was NOT active before, ensure element is removed and button is inactive.
+            let existingSignature = polishedMessageEl.querySelector(
+              "#signature-line-output"
+            );
+            if (existingSignature) {
+              existingSignature.remove();
+              console.log(
+                "[DEBUG] Persist Signature (Direct): Removed signature element."
+              );
+            }
+            if (signatureOutputBtn) {
+              signatureOutputBtn.classList.remove("active");
+              console.log(
+                "[DEBUG] Persist Signature (Direct): Set button class to inactive."
+              );
+            }
+          }
+          // END: Re-apply signature state (Direct Manipulation Approach)
+
           // Update body class since we have content
           document.body.classList.add("has-content");
         } else {
           polishedMessageEl.textContent = "No improvements were made.";
         }
-
-        // Scroll to the very bottom of the page // <<< COMMENTED OUT
-        /*
-        window.scrollTo({
-          top: document.body.scrollHeight,
-          behavior: "smooth",
-        });
-        */
 
         // Set button text back to normal immediately
         stopHourglassAnimation(polishBtn, "Polish");
@@ -1903,6 +1952,9 @@ ${cleanedBody}
 
         // Make sure to check content state
         checkContentAndUpdateBody();
+
+        // Ensure signature state is synced even on error (likely becomes inactive)
+        syncSignatureButtonState();
       } finally {
         // Enable button
         polishBtn.disabled = false;
@@ -2497,19 +2549,21 @@ ${cleanedBody}
   // --- END: Click Outside Output Box to Save ---
 
   // --- START: Signature Button Functionality ---
+  // REMOVED: const signatureOutputBtn = document.getElementById("signature-output");
+  // REMOVED: const polishedMessageEl = document.getElementById("polished-message");
+
+  // Use the existing variables from the outer scope
   if (signatureOutputBtn && polishedMessageEl) {
     signatureOutputBtn.addEventListener("click", () => {
       const signatureId = "signature-line-output";
-      const existingSignature = polishedMessageEl.querySelector(
-        `#${signatureId}`
-      );
+      let signatureElement = polishedMessageEl.querySelector(`#${signatureId}`); // Use let
 
-      // Toggle active class on the button
-      signatureOutputBtn.classList.toggle("active");
+      // Determine intended state BEFORE modification
+      const shouldBeActive = !signatureElement;
 
-      if (signatureOutputBtn.classList.contains("active")) {
-        // Activate: Add signature if it doesn't exist
-        if (!existingSignature) {
+      if (shouldBeActive) {
+        // Intend to Activate: Add signature if it doesn't exist
+        if (!signatureElement) {
           const signatureDiv = document.createElement("div");
           signatureDiv.id = signatureId;
           signatureDiv.className = "signature-container";
@@ -2519,19 +2573,19 @@ ${cleanedBody}
               <span>Polished by <a href="https://textpolish.com" target="_blank" class="signature-link" rel="noopener noreferrer">TextPolish.com</a> ✍🏻</span>
             </div>
           `;
-          // Append back INSIDE polishedMessageEl
           polishedMessageEl.appendChild(signatureDiv);
-
-          // --- START: Smart Logging for Signature Spacing ---
-          // REMOVED
-          // --- END: Smart Logging for Signature Spacing ---
+          signatureElement = signatureDiv; // Update reference after adding
         }
       } else {
-        // Deactivate: Remove signature if it exists
-        if (existingSignature) {
-          existingSignature.remove();
+        // Intend to Deactivate: Remove signature if it exists
+        if (signatureElement) {
+          signatureElement.remove();
+          signatureElement = null; // Update reference after removing
         }
       }
+
+      // --- Update button state AFTER modification using the global function ---
+      syncSignatureButtonState();
 
       // Provide visual feedback (optional, can reuse existing function)
       showIconFeedback(signatureOutputBtn);
@@ -2982,5 +3036,34 @@ ${cleanedBody}
   }
   // --- END: Handle Paste Event for Contenteditable Div ---
 
-  // ... existing code ...
+  // Sync signature button state on initial load
+  if (typeof syncSignatureButtonState === "function") {
+    syncSignatureButtonState();
+  }
+
+  // --- START: Global Helper - Sync Signature Button State ---
+  function syncSignatureButtonState() {
+    const signatureOutputBtn = document.getElementById("signature-output");
+    const polishedMessageEl = document.getElementById("polished-message");
+    if (signatureOutputBtn && polishedMessageEl) {
+      const signatureElement = polishedMessageEl.querySelector(
+        "#signature-line-output"
+      );
+      signatureOutputBtn.classList.toggle("active", !!signatureElement);
+      console.log(
+        "[DEBUG] syncSignatureButtonState: Button active set to",
+        !!signatureElement
+      );
+    } else {
+      console.log(
+        "[DEBUG] syncSignatureButtonState: Button or output element not found."
+      );
+    }
+  }
+  // --- END: Global Helper - Sync Signature Button State ---
+
+  // Initialize button states, including signature
+  syncSignatureButtonState();
+
+  // ... rest of DOMContentLoaded code ...
 });
