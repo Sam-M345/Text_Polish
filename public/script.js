@@ -1881,27 +1881,28 @@ ${cleanedBody}
               const signatureDiv = document.createElement("div");
               signatureDiv.id = "signature-line-output"; // Use the correct ID
               signatureDiv.className = "signature-container";
-              signatureDiv.innerHTML = `
-                <div class="signature-dashes">----------------------------</div>
-                <div class="signature-text-container">
-                  <span>Polished by <a href="https://textpolish.com" target="_blank" class="signature-link" rel="noopener noreferrer">TextPolish.com</a> ✍🏻</span>
-                </div>
-              `;
+              signatureDiv.innerHTML = createSignatureHTMLString(); // Use helper function
               polishedMessageEl.appendChild(signatureDiv);
               console.log(
                 "[DEBUG] Persist Signature (Direct): Added signature element."
               );
             } else {
-              console.log(
-                "[DEBUG] Persist Signature (Direct): Signature element already existed."
+              // If signature was NOT active before, ensure element is removed and button is inactive.
+              let existingSignature = polishedMessageEl.querySelector(
+                "#signature-line-output"
               );
-            }
-            // Directly ensure the button is active
-            if (signatureOutputBtn) {
-              signatureOutputBtn.classList.add("active");
-              console.log(
-                "[DEBUG] Persist Signature (Direct): Set button class to active."
-              );
+              if (existingSignature) {
+                existingSignature.remove();
+                console.log(
+                  "[DEBUG] Persist Signature (Direct): Removed signature element."
+                );
+              }
+              if (signatureOutputBtn) {
+                signatureOutputBtn.classList.remove("active");
+                console.log(
+                  "[DEBUG] Persist Signature (Direct): Set button class to inactive."
+                );
+              }
             }
           } else {
             // If signature was NOT active before, ensure element is removed and button is inactive.
@@ -2567,12 +2568,7 @@ ${cleanedBody}
           const signatureDiv = document.createElement("div");
           signatureDiv.id = signatureId;
           signatureDiv.className = "signature-container";
-          signatureDiv.innerHTML = `
-            <div class="signature-dashes">----------------------------</div>
-            <div class="signature-text-container">
-              <span>Polished by <a href="https://textpolish.com" target="_blank" class="signature-link" rel="noopener noreferrer">TextPolish.com</a> ✍🏻</span>
-            </div>
-          `;
+          signatureDiv.innerHTML = createSignatureHTMLString(); // Use helper function
           polishedMessageEl.appendChild(signatureDiv);
           signatureElement = signatureDiv; // Update reference after adding
         }
@@ -3067,3 +3063,14 @@ ${cleanedBody}
 
   // ... rest of DOMContentLoaded code ...
 });
+
+// --- START: Global Helper - Create Signature HTML ---
+function createSignatureHTMLString() {
+  return `
+    <div class="signature-dashes">-------------------------</div>
+    <div class="signature-text-container">
+      <span>Polished by <a href="https://textpolish.com" target="_blank" class="signature-link" rel="noopener noreferrer">TextPolish.com</a> ✍🏻</span>
+    </div>
+  `;
+}
+// --- END: Global Helper - Create Signature HTML ---
