@@ -856,36 +856,52 @@ body.tones-expanded .output-section {
 }
 /* Style for when listening is active (added via JS) */
 #tone-header-mic-indicator.listening {
-  color: #25a56a; /* Active color */
-  opacity: 1;
-  /* Add subtle pulse/glow? */
-  /* animation: pulse 1.5s infinite ease-in-out; */
+  color: var(--primary-color); /* Active icon color (green) */
+  /* opacity: 1; */ /* Handled by animation */
+  animation: micBlink 1.2s infinite ease-in-out; /* Apply blinking animation */
 }
 /* --- END: Tone Header Mic Indicator Base Style --- */
 
-/* --- START: Blinking Ear Indicator Base Style & Animation --- */
-#tone-mic-listening-indicator {
-  display: none; /* Hidden by default */
-  position: absolute; /* Take out of flow */
-  top: 50%; /* Align vertically */
-  left: 100%; /* Position relative to the right edge of the mic button's container */
-  transform: translateY(-50%); /* Center vertically */
-  font-size: 2.5rem; /* Match mic button */
-  vertical-align: middle; /* Align with mic button */
-  line-height: 1;
-  white-space: nowrap; /* Prevent wrapping if somehow needed */
-}
-
-/* Re-add animation */
-@keyframes listeningBlink {
+/* --- START: Keyframes for Mic Blinking --- */
+@keyframes micBlink {
   0%,
   100% {
     opacity: 1;
   }
   50% {
-    opacity: 0.2;
+    opacity: 0.4; /* Adjust for desired blink intensity */
   }
 }
+/* --- END: Keyframes for Mic Blinking --- */
+
+/* --- START: New Class to Explicitly Hide Mic Ear --- */
+.mic-ear-hidden {
+  display: none !important;
+}
+/* --- END: New Class to Explicitly Hide Mic Ear --- */
+
+/* --- START: Blinking Ear Indicator Base Style & Animation --- */
+#tone-mic-listening-indicator {
+  /* REMOVED position: absolute and related top/left/transform */
+  /* display: none; is handled by .mic-ear-hidden */
+  font-size: 2.2rem; /* Keep desired size */
+  vertical-align: middle; /* Good for inline alignment */
+  line-height: 1; /* Keep tight */
+  white-space: nowrap;
+  color: var(--primary-color);
+  margin-left: 2px; /* Small gap from the mic icon */
+}
+
+/* Style for when the EAR should be visible and blinking */
+/* This rule makes it visible and blink IF IT'S NOT HIDDEN by .mic-ear-hidden */
+/* The #tone-header-mic-indicator.listening selector part is removed as visibility is now purely by .mic-ear-hidden and ear is direct sibling */
+.tone-mic-group
+  #tone-header-mic-indicator.listening
+  + #tone-mic-listening-indicator:not(.mic-ear-hidden) {
+  display: inline-block; /* Show the ear */
+  animation: micBlink 1.2s infinite ease-in-out; /* Apply same blinking */
+}
+
 /* --- END: Blinking Ear Indicator Base Style & Animation --- */
 
 /* Specific size for the Share SVG */
@@ -1074,29 +1090,28 @@ body.tones-expanded .output-section {
   }
 
   /* --- START: Desktop Tone Header Mic Indicator Style --- */
-  #tone-header-mic-indicator {
-    display: flex;
+  /* Corrected selector to match HTML structure */
+  .tone-selection-group #tone-header-mic-indicator {
+    display: flex !important; /* Keep !important for now to ensure override */
     align-items: center;
-  }
-  /* Ensure Tone label aligns */
-  .tone-container h2 {
-    vertical-align: middle;
+    /* Other styles like margin-right can be added if needed for layout */
   }
   /* --- END: Desktop Tone Header Mic Indicator Style --- */
 
   /* Add background to active mic button and show/animate ear */
   #tone-header-mic-indicator.listening {
-    color: white; /* Ensure icon is visible on background */
-    background-color: var(--primary-color); /* Active background */
-    opacity: 1;
-    border-radius: 5px; /* Optional: slight rounding */
-    padding: 0 3px; /* Optional: small padding */
+    /* REMOVE background and related styling for blinking effect */
+    /* color: white; */ /* Already handled by base .listening if needed */
+    /* background-color: var(--primary-color); */
+    /* opacity: 1; */ /* Base .listening handles opacity via animation */
+    /* border-radius: 5px; */
+    /* padding: 0 3px; */
+    /* The base .listening style (defined earlier) will handle the blinking animation and active color */
   }
-  #tone-header-mic-indicator.listening + #tone-mic-listening-indicator {
-    display: block; /* Show the ear (block or inline-block should work) */
-    animation: listeningBlink 1.5s infinite; /* Apply blinking */
-    /* Fine-tune position if needed */
-    /* left: calc(100% + 2px); */ /* Example: add small gap */
+  #tone-header-mic-indicator.listening
+    + #tone-mic-listening-indicator:not(.mic-ear-hidden) {
+    display: inline-block; /* Ensure it's visible on desktop too */
+    /* animation is inherited from the base rule above if not overridden */
   }
 
   /* Style the new tone selection group container on desktop */
@@ -1112,12 +1127,19 @@ body.tones-expanded .output-section {
   /* Ensure items inside the group have appropriate spacing/alignment */
   .tone-selection-group h2 {
     margin: 0;
-    margin-right: -7rem; /* Add negative margin to pull Auto button closer on desktop */
+    margin-right: -7rem;
   }
   .tone-selection-group .toggle-tones {
     position: static;
     transform: none;
     margin: 0;
+  }
+
+  /* Desktop rule for active ear - ensure it's displayed if not hidden by JS */
+  .tone-mic-group
+    #tone-header-mic-indicator.listening
+    + #tone-mic-listening-indicator:not(.mic-ear-hidden) {
+    display: inline-block; /* Ensure it's visible on desktop too */
   }
 }
 
@@ -1132,42 +1154,46 @@ body.tones-expanded .output-section {
 
 /* --- START: Mic Group Base Style --- */
 .tone-mic-group {
-  display: none; /* Hidden by default */
+  display: flex; /* Align mic and ear inline */
+  align-items: center; /* Vertically center them */
+  position: relative; /* For potential absolute positioning of children if ever needed, though ear is static now */
+  /* gap: 0.2rem; */ /* Optional small gap between mic and ear if desired */
 }
 /* --- END: Mic Group Base Style --- */
 
 /* --- START: Blinking Ear Indicator Base Style & Animation --- */
 #tone-mic-listening-indicator {
-  display: none; /* Hidden by default */
-  position: absolute; /* Take out of flow */
-  top: 50%; /* Align vertically */
-  left: 100%; /* Position relative to the right edge of the mic button's container */
-  transform: translateY(-50%); /* Center vertically */
-  font-size: 2.5rem; /* Match mic button */
-  vertical-align: middle; /* Align with mic button */
-  line-height: 1;
-  white-space: nowrap; /* Prevent wrapping if somehow needed */
+  /* REMOVED position: absolute and related top/left/transform */
+  /* display: none; is handled by .mic-ear-hidden */
+  font-size: 2.2rem; /* Keep desired size */
+  vertical-align: middle; /* Good for inline alignment */
+  line-height: 1; /* Keep tight */
+  white-space: nowrap;
+  color: var(--primary-color);
+  margin-left: 2px; /* Small gap from the mic icon */
 }
 
-/* Re-add animation */
-@keyframes listeningBlink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.2;
-  }
+/* Style for when the EAR should be visible and blinking */
+/* This rule makes it visible and blink IF IT'S NOT HIDDEN by .mic-ear-hidden */
+/* The #tone-header-mic-indicator.listening selector part is removed as visibility is now purely by .mic-ear-hidden and ear is direct sibling */
+.tone-mic-group
+  #tone-header-mic-indicator.listening
+  + #tone-mic-listening-indicator:not(.mic-ear-hidden) {
+  display: inline-block; /* Show the ear */
+  animation: micBlink 1.2s infinite ease-in-out; /* Apply same blinking */
 }
+
 /* --- END: Blinking Ear Indicator Base Style & Animation --- */
 
 /* Add background to active mic button and show/animate ear */
 #tone-header-mic-indicator.listening {
-  color: white; /* Ensure icon is visible on background */
-  background-color: var(--primary-color); /* Active background */
-  opacity: 1;
-  border-radius: 5px; /* Optional: slight rounding */
-  padding: 0 3px; /* Optional: small padding */
+  /* REMOVE background and related styling for blinking effect */
+  /* color: white; */ /* Already handled by base .listening if needed */
+  /* background-color: var(--primary-color); */
+  /* opacity: 1; */ /* Base .listening handles opacity via animation */
+  /* border-radius: 5px; */
+  /* padding: 0 3px; */
+  /* The base .listening style (defined earlier) will handle the blinking animation and active color */
 }
 /* Target ear based on class on button WITHIN the group */
 .tone-mic-group
@@ -1190,7 +1216,7 @@ body.tones-expanded .output-section {
   display: flex;
   align-items: center;
   position: relative; /* Needed for absolute positioning of child */
-  /* Add a small gap between mic and ear if needed when ear is visible */
+  /* Add a small gap between mic and ear if needed */
   /* gap: 0.2rem; */
 }
 

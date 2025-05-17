@@ -1014,19 +1014,25 @@ document.addEventListener("DOMContentLoaded", () => {
         if (toneHeaderMicBtn) {
           toneHeaderMicBtn.classList.add("listening"); // Use class for styling active state
         }
-        // Show the new ear indicator
+        // Show the new ear indicator by removing the specific hidden class
         if (toneMicListeningIndicator) {
-          toneMicListeningIndicator.classList.remove("hidden");
+          toneMicListeningIndicator.classList.remove("mic-ear-hidden");
+          console.log(
+            "[DEBUG] Ear indicator classList after remove hidden:",
+            toneMicListeningIndicator.classList.toString()
+          );
         }
       };
 
       recognition.onresult = function (event) {
-        const cursorPosition = messageInputEl.selectionStart;
-        const currentText = messageInputEl.value;
+        const cursorPosition =
+          getCursorPositionInContentEditable(messageInputEl); // Use helper
+        const currentText = getTextFromContentEditable(messageInputEl); // Use helper
         const latestResult = event.results[event.results.length - 1];
         let newText = latestResult[0].transcript;
 
-        if (currentText.trim() === "" || cursorPosition === 0) {
+        // Defensive check for currentText being null or undefined before trim()
+        if ((currentText || "").trim() === "" || cursorPosition === 0) {
           const firstWordMatch = newText.match(/^(\w+['']?\w*)\s+\1\b/i);
           if (firstWordMatch) {
             newText = newText.replace(/^(\w+['']?\w*)\s+/, "");
@@ -1036,9 +1042,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (
           cursorPosition > 0 &&
-          cursorPosition === currentText.length &&
-          !currentText.endsWith(" ") &&
-          currentText.trim() !== "" &&
+          cursorPosition === (currentText || "").length && // Defensive check
+          !(currentText || "").endsWith(" ") &&
+          (currentText || "").trim() !== "" &&
           !newText.startsWith(" ")
         ) {
           newText = " " + newText;
@@ -1046,9 +1052,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         setTextToContentEditable(
           messageInputEl,
-          currentText.substring(0, cursorPosition) +
+          (currentText || "").substring(0, cursorPosition) + // Defensive check
             newText +
-            currentText.substring(cursorPosition)
+            (currentText || "").substring(cursorPosition) // Defensive check
         );
 
         const newCursorPosition = cursorPosition + newText.length;
@@ -1089,9 +1095,13 @@ document.addEventListener("DOMContentLoaded", () => {
           console.log("Recognition ended due to manual stop.");
           manualStop = false; // Reset flag for the next session
         }
-        // Hide the new ear indicator
+        // Hide the new ear indicator by adding the specific hidden class
         if (toneMicListeningIndicator) {
-          toneMicListeningIndicator.classList.add("hidden");
+          toneMicListeningIndicator.classList.add("mic-ear-hidden");
+          console.log(
+            "[DEBUG] Ear indicator classList after add hidden:",
+            toneMicListeningIndicator.classList.toString()
+          );
         }
       };
 
@@ -1106,9 +1116,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Make sure to check content state
         checkContentAndUpdateBody();
-        // Hide the new ear indicator
+        // Hide the new ear indicator by adding the specific hidden class
         if (toneMicListeningIndicator) {
-          toneMicListeningIndicator.classList.add("hidden");
+          toneMicListeningIndicator.classList.add("mic-ear-hidden");
+          console.log(
+            "[DEBUG] Ear indicator classList after add hidden (error):",
+            toneMicListeningIndicator.classList.toString()
+          );
         }
       };
 
@@ -3093,6 +3107,17 @@ ${cleanedBody}
   syncSignatureButtonState();
 
   // ... rest of DOMContentLoaded code ...
+
+  // Ensure the ear is hidden by default on page load by adding the class if not present
+  if (
+    toneMicListeningIndicator &&
+    !toneMicListeningIndicator.classList.contains("mic-ear-hidden")
+  ) {
+    toneMicListeningIndicator.classList.add("mic-ear-hidden");
+    console.log(
+      "[DEBUG] DOMContentLoaded: Ensured .mic-ear-hidden is on ear indicator."
+    );
+  }
 });
 
 // --- START: Global Helper - Create Signature HTML ---
