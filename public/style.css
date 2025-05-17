@@ -1118,21 +1118,25 @@ body.tones-expanded .output-section {
   .tone-selection-group {
     display: flex;
     flex-grow: 1;
-    justify-content: space-between;
+    /* justify-content: flex-start; */ /* REVERTED from flex-start */
+    justify-content: space-around; /* Try space-around for more even distribution */
     align-items: center;
     margin: 0;
-    gap: 1rem;
+    /* gap: 1.5rem; */ /* REMOVED - space-around will manage spacing */
   }
 
   /* Ensure items inside the group have appropriate spacing/alignment */
+  .tone-selection-group .tone-mic-group {
+    /* No specific margins needed if space-around works well */
+  }
   .tone-selection-group h2 {
     margin: 0;
-    margin-right: -7rem;
   }
   .tone-selection-group .toggle-tones {
     position: static;
     transform: none;
     margin: 0;
+    /* margin-left: auto; IS ALREADY REMOVED */
   }
 
   /* Desktop rule for active ear - ensure it's displayed if not hidden by JS */
