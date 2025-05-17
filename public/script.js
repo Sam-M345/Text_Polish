@@ -1433,20 +1433,51 @@ document.addEventListener("DOMContentLoaded", () => {
     syncSignatureButtonState();
   });
 
+  // --- START: Global SVG Definitions ---
+  const clipboardIconSVG = `
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 1em; height: 1em; vertical-align: middle">
+      <path d="M16 3H5C3.89543 3 3 3.89543 3 5V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+      <path d="M9 7H19C20.1046 7 21 7.89543 21 9V19C21 20.1046 20.1046 21 19 21H9C7.89543 21 7 20.1046 7 19V9C7 7.89543 7.89543 7 9 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  `;
+
+  const checkmarkIconSVG = `
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 1em; height: 1em; vertical-align: middle">
+      <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  `;
+  // --- END: Global SVG Definitions ---
+
   // Copy output text
   copyOutputBtn.addEventListener("click", () => {
     if (polishedMessageEl.innerHTML) {
-      // Get the text content from all paragraph elements
       const textToCopy =
         polishedMessageEl.innerText || polishedMessageEl.textContent;
 
       navigator.clipboard
         .writeText(textToCopy)
         .then(() => {
-          showIconFeedback(copyOutputBtn);
+          // showIconFeedback(copyOutputBtn); // Remove this line
+
+          const iconSpan = copyOutputBtn.querySelector(".icon");
+          if (iconSpan) {
+            const originalBg = copyOutputBtn.style.backgroundColor;
+            const brightGreenColor = "#00C853"; // A nice, bright green
+
+            // Temporarily change to checkmark and bright green background
+            iconSpan.innerHTML = checkmarkIconSVG;
+            copyOutputBtn.style.backgroundColor = brightGreenColor;
+
+            // Revert back after 2 seconds
+            setTimeout(() => {
+              iconSpan.innerHTML = clipboardIconSVG;
+              copyOutputBtn.style.backgroundColor = originalBg;
+            }, 2000);
+          }
         })
         .catch((err) => {
           console.error("Failed to copy text to clipboard:", err);
+          // Optionally, show an error icon or message here
         });
     }
   });
