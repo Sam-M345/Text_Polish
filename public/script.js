@@ -1215,6 +1215,31 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     });
+
+    if (toneMicListeningIndicator) {
+      // Check if the ear icon exists
+      console.log(
+        "Tone mic listening indicator (ear) found. Attaching listener."
+      );
+      toneMicListeningIndicator.addEventListener("click", () => {
+        console.log("Tone mic listening indicator (ear) CLICK HANDLER FIRED!");
+
+        // Only do something if recognition is currently active
+        if (isRecognizing && recognition) {
+          console.log("Ear clicked, manual stop initiated.");
+          manualStop = true; // Set flag BEFORE stopping
+          recognition.stop(); // This will trigger the 'onend' event for speech recognition
+        } else {
+          console.log(
+            "Ear clicked, but recognition wasn't active or recognition object not found."
+          );
+        }
+      });
+    } else {
+      console.error(
+        "Tone mic listening indicator (ear) NOT FOUND in DOM when trying to attach listener."
+      );
+    }
   } else {
     console.error(
       "Tone header mic button (#tone-header-mic-indicator) NOT FOUND in DOM when trying to attach listener."

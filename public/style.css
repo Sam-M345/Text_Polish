@@ -890,6 +890,7 @@ body.tones-expanded .output-section {
   white-space: nowrap;
   color: var(--primary-color);
   margin-left: 2px; /* Small gap from the mic icon */
+  cursor: pointer;
 }
 
 /* Style for when the EAR should be visible and blinking */
@@ -1175,6 +1176,7 @@ body.tones-expanded .output-section {
   white-space: nowrap;
   color: var(--primary-color);
   margin-left: 2px; /* Small gap from the mic icon */
+  cursor: pointer;
 }
 
 /* Style for when the EAR should be visible and blinking */
