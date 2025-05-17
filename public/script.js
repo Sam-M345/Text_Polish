@@ -3064,7 +3064,7 @@ ${cleanedBody}
           selection.addRange(range);
 
           // Force iOS to use plain text and remove any remaining styling
-          document.execCommand("insertText", false, text);
+          // document.execCommand("insertText", false, text); // <--- REMOVE THIS LINE
         } else {
           // If no selection, just append at the end
           messageInputEl.appendChild(document.createTextNode(text));
