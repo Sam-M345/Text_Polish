@@ -385,37 +385,79 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Set default selections: Text Message type, Friendly tone
   function setDefaultSelections() {
+    // --- START: Device-dependent default type selection ---
+    let defaultTypeName = "text-message"; // Default for mobile
+    if (window.innerWidth > 768) {
+      // Check for desktop-like screen width
+      defaultTypeName = "email";
+    }
+    // --- END: Device-dependent default type selection ---
+
     // 1. Set default type
     const defaultTypeButton = document.querySelector(
-      ".text-type-option-btn[data-type='text-message']"
+      `.text-type-option-btn[data-type='${defaultTypeName}']`
     );
     if (defaultTypeButton) {
       typeButtons.forEach((btn) => btn.classList.remove("selected"));
       defaultTypeButton.classList.add("selected");
-      updatePlaceholder("text-message");
+      updatePlaceholder(defaultTypeName);
+    } else {
+      // Fallback to text-message if the dynamically chosen default isn't found for some reason
+      const fallbackTypeButton = document.querySelector(
+        ".text-type-option-btn[data-type='text-message']"
+      );
+      if (fallbackTypeButton) {
+        typeButtons.forEach((btn) => btn.classList.remove("selected"));
+        fallbackTypeButton.classList.add("selected");
+        updatePlaceholder("text-message");
+      }
     }
 
-    // 2. Set default tone ('friendly') specifically in categories
-    const defaultToneValue = "friendly";
-    const defaultToneCategoryButton = document.querySelector(
-      `#tone-categories .tone-buttons[data-tone='${defaultToneValue}']`
-    );
+    // 2. Set default tone
+    let defaultToneValueForCategory = "friendly"; // Default for mobile
+    if (window.innerWidth > 768) {
+      // Check for desktop-like screen width
+      defaultToneValueForCategory = "formal";
+    }
+
     const allToneButtons = document.querySelectorAll(
       ".tone-buttons[data-tone]"
-    ); // Get all tone buttons
-    allToneButtons.forEach((btn) => btn.classList.remove("selected")); // Deselect all
+    );
+    allToneButtons.forEach((btn) => btn.classList.remove("selected")); // Deselect all tone buttons first
 
-    if (defaultToneCategoryButton) {
-      defaultToneCategoryButton.classList.add("selected"); // Select category button
-      updateMainToneDisplay(defaultToneCategoryButton); // Update header based on the category button
-    } else {
-      // Fallback to selecting Auto if friendly category button not found
-      const autoButton = document.querySelector(
-        '.tone-buttons[data-tone="auto"]'
+    // Try to select the primary default tone from categories
+    const primaryDefaultToneButton = document.querySelector(
+      `#tone-categories .tone-buttons[data-tone='${defaultToneValueForCategory}']`
+    );
+
+    if (primaryDefaultToneButton) {
+      primaryDefaultToneButton.classList.add("selected");
+      updateMainToneDisplay(primaryDefaultToneButton);
+      console.log(
+        `Default tone set to '${defaultToneValueForCategory}' from categories.`
       );
-      if (autoButton) {
-        autoButton.classList.add("selected");
-        updateMainToneDisplay(autoButton);
+    } else {
+      // Fallback: if the primary category tone isn't found, try to select 'Auto' from the header
+      console.warn(
+        `Default category tone '${defaultToneValueForCategory}' not found. Falling back to 'Auto'.`
+      );
+      const autoHeaderButton = document.querySelector(
+        ".tone-selection-group .tone-buttons[data-tone='auto']" // Specifically target Auto in header
+      );
+      if (autoHeaderButton) {
+        autoHeaderButton.classList.add("selected");
+        updateMainToneDisplay(autoHeaderButton); // Update display based on the Auto button
+        console.log("Default tone set to 'Auto' (fallback).");
+
+        // Ensure no category buttons are selected if Auto is the fallback
+        const categoryToneButtons = document.querySelectorAll(
+          "#tone-categories .tone-buttons[data-tone]"
+        );
+        categoryToneButtons.forEach((btn) => btn.classList.remove("selected"));
+      } else {
+        console.error(
+          "Fallback 'Auto' tone button not found in header. No default tone selected."
+        );
       }
     }
 
