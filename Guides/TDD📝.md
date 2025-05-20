@@ -298,8 +298,10 @@ This section outlines the main files and folders in the project root, excluding 
 
 ### 9.1 Development Environment
 
-- Run locally using `npm install` and `npm run dev` (or `npm run dev:sync` if using concurrently).
-- Uses `nodemon` for automatic server restarts on file changes.
+- Run locally using `npm install` and then either:
+  - `npm run dev` (or `npm run dev:sync` if using concurrently).
+  - `python localhost.py` (this script automates running `npm run dev`).
+- Uses `nodemon` for automatic server restarts on file changes (when using `npm run dev` directly or via `localhost.py`).
 - Requires a `.env` file with `OPENAI_API_KEY`.
 
 ### 9.2 Production Deployment
