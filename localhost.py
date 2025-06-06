@@ -2,6 +2,8 @@ import subprocess
 import sys
 import os
 import signal
+import webbrowser
+import re
 
 # Determine the directory of the script.
 # This assumes localhost.py is in the root of the project.
@@ -50,16 +52,38 @@ try:
     # On Windows, npm is often npm.cmd. shell=True helps find it.
     # subprocess.CREATE_NEW_PROCESS_GROUP is used on Windows to allow sending CTRL_C_EVENT to the process group.
     # For non-Windows, start_new_session=True creates a new process group.
-    kwargs = {'cwd': project_dir, 'shell': True}
+    kwargs = {
+        'cwd': project_dir, 
+        'shell': True,
+        'stdout': subprocess.PIPE,
+        'stderr': subprocess.STDOUT,
+        'text': True,
+        'bufsize': 1
+    }
     if sys.platform == "win32":
         kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
     else:
         kwargs['preexec_fn'] = os.setsid
         
     process = subprocess.Popen(
-        ['npm', 'run', 'dev'], 
+        'npm run dev', 
         **kwargs
     )
+    
+    url_opened = False
+    url_pattern = re.compile(r'http://localhost:\d+')
+
+    if process.stdout:
+        for line in iter(process.stdout.readline, ''):
+            sys.stdout.write(line)
+            sys.stdout.flush()
+            if not url_opened:
+                match = url_pattern.search(line)
+                if match:
+                    url = match.group(0)
+                    print(f"Server is running on {url}. Opening in your browser.")
+                    webbrowser.open_new_tab(url)
+                    url_opened = True
     
     # Wait for the process to complete. 
     process.wait()

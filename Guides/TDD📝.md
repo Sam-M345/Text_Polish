@@ -12,7 +12,7 @@ Text Polish transforms user input text into polished, contextually appropriate c
 
 - Allowing users to select text type (**Email**, **Messenger**, **Social Post**)
 - Applying specific writing tones (formal, friendly, humorous, etc.)
-- Generating improved text via OpenAI's GPT-4o model
+- Generating improved text via OpenAI's gpt-4.1 model
 - Providing well-formatted output suitable for the selected text type
 - Optionally appending a branded signature line to the output.
 
@@ -24,14 +24,14 @@ Text Polish follows a client-server architecture:
 
 - **Frontend**: Vanilla HTML, CSS, and JavaScript running in the browser (`public/index.html`, `public/style.css`, `public/script.js`). Handles user interaction, state management, and communication with the backend.
 - **Backend**: Node.js with Express.js framework (`api/improve.js`). Handles API requests, interacts with the OpenAI API, and performs initial response processing.
-- **External Integration**: OpenAI GPT-4o API for core text generation and improvement.
+- **External Integration**: OpenAI gpt-4.1 API for core text generation and improvement.
 
 ### 2.2 Components
 
 ```
 ┌─────────────┐       ┌───────────────────┐      ┌─────────────┐
 │   Browser   │ ----> │ Express.js Server │ ---> │  OpenAI API │
-│ (script.js) │ <---- │   (improve.js)    │ <--- │   (GPT-4o)  │
+│ (script.js) │ <---- │   (improve.js)    │ <--- │   (gpt-4.1)  │
 └─────────────┘       └───────────────────┘      └─────────────┘
 ```
 
@@ -142,7 +142,7 @@ This section outlines the main files and folders in the project root, excluding 
 
 ### 4.3 External Services
 
-- **OpenAI API**: GPT-4o model via the Chat Completions endpoint.
+- **OpenAI API**: gpt-4.1 model via the Chat Completions endpoint.
 
 ## 5. Data Flow
 
@@ -224,7 +224,7 @@ This section outlines the main files and folders in the project root, excluding 
 ### 6.2 External API
 
 - **OpenAI Chat Completions API (`https://api.openai.com/v1/chat/completions`)**
-  - Used via POST request with appropriate headers (`Authorization: Bearer $OPENAI_API_KEY`) and payload including model (`gpt-4o`), messages (system and user roles), and temperature.
+  - Used via POST request with appropriate headers (`Authorization: Bearer $OPENAI_API_KEY`) and payload including model (`gpt-4.1`), messages (system and user roles), and temperature.
 
 ## 7. Key Features
 

@@ -12,7 +12,7 @@ A web application that enhances your text messages using AI. Text Polish transfo
 - **Length Options**: Select short, medium, or long responses based on your needs
 - **Message Types**: Optimize text for different contexts (email, messaging)
 - **Easy Copy/Paste**: One-click buttons for copying input/output and transferring between fields
-- **AI-Powered**: Uses GPT-4o to generate high-quality text transformations
+- **AI-Powered**: Uses gpt-4.1 to generate high-quality text transformations
 
 ## Getting Started
 

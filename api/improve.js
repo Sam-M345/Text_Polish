@@ -83,7 +83,7 @@ async function improveHandler(req, res) {
 
     // Call the OpenAI API
     const requestData = {
-      model: "gpt-4o",
+      model: "gpt-4.1",
       messages: [
         {
           role: "system",
