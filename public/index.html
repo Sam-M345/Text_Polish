@@ -148,61 +148,35 @@
             <h2 class="bright-blue-title stacked-title">
               <span>Tone</span>
             </h2>
-            <button class="tone-buttons" data-tone="auto">Auto</button>
-            <button class="toggle-tones" id="toggle-tones">⏬</button>
-          </div>
-        </div>
-
-        <div id="tone-categories" class="collapsed-tones">
-          <div class="tone-category">
-            <h3>Positive</h3>
-            <div class="option-buttons">
-              <button class="tone-buttons" data-tone="congrats">
-                <span class="emoji">👏🏻</span> Congrats
-              </button>
-              <button class="tone-buttons" data-tone="exciting">
-                <span class="emoji">🤩</span> Exciting
-              </button>
-              <button class="tone-buttons" data-tone="friendly">
-                <span class="emoji">🙂</span> Friendly
-              </button>
-              <button class="tone-buttons" data-tone="humor">
-                <span class="emoji">😆</span> Humor
-              </button>
-              <button class="tone-buttons" data-tone="loving">
-                <span class="emoji">💖</span> Loving
-              </button>
-              <button class="tone-buttons" data-tone="thankful">
-                <span class="emoji">🙏🏻</span> Thankful
-              </button>
-            </div>
-          </div>
-
-          <div class="tone-category">
-            <h3>Professional</h3>
-            <div class="option-buttons">
-              <button class="tone-buttons selected" data-tone="formal">
-                Formal
-              </button>
-              <button class="tone-buttons" data-tone="urgent">Urgent</button>
-              <button class="tone-buttons" data-tone="motivational">
-                Motivational
-              </button>
-              <button class="tone-buttons" data-tone="informative">
-                Informative
-              </button>
-            </div>
-          </div>
-
-          <div class="tone-category">
-            <h3>Reactive</h3>
-            <div class="option-buttons">
-              <button class="tone-buttons" data-tone="blunt">
-                <span class="emoji">⚡</span> Blunt
-              </button>
-              <button class="tone-buttons" data-tone="surprised">
-                <span class="emoji">😲</span> Surprised
-              </button>
+            <div class="tone-selector-wrapper">
+              <select id="tone-select" class="tone-select-container">
+                <option value="auto" selected>Automatic</option>
+                <optgroup label="Positive">
+                  <option value="congrats">Congrats</option>
+                  <option value="exciting">Exciting</option>
+                  <option value="friendly">Friendly</option>
+                  <option value="humor">Humor</option>
+                  <option value="loving">Loving</option>
+                  <option value="thankful">Thankful</option>
+                </optgroup>
+                <optgroup label="Professional">
+                  <option value="formal">Formal</option>
+                  <option value="urgent">Urgent</option>
+                  <option value="motivational">Motivational</option>
+                  <option value="informative">Informative</option>
+                  <option value="confident">Confident</option>
+                  <option value="persuasive">Persuasive</option>
+                  <option value="expert">Expert</option>
+                </optgroup>
+                <optgroup label="Reactive">
+                  <option value="blunt">Blunt</option>
+                  <option value="surprised">Surprised</option>
+                  <option value="thoughtful">Thoughtful</option>
+                  <option value="cautionary">Cautionary</option>
+                  <option value="grieved">Grieved</option>
+                  <option value="brutal">Brutal</option>
+                </optgroup>
+              </select>
             </div>
           </div>
         </div>

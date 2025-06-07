@@ -1278,3 +1278,42 @@ body.tones-expanded .output-section {
   display: none; /* <<< HIDE VISUALLY >>> */
 }
 /* --- END: Focus Status Indicator Styles --- */
+
+/* --- START: New Dropdown Styles --- */
+.tone-selector-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
+}
+
+.tone-select-container {
+  font-size: 1.1rem;
+  padding: 0.5rem 2.5rem 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  min-width: 180px;
+}
+
+.tone-selector-wrapper::after {
+  content: "▼";
+  font-size: 1.2rem;
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  color: var(--secondary-text);
+  pointer-events: none;
+}
+/* --- END: New Dropdown Styles --- */
+
+/* --- START: New Dropdown Styles --- */
+.tone-mic-group > .tone-buttons:not(.selected):not([data-tone="auto"]):active {
+  transform: translateY(1px);
+}
+/* --- END: New Dropdown Styles --- */
