@@ -47,7 +47,7 @@ html {
   /* Visuals & typography */
   background: #333;
   color: #ffffff;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   cursor: text;
   -webkit-appearance: none;
   appearance: none;
@@ -983,10 +983,6 @@ body.tones-expanded .output-section {
     margin: 0 auto; /* Centers container, overrides base margin-bottom */
     padding: 1rem 3rem; /* Overrides base padding */
     margin-bottom: 4rem; /* Explicitly sets bottom margin for desktop */
-  }
-
-  #text-input-area {
-    font-size: initial; /* Use browser default on desktop */
   }
 
   .site-logo {
