@@ -327,16 +327,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const data = await response.json();
 
-      // Clear previous content and format new response
-      polishedMessageEl.innerHTML = "";
+      // --- START: Improved Paragraph Formatting ---
+      polishedMessageEl.innerHTML = ""; // Clear existing content
+
+      // Split text by one or more newlines to create paragraphs
       const paragraphs = data.improved
-        .split("\\n")
+        .split(/\n+/)
         .filter((p) => p.trim() !== "");
+
+      // Create paragraph elements for each section
       paragraphs.forEach((paragraph) => {
-        const p = document.createElement("p");
-        p.textContent = paragraph;
-        polishedMessageEl.appendChild(p);
+        if (paragraph.trim()) {
+          const p = document.createElement("p");
+          p.textContent = paragraph.trim();
+          polishedMessageEl.appendChild(p);
+        }
       });
+      // --- END: Improved Paragraph Formatting ---
 
       polishedMessageEl.style.display = "block";
       outputIcons.style.display = "flex";

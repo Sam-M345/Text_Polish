@@ -47,7 +47,7 @@ html {
   /* Visuals & typography */
   background: #333;
   color: #ffffff;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   cursor: text;
   -webkit-appearance: none;
   appearance: none;
@@ -632,18 +632,16 @@ h3 {
 #polished-message {
   /* Sizing & Box Model */
   max-height: none;
-  padding: 1rem;
+  padding: 10px; /* Base padding */
   box-sizing: border-box; /* Added for consistency */
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background-color: var(--card-bg);
+  border: 0.11px solid #555; /* Added border */
+  border-radius: 8px; /* Added border-radius */
+
+  /* Appearance & Text */
+  background-color: var(--card-bg); /* Added background */
   font-family: inherit;
   overflow: visible;
   word-break: break-word;
-  min-height: 100px;
-  white-space: pre-wrap;
-  display: none;
-  margin-top: 1rem;
 }
 
 /* Polished message when editable */
@@ -660,7 +658,7 @@ h3 {
 
 #polished-message p {
   margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: 0.7rem;
   line-height: 1.4;
 }
 
@@ -987,6 +985,10 @@ body.tones-expanded .output-section {
     margin-bottom: 4rem; /* Explicitly sets bottom margin for desktop */
   }
 
+  #text-input-area {
+    font-size: initial; /* Use browser default on desktop */
+  }
+
   .site-logo {
     /* Desktop-specific overrides/additions */
     max-height: 90px; /* Larger max-height on desktop */
@@ -1280,42 +1282,3 @@ body.tones-expanded .output-section {
   display: none; /* <<< HIDE VISUALLY >>> */
 }
 /* --- END: Focus Status Indicator Styles --- */
-
-/* --- START: New Dropdown Styles --- */
-.tone-selector-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  margin-left: 1rem;
-}
-
-.tone-select-container {
-  font-size: 1.1rem;
-  padding: 0.5rem 2.5rem 0.5rem 1rem;
-  border-radius: 20px;
-  border: 1px solid var(--border-color);
-  background-color: var(--card-bg);
-  color: var(--text-color);
-  -webkit-appearance: none;
-  appearance: none;
-  cursor: pointer;
-  min-width: 180px;
-}
-
-.tone-selector-wrapper::after {
-  content: "▼";
-  font-size: 1.2rem;
-  position: absolute;
-  top: 50%;
-  right: 1rem;
-  transform: translateY(-50%);
-  color: var(--secondary-text);
-  pointer-events: none;
-}
-/* --- END: New Dropdown Styles --- */
-
-/* --- START: New Dropdown Styles --- */
-.tone-mic-group > .tone-buttons:not(.selected):not([data-tone="auto"]):active {
-  transform: translateY(1px);
-}
-/* --- END: New Dropdown Styles --- */
