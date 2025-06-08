@@ -238,18 +238,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // START: Overlay logic for tone select
   if (toneSelect) {
+    const closeOverlay = () => document.body.classList.remove("overlay-active");
+
     toneSelect.addEventListener("focus", () => {
       document.body.classList.add("overlay-active");
+
+      // One–shot listeners to hide the overlay immediately on interaction
+      const off = () => {
+        closeOverlay();
+        document.removeEventListener("touchend", off, true);
+        document.removeEventListener("mousedown", off, true);
+      };
+
+      document.addEventListener("touchend", off, true);
+      document.addEventListener("mousedown", off, true);
     });
 
-    toneSelect.addEventListener("blur", () => {
-      document.body.classList.remove("overlay-active");
-    });
-
-    // Also remove overlay when a selection is made
-    toneSelect.addEventListener("change", () => {
-      document.body.classList.remove("overlay-active");
-    });
+    toneSelect.addEventListener("change", closeOverlay); // Still needed for when a selection is made
+    toneSelect.addEventListener("blur", closeOverlay); // Fall-back for other cases
   }
   // END: Overlay logic
 

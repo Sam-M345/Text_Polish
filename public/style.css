@@ -1353,13 +1353,12 @@ body.tones-expanded .output-section {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.7);
   z-index: 998; /* Below modals, above content */
-  display: none; /* Hidden by default */
   opacity: 0;
   transition: none;
+  pointer-events: none; /* Prevent interaction */
 }
 
 body.overlay-active #page-overlay {
-  display: block;
   opacity: 1;
 }
 /* END: Page Overlay Styling */
