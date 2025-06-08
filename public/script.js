@@ -355,9 +355,31 @@ document.addEventListener("DOMContentLoaded", () => {
       // --- START: Improved Paragraph Formatting ---
       polishedMessageEl.innerHTML = ""; // Clear existing content
 
+      let contentToDisplay = "";
+      if (
+        typeof data.improved === "object" &&
+        data.improved.subject &&
+        data.improved.body
+      ) {
+        // Handle email object response
+        contentToDisplay = `Subject: ${data.improved.subject}\n\n${data.improved.body}`;
+      } else {
+        // Handle standard string response
+        contentToDisplay = data.improved;
+      }
+
+      // Ensure contentToDisplay is a string before splitting
+      if (typeof contentToDisplay !== "string") {
+        console.error(
+          "The content to display is not a string:",
+          contentToDisplay
+        );
+        contentToDisplay = "Error: Received invalid content from the server.";
+      }
+
       // Split text by one or more newlines to create paragraphs
-      const paragraphs = data.improved
-        .split(/\n+/)
+      const paragraphs = contentToDisplay
+        .split(/\\n+/)
         .filter((p) => p.trim() !== "");
 
       // Create paragraph elements for each section
