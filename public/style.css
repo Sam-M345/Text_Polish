@@ -1335,7 +1335,7 @@ body.tones-expanded .output-section {
 /* START: Tone Selector Optgroup Styling */
 .tone-select-container optgroup {
   font-weight: bold;
-  color: #007bff;
+  color: #26f28f;
 }
 
 .tone-select-container option {
