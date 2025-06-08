@@ -1355,7 +1355,7 @@ body.tones-expanded .output-section {
   z-index: 998; /* Below modals, above content */
   display: none; /* Hidden by default */
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: none;
 }
 
 body.overlay-active #page-overlay {
