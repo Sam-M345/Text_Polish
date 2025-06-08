@@ -236,6 +236,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const signatureBtn = document.getElementById("signature-output");
   const shareBtn = document.getElementById("share-output");
 
+  // Autofocus on the input area on page load
+  messageInputEl.focus();
+
   // START: Email Handler to manage email-specific formatting and sharing
   const EmailHandler = {
     format: (subject, body) => {
