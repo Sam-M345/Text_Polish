@@ -292,11 +292,18 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function updateDefaultToneForType(type) {
-    let defaultTone = "auto";
-    if (type === "email") {
-      defaultTone = "formal";
-    } else if (type === "social") {
-      defaultTone = "friendly";
+    let defaultTone;
+    switch (type) {
+      case "email":
+        defaultTone = "neutral";
+        break;
+      case "social":
+        defaultTone = "informative";
+        break;
+      case "text-message":
+      default:
+        defaultTone = "warm";
+        break;
     }
     toneSelect.value = defaultTone;
   }
