@@ -236,6 +236,44 @@ document.addEventListener("DOMContentLoaded", () => {
   const signatureBtn = document.getElementById("signature-output");
   const shareBtn = document.getElementById("share-output");
 
+  // START: Email Handler to manage email-specific formatting and sharing
+  const EmailHandler = {
+    format: (subject, body) => {
+      // Clean the body of any placeholder text before formatting
+      const cleanedBody = body
+        .replace(
+          /\\\[Your Name\\\]|\\\[NAME\\\]|\\\[Name\\\]|\\\[your name\\\]/g,
+          ""
+        )
+        .trim();
+      // Use a clear separator that can be parsed later for sharing
+      return `${subject}\n\n***\n\n${cleanedBody}`;
+    },
+    shareViaEmail: () => {
+      const currentFullText =
+        polishedMessageEl.innerText || polishedMessageEl.textContent;
+      const separator = "\n\n***\n\n";
+      const separatorIndex = currentFullText.indexOf(separator);
+
+      let subject = "Polished Email";
+      let body = currentFullText;
+
+      // If the separator is found, parse the text into subject and body
+      if (separatorIndex !== -1) {
+        subject = currentFullText.substring(0, separatorIndex).trim();
+        body = currentFullText
+          .substring(separatorIndex + separator.length)
+          .trim();
+      }
+
+      const mailtoHref = `mailto:?subject=${encodeURIComponent(
+        subject
+      )}&body=${encodeURIComponent(body)}`;
+      window.open(mailtoHref);
+    },
+  };
+  // END: Email Handler
+
   // START: Overlay logic for tone select
   if (toneSelect) {
     const closeOverlay = () => document.body.classList.remove("overlay-active");
@@ -368,8 +406,11 @@ document.addEventListener("DOMContentLoaded", () => {
         data.improved.subject &&
         data.improved.body
       ) {
-        // Handle email object response
-        contentToDisplay = `Subject: ${data.improved.subject}\n\n${data.improved.body}`;
+        // Handle email object response using the EmailHandler
+        contentToDisplay = EmailHandler.format(
+          data.improved.subject,
+          data.improved.body
+        );
       } else {
         // Handle standard string response
         contentToDisplay = data.improved;
@@ -386,7 +427,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Split text by one or more newlines to create paragraphs
       const paragraphs = contentToDisplay
-        .split(/\\n+/)
+        .split(/\n+/)
         .filter((p) => p.trim() !== "");
 
       // Create paragraph elements for each section
@@ -462,16 +503,26 @@ Polished with TextPolish.com`;
   });
 
   shareBtn.addEventListener("click", () => {
-    if (navigator.share) {
-      navigator
-        .share({
-          title: "Polished Text",
-          text: polishedMessageEl.innerText,
-        })
-        .catch(console.error);
+    const selectedType = document.querySelector(
+      ".text-type-option-btn.selected"
+    )?.dataset.type;
+
+    if (selectedType === "email") {
+      // Use the dedicated email handler for mailto links
+      EmailHandler.shareViaEmail();
     } else {
-      // Fallback for browsers that don't support Web Share API
-      alert("Sharing is not supported on your browser.");
+      // Use the Web Share API for other types
+      if (navigator.share) {
+        navigator
+          .share({
+            title: "Polished Text",
+            text: polishedMessageEl.innerText,
+          })
+          .catch(console.error);
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        alert("Sharing is not supported on your browser.");
+      }
     }
   });
 
