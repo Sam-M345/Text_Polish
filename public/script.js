@@ -500,8 +500,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   signatureBtn.addEventListener("click", () => {
     const signature = `
----
-Polished with TextPolish.com`;
+-------------------------
+Polished by TextPolish.com ✍`;
     polishedMessageEl.innerText += signature;
   });
 
