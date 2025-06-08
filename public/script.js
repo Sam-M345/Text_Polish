@@ -234,6 +234,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const copyOutputBtn = document.getElementById("copy-output");
   const pasteOutputBtn = document.getElementById("paste-output");
 
+  // START: Overlay logic for tone select
+  if (toneSelect) {
+    toneSelect.addEventListener("focus", () => {
+      document.body.classList.add("overlay-active");
+    });
+
+    toneSelect.addEventListener("blur", () => {
+      document.body.classList.remove("overlay-active");
+    });
+
+    // Also remove overlay when a selection is made
+    toneSelect.addEventListener("change", () => {
+      document.body.classList.remove("overlay-active");
+    });
+  }
+  // END: Overlay logic
+
   let selectedTextType = "text-message";
   let isPolishing = false;
 
