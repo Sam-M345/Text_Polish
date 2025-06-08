@@ -184,28 +184,31 @@
           <span class="icon">✕</span>
         </button>
         <button class="icon-btn" id="copy-output" title="Copy output">
-          <span class="icon">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              style="width: 1em; height: 1em; vertical-align: middle"
-            >
-              <path
-                d="M16 3H5C3.89543 3 3 3.89543 3 5V16"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M9 7H19C20.1046 7 21 7.89543 21 9V19C21 20.1046 20.1046 21 19 21H9C7.89543 21 7 20.1046 7 19V9C7 7.89543 7.89543 7 9 7Z"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+          <span class="icon-container">
+            <span class="icon copy-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style="width: 1em; height: 1em; vertical-align: middle"
+              >
+                <path
+                  d="M16 3H5C3.89543 3 3 3.89543 3 5V16"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+                <path
+                  d="M9 7H19C20.1046 7 21 7.89543 21 9V19C21 20.1046 20.1046 21 19 21H9C7.89543 21 7 20.1046 7 19V9C7 7.89543 7.89543 7 9 7Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </span>
+            <span class="icon check-icon" style="display: none">✓</span>
           </span>
         </button>
         <button class="icon-btn" id="paste-output" title="Paste to input">

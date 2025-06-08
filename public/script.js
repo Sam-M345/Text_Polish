@@ -233,6 +233,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const clearOutputBtn = document.getElementById("clear-output");
   const copyOutputBtn = document.getElementById("copy-output");
   const pasteOutputBtn = document.getElementById("paste-output");
+  const signatureBtn = document.getElementById("signature-output");
+  const shareBtn = document.getElementById("share-output");
 
   // START: Overlay logic for tone select
   if (toneSelect) {
@@ -398,10 +400,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
   copyOutputBtn.addEventListener("click", () => {
     navigator.clipboard.writeText(polishedMessageEl.innerText);
+
+    const copyIcon = copyOutputBtn.querySelector(".copy-icon");
+    const checkIcon = copyOutputBtn.querySelector(".check-icon");
+
+    copyOutputBtn.classList.add("copied");
+    copyIcon.style.display = "none";
+    checkIcon.style.display = "inline-block";
+
+    setTimeout(() => {
+      copyOutputBtn.classList.remove("copied");
+      copyIcon.style.display = "inline-block";
+      checkIcon.style.display = "none";
+    }, 1111);
   });
 
   pasteOutputBtn.addEventListener("click", () => {
     messageInputEl.innerText = polishedMessageEl.innerText;
+  });
+
+  signatureBtn.addEventListener("click", () => {
+    const signature = `
+---
+Polished with TextPolish.com`;
+    polishedMessageEl.innerText += signature;
+  });
+
+  shareBtn.addEventListener("click", () => {
+    if (navigator.share) {
+      navigator
+        .share({
+          title: "Polished Text",
+          text: polishedMessageEl.innerText,
+        })
+        .catch(console.error);
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      alert("Sharing is not supported on your browser.");
+    }
   });
 
   setDefaultSelections();

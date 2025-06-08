@@ -544,6 +544,18 @@ h3 {
   background-color: #3a3a3a;
 }
 
+/* START: Copy Button Success State */
+.icon-btn.copied {
+  background-color: #25a56a; /* Green success color */
+  border-color: #25a56a;
+}
+
+.icon-btn .check-icon {
+  font-size: 2rem;
+  color: white;
+}
+/* END: Copy Button Success State */
+
 .icon {
   font-size: 2rem;
   display: flex;
