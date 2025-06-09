@@ -311,13 +311,32 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function setDefaultSelections() {
+    // --- START: Device-dependent default type selection ---
+    let defaultTypeName = "text-message"; // Default for mobile
+    if (window.innerWidth > 768) {
+      // Check for desktop-like screen width
+      defaultTypeName = "email";
+    }
+    // --- END: Device-dependent default type selection ---
+
+    // 1. Set default type
     const defaultTypeButton = document.querySelector(
-      '.text-type-option-btn[data-type="text-message"]'
+      `.text-type-option-btn[data-type='${defaultTypeName}']`
     );
     if (defaultTypeButton) {
       handleButtonSelection(typeButtons, defaultTypeButton);
-      selectedTextType = "text-message";
+      selectedTextType = defaultTypeName;
       updatePlaceholder(selectedTextType);
+    } else {
+      // Fallback to text-message if the dynamically chosen default isn't found for some reason
+      const fallbackTypeButton = document.querySelector(
+        ".text-type-option-btn[data-type='text-message']"
+      );
+      if (fallbackTypeButton) {
+        handleButtonSelection(typeButtons, fallbackTypeButton);
+        selectedTextType = "text-message";
+        updatePlaceholder("text-message");
+      }
     }
     updateDefaultToneForType(selectedTextType);
   }
@@ -466,9 +485,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   pasteInputBtn.addEventListener("click", () => {
     navigator.clipboard.readText().then((text) => {
-      messageInputEl.innerText = text;
+      // Use the same command as the paste event to ensure consistency
+      document.execCommand("insertText", false, text);
     });
   });
+
+  if (messageInputEl) {
+    messageInputEl.addEventListener("paste", (e) => {
+      // Prevent the default paste action
+      e.preventDefault();
+      // Get plain text from the clipboard
+      const text = e.clipboardData.getData("text/plain");
+      // Insert the plain text at the cursor position
+      document.execCommand("insertText", false, text);
+    });
+  }
 
   clearOutputBtn.addEventListener("click", () => {
     polishedMessageEl.innerHTML = "";
@@ -529,5 +560,45 @@ Polished by TextPolish.com ✍`;
     }
   });
 
-  setDefaultSelections();
+  // --- START: Click to Edit Output Box ---
+  if (polishedMessageEl) {
+    polishedMessageEl.addEventListener("click", (event) => {
+      // Only make editable if it's not already and there's content
+      if (
+        polishedMessageEl.getAttribute("contenteditable") !== "true" &&
+        polishedMessageEl.innerText.trim() !== ""
+      ) {
+        polishedMessageEl.setAttribute("contenteditable", "true");
+        polishedMessageEl.focus(); // Focus for immediate editing
+        // Move cursor to the end of the text
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(polishedMessageEl);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    });
+  }
+  // --- END: Click to Edit Output Box ---
+
+  // --- START: Click Outside Output Box to Save ---
+  document.addEventListener("click", (event) => {
+    if (
+      polishedMessageEl &&
+      polishedMessageEl.getAttribute("contenteditable") === "true"
+    ) {
+      // Check if the click was outside the output box AND not on an output icon
+      if (
+        !polishedMessageEl.contains(event.target) &&
+        !outputIcons.contains(event.target)
+      ) {
+        polishedMessageEl.setAttribute("contenteditable", "false");
+      }
+    }
+  });
+  // --- END: Click Outside Output Box to Save ---
+
+  // Call the function after all other initialization
+  setTimeout(setDefaultSelections, 100);
 });

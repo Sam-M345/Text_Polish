@@ -23,4 +23,11 @@ Thumbs.db
 .idea/
 .vscode/
 *.sublime-project
-*.sublime-workspace 
+*.sublime-workspace
+
+# Misc
+*.pem
+
+# -- Custom --
+/Old Files/ 
+File_Tree.txt 

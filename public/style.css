@@ -660,7 +660,9 @@ h3 {
 
 /* Polished message when editable */
 #polished-message[contenteditable="true"] {
-  outline: none; /* Keep outline none to rely on box-shadow for focus */
+  outline: 2px solid #00c853; /* A bright, clear indicator */
+  background-color: #3a3a3a;
+  box-shadow: 0 0 10px rgba(0, 200, 83, 0.5);
 }
 
 /* textarea:focus, */ /* REMOVED outdated textarea selector */
