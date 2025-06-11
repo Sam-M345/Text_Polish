@@ -236,6 +236,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const signatureBtn = document.getElementById("signature-output");
   const shareBtn = document.getElementById("share-output");
 
+  // Initially hide output elements if empty on load
+  if (!polishedMessageEl.textContent.trim()) {
+    polishedMessageEl.style.display = "none";
+    outputIcons.style.display = "none";
+  }
+
   // Autofocus on the input area on page load
   messageInputEl.focus();
 

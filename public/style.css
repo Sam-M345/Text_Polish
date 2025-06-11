@@ -1084,9 +1084,10 @@ body.tones-expanded .output-section {
   }
 
   /* Output icons */
+
   .output-icons {
     width: 100%;
-    margin-top: 0.8rem;
+    margin-top: 0.2rem;
     justify-content: center;
     gap: 2rem;
   }
