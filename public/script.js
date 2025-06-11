@@ -607,4 +607,52 @@ Polished by TextPolish.com ✍`;
 
   // Call the function after all other initialization
   setTimeout(setDefaultSelections, 100);
+
+  // START: Viewport Height Keyboard Detection for mobile text area expansion
+  let baseHeight = window.visualViewport
+    ? window.visualViewport.height
+    : window.innerHeight;
+  let isKeyboardOpen = false;
+
+  function handleViewportResize() {
+    const currentHeight = window.visualViewport
+      ? window.visualViewport.height
+      : window.innerHeight;
+    const keyboardThreshold = 100; // More than 100px difference indicates a keyboard
+
+    // Keyboard opens
+    if (currentHeight < baseHeight - keyboardThreshold) {
+      if (!isKeyboardOpen) {
+        isKeyboardOpen = true;
+        if (messageInputEl) {
+          messageInputEl.style.minHeight = "310px";
+        }
+      }
+    } else {
+      // Keyboard closes
+      if (isKeyboardOpen) {
+        isKeyboardOpen = false;
+        if (messageInputEl) {
+          messageInputEl.style.minHeight = "240px";
+        }
+      }
+    }
+  }
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", handleViewportResize);
+  } else {
+    window.addEventListener("resize", handleViewportResize);
+  }
+
+  // Update base height on orientation change
+  window.addEventListener("orientationchange", () => {
+    setTimeout(() => {
+      baseHeight = window.visualViewport
+        ? window.visualViewport.height
+        : window.innerHeight;
+      handleViewportResize();
+    }, 300);
+  });
+  // END: Viewport Height Keyboard Detection
 });
